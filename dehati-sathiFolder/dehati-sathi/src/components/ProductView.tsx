@@ -361,8 +361,8 @@ function ProductView({ product, similarProducts }: { product: any, similarProduc
                             <Gift className="w-6 h-6 text-white" />
                         </div>
                         <div className="flex-1">
-                            <p className="text-white font-bold text-sm">Earn ₹10 for each friend you refer! 🎉</p>
-                            <p className="text-white/80 text-xs mt-0.5">Share your code. They get ₹20. You get ₹10.</p>
+                            <p className="text-white font-bold text-sm">रेफर किए गए प्रत्येक मित्र के लिए ₹10 कमाएं! 🎉</p>
+                            <p className="text-white/80 text-xs mt-0.5">अपना कोड शेयर करें। उन्हें ₹20 मिलते हैं। आपको ₹10 मिलते हैं।</p>
                         </div>
                         <button
                             onClick={() => router.push('/refer-earn')}

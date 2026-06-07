@@ -51,15 +51,15 @@ export default function ReferAndEarn() {
     }
 
     const handleShare = async () => {
-        const shareText = `🌾 Dehati Sathi - Kisan Se Seedhe Aap Ke Paas! 🌾\n\nUse my code ${data.referralCode} to join Dehati Sathi and get ₹20 in your wallet instantly!\n\n✅ Farm-fresh produce\n✅ Lower than market prices\n✅ Support local farmers directly\n\nDownload the app now and start saving! 🚀`
+        const shareText = `🌾 देहाती साथी - किसान से सीधे आप के पास! 🌾\n\nदेहाती साथी से जुड़ने और तुरंत अपने वॉलेट में ₹20 पाने के लिए मेरे कोड ${data.referralCode} का उपयोग करें!\n\n✅ खेत-ताज़ा उपज\n✅ बाज़ार से कम कीमत\n✅ सीधे स्थानीय किसानों का समर्थन करें\n\nअभी ऐप डाउनलोड करें और बचत करना शुरू करें! 🚀`
         
         try {
-            const response = await fetch('/icon.png')
+            const response = await fetch('/refer_poster.png')
             const blob = await response.blob()
-            const file = new File([blob], 'dehati-sathi.png', { type: blob.type })
+            const file = new File([blob], 'dehati-sathi-poster.png', { type: blob.type })
 
             const shareData: any = {
-                title: 'Join Dehati Sathi',
+                title: 'देहाती साथी से जुड़ें',
                 text: shareText,
                 url: window.location.origin
             }
@@ -77,7 +77,7 @@ export default function ReferAndEarn() {
             console.error('Error sharing:', error)
             if (navigator.share) {
                 navigator.share({
-                    title: 'Join Dehati Sathi',
+                    title: 'देहाती साथी से जुड़ें',
                     text: shareText,
                     url: window.location.origin
                 }).catch(console.error)
