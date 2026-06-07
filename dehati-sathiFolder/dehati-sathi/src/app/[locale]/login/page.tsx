@@ -104,17 +104,19 @@ function Login() {
                         <Image src={googleImage} width={20} height={20} alt='google' />
                         {t('continueWithGoogle')}
                     </button>
+                    <div className="flex flex-col gap-2 mt-2">
+                        <button 
+                            type="button"
+                            className="cursor-pointer text-green-700 text-sm font-semibold hover:underline flex items-center gap-1 justify-center w-full" 
+                            onClick={() => router.push('/forgot-password')}
+                        >
+                            🔑 {t('forgotPassword')}
+                        </button>
+                        <p className="cursor-pointer text-gray-600 text-sm flex items-center gap-1 justify-center w-full" onClick={() => router.push('/register')}>
+                            {t('noAccount')} <span className="text-green-700 font-semibold hover:underline">{t('signUp')}</span>
+                        </p>
+                    </div>
                 </motion.form>
-                <button 
-                    type="button"
-                    className="cursor-pointer text-green-700 mt-6 text-sm font-semibold hover:underline flex items-center gap-1 justify-center" 
-                    onClick={() => router.push('/forgot-password')}
-                >
-                    🔑 {t('forgotPassword')}
-                </button>
-                <p className="cursor-pointer text-gray-600 mt-2 text-sm flex items-center gap-1 justify-center" onClick={() => router.push('/register')}>
-                    {t('noAccount')} <span className="text-green-700 font-semibold hover:underline">{t('signUp')}</span>
-                </p>
             </motion.div>
         </div>
     )

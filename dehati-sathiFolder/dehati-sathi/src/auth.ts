@@ -150,6 +150,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       // 3. Handle Manual Client-Side Updates
       if (trigger === "update" && session) {
         if (session.name) token.name = session.name
+        if (session.connectedHub !== undefined) token.connectedHub = session.connectedHub
+        if (session.isNewUser !== undefined) token.isNewUser = session.isNewUser
       }
 
       return token

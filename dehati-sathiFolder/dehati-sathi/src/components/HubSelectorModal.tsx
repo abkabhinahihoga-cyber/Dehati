@@ -78,7 +78,7 @@ export default function HubSelectorModal({
             if (res.data.success) {
                 toast.success("Hub connected successfully!")
                 // Force full page reload so session refreshes completely (fixes double-click issue)
-                await update()
+                await update({ connectedHub: hubId })
                 onClose()
                 setTimeout(() => { window.location.href = '/'; }, 300)
             }

@@ -14,7 +14,13 @@ export async function GET(req: NextRequest) {
         const mode = searchParams.get('mode') || 'grocery'; 
         const radius = 10000; 
 
-        if (!lat || !lng) return NextResponse.json({ success: false });
+        const session = await auth();
+
+        if (!lat || !lng) {
+            if (!(session?.user as any)?.connectedHub) {
+                return NextResponse.json({ success: false });
+            }
+        }
 
         const isStudent = mode === 'student';
 
@@ -25,7 +31,6 @@ export async function GET(req: NextRequest) {
         // Grocery: < 49, Student: < 99
         const budgetPriceCap = isStudent ? 99 : 49;
 
-        const session = await auth();
         let searchLng = lng;
         let searchLat = lat;
         let searchRadius = radius;
