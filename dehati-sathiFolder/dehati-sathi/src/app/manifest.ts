@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next'
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Dehati Sathi',
-    short_name: 'Dehati',
+    short_name: 'Dehati Sathi',
     description: 'Rural India\'s best agriculture & grocery delivery app.',
     start_url: '/',
     display: 'standalone',
