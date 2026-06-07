@@ -108,9 +108,9 @@ export default function ReferAndEarn() {
                         <ArrowLeft className="w-5 h-5 text-white" />
                     </button>
                     
-                    <h1 className="text-3xl font-bold mb-2">Refer & Earn</h1>
+                    <h1 className="text-3xl font-bold mb-2">रेफर करें और कमाएं</h1>
                     <p className="text-green-100 opacity-90 max-w-md">
-                        Invite your friends to Dehati Sathi. They get ₹20 instantly, and you get ₹10 when they join!
+                        अपने दोस्तों को देहाती साथी पर आमंत्रित करें। उन्हें तुरंत ₹20 मिलेंगे, और उनके जुड़ने पर आपको ₹10 मिलेंगे!
                     </p>
                 </div>
             </div>
@@ -127,9 +127,9 @@ export default function ReferAndEarn() {
                         <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-3">
                             <Wallet className="w-6 h-6" />
                         </div>
-                        <p className="text-sm text-gray-500 font-medium mb-1">Wallet Balance</p>
+                        <p className="text-sm text-gray-500 font-medium mb-1">वॉलेट बैलेंस</p>
                         <h3 className="text-2xl font-bold text-gray-900">₹{data.walletBalance}</h3>
-                        <p className="text-[10px] text-green-600 font-bold mt-1 bg-green-50 px-2 py-0.5 rounded-full">Use ₹5 per order</p>
+                        <p className="text-[10px] text-green-600 font-bold mt-1 bg-green-50 px-2 py-0.5 rounded-full">हर ऑर्डर पर ₹5 का उपयोग करें</p>
                     </motion.div>
 
                     <motion.div 
@@ -141,9 +141,9 @@ export default function ReferAndEarn() {
                         <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-3">
                             <Users className="w-6 h-6" />
                         </div>
-                        <p className="text-sm text-gray-500 font-medium mb-1">Friends Referred</p>
+                        <p className="text-sm text-gray-500 font-medium mb-1">रेफर किए गए दोस्त</p>
                         <h3 className="text-2xl font-bold text-gray-900">{data.referredCount}</h3>
-                        <p className="text-[10px] text-gray-400 mt-1">Total Earned: ₹{data.totalEarnings}</p>
+                        <p className="text-[10px] text-gray-400 mt-1">कुल कमाई: ₹{data.totalEarnings}</p>
                     </motion.div>
                 </div>
 
@@ -156,7 +156,7 @@ export default function ReferAndEarn() {
                 >
                     <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-yellow-400 to-orange-500"></div>
                     
-                    <h3 className="text-lg font-bold text-gray-800 mb-6">Your Unique Referral Code</h3>
+                    <h3 className="text-lg font-bold text-gray-800 mb-6">आपका अनोखा रेफरल कोड</h3>
                     
                     <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-2xl p-4 flex items-center justify-between mb-8 group hover:border-green-400 transition-colors">
                         <span className="text-3xl font-black text-gray-700 tracking-widest pl-4">{data.referralCode}</span>
@@ -173,7 +173,7 @@ export default function ReferAndEarn() {
                         className="w-full bg-green-600 text-white font-bold text-lg py-4 rounded-2xl shadow-lg hover:bg-green-700 hover:shadow-green-200 hover:-translate-y-1 transition-all flex items-center justify-center gap-2 active:scale-95"
                     >
                         <Share2 className="w-5 h-5" />
-                        Share with Friends
+                        दोस्तों के साथ शेयर करें
                     </button>
                 </motion.div>
 
@@ -185,29 +185,29 @@ export default function ReferAndEarn() {
                     className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
                 >
                     <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <Gift className="w-5 h-5 text-orange-500" /> How it Works
+                        <Gift className="w-5 h-5 text-orange-500" /> यह कैसे काम करता है
                     </h3>
                     
                     <div className="space-y-4">
                         <div className="flex gap-4">
                             <div className="w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold shrink-0">1</div>
                             <div>
-                                <h4 className="font-semibold text-gray-800">Share your code</h4>
-                                <p className="text-sm text-gray-500">Send your referral code to friends who aren't on Dehati Sathi yet.</p>
+                                <h4 className="font-semibold text-gray-800">अपना कोड शेयर करें</h4>
+                                <p className="text-sm text-gray-500">अपना रेफरल कोड उन दोस्तों को भेजें जो अभी तक देहाती साथी पर नहीं हैं।</p>
                             </div>
                         </div>
                         <div className="flex gap-4">
                             <div className="w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold shrink-0">2</div>
                             <div>
-                                <h4 className="font-semibold text-gray-800">Friend Signs Up</h4>
-                                <p className="text-sm text-gray-500">Your friend gets ₹20 in their wallet instantly upon entering the code during registration.</p>
+                                <h4 className="font-semibold text-gray-800">दोस्त का साइन अप</h4>
+                                <p className="text-sm text-gray-500">आपके दोस्त को पंजीकरण के दौरान कोड दर्ज करने पर तुरंत उनके वॉलेट में ₹20 मिलते हैं।</p>
                             </div>
                         </div>
                         <div className="flex gap-4">
                             <div className="w-8 h-8 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold shrink-0">3</div>
                             <div>
-                                <h4 className="font-semibold text-gray-800">You Get Rewarded</h4>
-                                <p className="text-sm text-gray-500">You receive ₹10 in your wallet instantly. You can use ₹5 as a discount on any order.</p>
+                                <h4 className="font-semibold text-gray-800">आपको इनाम मिलेगा</h4>
+                                <p className="text-sm text-gray-500">आपको तुरंत अपने वॉलेट में ₹10 मिलेंगे। आप किसी भी ऑर्डर पर छूट के रूप में ₹5 का उपयोग कर सकते हैं।</p>
                             </div>
                         </div>
                     </div>

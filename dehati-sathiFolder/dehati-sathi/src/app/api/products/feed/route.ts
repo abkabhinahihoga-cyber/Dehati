@@ -170,6 +170,17 @@ export async function GET(req: NextRequest) {
             ]
         };
 
+        if (activeHub) {
+            const connectedSellers = await User.find({ connectedHub: activeHub._id, role: 'seller' }).select('_id');
+            const validSellerIds = connectedSellers.map(s => s._id);
+            if (activeHub.managerId) {
+                validSellerIds.push(activeHub.managerId);
+            } else {
+                validSellerIds.push(activeHub._id);
+            }
+            matchStage.seller = { $in: validSellerIds };
+        }
+
         // Case-Insensitive Category Match
         if (categoryParam) {
             const safeCategory = categoryParam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
