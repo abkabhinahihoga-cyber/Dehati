@@ -156,14 +156,6 @@ export async function GET(req: NextRequest) {
         // Hub is required to serve the area
         if (!activeHub) return NextResponse.json({ success: true, products: [] });
 
-        // Pre-fetch active sellers in this hub
-        const activeSellers = await User.find({ connectedHub: activeHub._id, role: { $in: ['seller', 'hub'] }, sellerStatus: 'approved' }).select('_id');
-        const activeSellerIds = activeSellers.map(s => s._id);
-        
-        // Also add the Hub Manager as a valid seller for "Dehati Hub" products
-        const hubManagers = await User.find({ role: 'admin' }).select('_id');
-        hubManagers.forEach(hm => activeSellerIds.push(hm._id));
-
         // C. Build Match Filters
         const typeFilter = mode === 'student' ? { productType: 'book' } : { productType: { $ne: 'book' } };
         
@@ -171,7 +163,6 @@ export async function GET(req: NextRequest) {
         const excludeIds = aiProductIds.map(id => new mongoose.Types.ObjectId(id));
 
         const matchStage: any = {
-            seller: { $in: activeSellerIds },
             _id: { $nin: excludeIds }, 
             $and: [
                 { $or: [{ retailPrice: { $gte: minPrice, $lte: maxPrice } }, { price: { $gte: minPrice, $lte: maxPrice } }] },

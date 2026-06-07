@@ -27,8 +27,13 @@ function Checkout() {
 
     const [orderLoading, setOrderLoading] = useState(false)
     
-    // Wallet State
-    const [useWallet, setUseWallet] = useState(false)
+    // Wallet State - auto-apply if user clicked "Apply" on product view page
+    const [useWallet, setUseWallet] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('applyWalletAtCheckout') === 'true';
+        }
+        return false;
+    })
     const walletBalance = userData?.walletBalance || 0
     const maxWalletDiscount = Math.min(5, walletBalance, finalTotal) // Can't exceed order total or ₹5
     

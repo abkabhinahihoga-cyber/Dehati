@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 import Image from 'next/image'
-import { Star, Minus, Plus, ShoppingCart, ShieldCheck, Zap, Upload, Book, MapPin, Share2, Check, ArrowRight, Copy, MoreHorizontal } from 'lucide-react' 
+import { Star, Minus, Plus, ShoppingCart, ShieldCheck, Zap, Upload, Book, MapPin, Share2, Check, ArrowRight, Copy, MoreHorizontal, Gift, Wallet } from 'lucide-react' 
 import { useDispatch, useSelector } from 'react-redux'
 import { addToCart, decreaseQuantity, increaseQuantity } from '@/redux/cartSlice'
 import { RootState } from '@/redux/store'
@@ -43,6 +43,16 @@ function ProductView({ product, similarProducts }: { product: any, similarProduc
     // Share State
     const [showShareMenu, setShowShareMenu] = useState(false);
     const shareMenuRef = useRef<HTMLDivElement>(null);
+    const [walletBalance, setWalletBalance] = useState(0);
+    const [walletApplied, setWalletApplied] = useState(false);
+    const walletDiscount = Math.min(5, walletBalance);
+
+    useEffect(() => {
+        // Fetch wallet balance
+        axios.get('/api/user/referral').then(res => {
+            if (res.data.walletBalance !== undefined) setWalletBalance(res.data.walletBalance);
+        }).catch(() => {});
+    }, [session?.user?.id]);
 
     // Close share menu when clicking outside
     useEffect(() => {
@@ -339,6 +349,65 @@ function ProductView({ product, similarProducts }: { product: any, similarProduc
                         )}
                     </div>
                 </div>
+
+                <hr className="border-gray-200" />
+
+                {/* 🎁 REFER & EARN BANNER */}
+                <div className="relative overflow-hidden bg-gradient-to-r from-green-600 to-emerald-500 rounded-2xl p-5 shadow-lg">
+                    <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full" />
+                    <div className="absolute -right-2 bottom-0 w-20 h-20 bg-white/10 rounded-full" />
+                    <div className="flex items-center gap-4 relative z-10">
+                        <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center shrink-0">
+                            <Gift className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-white font-bold text-sm">Earn ₹10 for each friend you refer! 🎉</p>
+                            <p className="text-white/80 text-xs mt-0.5">Share your code. They get ₹10. You get ₹10.</p>
+                        </div>
+                        <button
+                            onClick={() => router.push('/refer-earn')}
+                            className="bg-white text-green-700 font-bold text-xs px-3 py-2 rounded-xl shrink-0 hover:bg-green-50 transition-all active:scale-95 shadow-sm"
+                        >
+                            Refer Now
+                        </button>
+                    </div>
+                </div>
+
+                {/* 💰 WALLET COUPON */}
+                {walletBalance > 0 && (
+                    <div className={`border-2 rounded-2xl p-4 transition-all ${ walletApplied ? 'border-green-400 bg-green-50' : 'border-dashed border-green-300 bg-white' }`}>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                    <Wallet className="w-5 h-5 text-green-600" />
+                                </div>
+                                <div>
+                                    <p className="font-bold text-gray-800 text-sm">Wallet Balance: ₹{walletBalance}</p>
+                                    <p className="text-gray-500 text-xs">
+                                        {walletApplied ? `₹${walletDiscount} discount will be applied at checkout` : `Apply ₹${walletDiscount} off at checkout`}
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => {
+                                const next = !walletApplied;
+                                setWalletApplied(next);
+                                if (typeof window !== 'undefined') {
+                                    localStorage.setItem('applyWalletAtCheckout', next ? 'true' : 'false');
+                                }
+                            }}
+                                className={`font-bold text-xs px-4 py-2 rounded-xl transition-all ${ walletApplied ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700 hover:bg-green-200' }`}
+                            >
+                                {walletApplied ? '✓ Applied' : 'Apply'}
+                            </button>
+                        </div>
+                        {walletApplied && (
+                            <div className="mt-3 text-xs text-green-700 bg-green-100 px-3 py-2 rounded-lg font-medium">
+                                💡 ₹{walletDiscount} will be deducted from your wallet automatically at checkout!
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 <hr className="border-gray-200" />
 

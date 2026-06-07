@@ -29,6 +29,7 @@ function WelcomePage() {
     const [language, setLanguage] = useState<'en'|'hi'>('en')
     const [mobile, setMobile] = useState('')
     const [loading, setLoading] = useState(false)
+    const [referralInput, setReferralInput] = useState('')
 
     // Apply pending referral code for Google signups
     useEffect(() => {
@@ -50,6 +51,13 @@ function WelcomePage() {
     // --- NAVIGATION LOGIC ---
 
     const handleNext = () => setStep(prev => prev + 1)
+    
+    const handleMobileNext = () => {
+        if (referralInput.trim()) {
+            axios.post('/api/user/referral', { referredByCode: referralInput.trim().toUpperCase() }).catch(() => {});
+        }
+        handleNext();
+    }
     
     // 1. Forward Logic: Skip Mobile Step if it exists in session
     const handleLanguageNext = () => {
@@ -274,7 +282,7 @@ function WelcomePage() {
                             <h2 className='text-2xl font-bold text-gray-800 mb-2'>Mobile Number</h2>
                             <p className='text-gray-500 mb-8'>We need this for order delivery coordination.</p>
                             
-                            <div className="relative mb-8 w-full max-w-xs">
+                            <div className="relative mb-6 w-full max-w-xs">
                                 <span className="absolute left-4 top-4 text-gray-400 font-bold text-lg">+91</span>
                                 <input 
                                     type="tel" 
@@ -285,9 +293,20 @@ function WelcomePage() {
                                 />
                             </div>
 
+                            <div className="relative mb-8 w-full max-w-xs">
+                                <input 
+                                    type="text" 
+                                    placeholder="Referral Code (Optional)" 
+                                    className="w-full px-4 py-4 rounded-xl border-2 border-gray-200 font-bold text-gray-800 focus:border-green-500 focus:ring-4 focus:ring-green-50 outline-none transition-all placeholder:font-normal uppercase" 
+                                    value={referralInput} 
+                                    onChange={(e) => setReferralInput(e.target.value.toUpperCase())} 
+                                    maxLength={6}
+                                />
+                            </div>
+
                             <motion.button 
                                 whileTap={{ scale: 0.98 }}
-                                onClick={handleNext} 
+                                onClick={handleMobileNext} 
                                 disabled={mobile.length < 10} 
                                 className='bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:text-gray-400 text-white px-10 py-3 rounded-full font-bold shadow-lg shadow-green-200 transition-all flex items-center gap-2'
                             >

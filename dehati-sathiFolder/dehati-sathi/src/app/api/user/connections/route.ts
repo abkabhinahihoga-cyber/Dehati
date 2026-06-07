@@ -14,11 +14,28 @@ export async function GET(req: NextRequest) {
         const user = await User.findById(session.user.id)
             .populate({
                 path: 'connections',
-                select: 'name image sellerDetails role'
+                select: 'name image sellerDetails role location'
             })
-            .select('connections');
+            .select('connections connectedHub');
 
-        return NextResponse.json({ success: true, connections: user?.connections || [] });
+        let hubSellers: any[] = [];
+        if (user?.connectedHub) {
+            hubSellers = await User.find({
+                connectedHub: user.connectedHub,
+                role: { $in: ['seller', 'hub'] },
+                sellerStatus: 'approved',
+                _id: { $ne: session.user.id }
+            }).select('name image sellerDetails role location');
+            
+            const admins = await User.find({ role: 'admin' }).select('name image sellerDetails role location');
+            hubSellers = [...hubSellers, ...admins];
+        }
+
+        return NextResponse.json({ 
+            success: true, 
+            connections: user?.connections || [],
+            hubSellers
+        });
 
     } catch (error: any) {
         return NextResponse.json({ message: error.message }, { status: 500 });

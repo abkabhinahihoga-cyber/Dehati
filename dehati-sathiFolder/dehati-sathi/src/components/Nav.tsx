@@ -2,7 +2,7 @@
 import { 
     LogOut, ShoppingCartIcon, User, X, UserCircle, Store, BookOpen, Briefcase, 
     Bike, Laptop, Share2, ChevronDown, MapPin, Home, LayoutDashboard, 
-    ShieldCheck, Tractor, ShoppingBag, Truck, PlayCircle, Wallet 
+    ShieldCheck, Tractor, ShoppingBag, Truck, PlayCircle, Wallet, Globe 
 } from 'lucide-react'
 import { Link, useRouter, usePathname } from '@/i18n/routing'
 import React, { useEffect, useState } from 'react'
@@ -121,8 +121,7 @@ function Nav({ user }: { user: INavUser }) {
                                     </div>
                                 </div>
                             </div>
-                            <div className="px-4 py-2"><LanguageSwitcher /></div>
-
+                            <div className="px-4 py-2 hidden"></div>
                             {/* Menu Items */}
                             <div className='flex-1 overflow-y-auto py-4 px-2 space-y-1'>
 
@@ -198,6 +197,13 @@ function Nav({ user }: { user: INavUser }) {
                                         <Store className='text-gray-400' /> Hub Dashboard
                                     </Link>
                                 )}
+
+                                <div className='flex items-center justify-between p-3 mx-2 rounded-lg text-gray-700 hover:bg-gray-50 font-medium'>
+                                    <div className='flex items-center gap-4'>
+                                        <Globe className='text-gray-400 w-5 h-5' /> Language
+                                    </div>
+                                    <LanguageSwitcher />
+                                </div>
 
                                 <div className='pt-2'>
                                     <button onClick={() => setJobsOpen(!jobsOpen)} className='w-full flex items-center justify-between p-3 mx-2 pr-6 rounded-lg text-gray-700 hover:bg-gray-50 font-medium'>

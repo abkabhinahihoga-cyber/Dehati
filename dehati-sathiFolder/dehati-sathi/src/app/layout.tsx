@@ -15,6 +15,10 @@ import { getLocale, getMessages } from 'next-intl/server';
 export const metadata: Metadata = {
   title: "Dehati Sathi | Direct Farm To Home",
   description: "Direct Farm To Home",
+  icons: {
+    icon: '/icon.png?v=3',
+    apple: '/icon.png?v=3',
+  }
 };
 
 export default async function RootLayout({
