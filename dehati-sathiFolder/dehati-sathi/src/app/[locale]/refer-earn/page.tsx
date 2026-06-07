@@ -50,17 +50,40 @@ export default function ReferAndEarn() {
         setTimeout(() => setCopied(false), 2000)
     }
 
-    const handleShare = () => {
-        const shareText = `Use my code ${data.referralCode} to join Dehati Sathi and get ₹20 in your wallet instantly! Download the app now.`
-        if (navigator.share) {
-            navigator.share({
+    const handleShare = async () => {
+        const shareText = `🌾 Dehati Sathi - Kisan Se Seedhe Aap Ke Paas! 🌾\n\nUse my code ${data.referralCode} to join Dehati Sathi and get ₹20 in your wallet instantly!\n\n✅ Farm-fresh produce\n✅ Lower than market prices\n✅ Support local farmers directly\n\nDownload the app now and start saving! 🚀`
+        
+        try {
+            const response = await fetch('/icon.png')
+            const blob = await response.blob()
+            const file = new File([blob], 'dehati-sathi.png', { type: blob.type })
+
+            const shareData: any = {
                 title: 'Join Dehati Sathi',
                 text: shareText,
                 url: window.location.origin
-            }).catch(console.error)
-        } else {
-            // Fallback to WhatsApp
-            window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank')
+            }
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                shareData.files = [file]
+            }
+
+            if (navigator.share) {
+                await navigator.share(shareData)
+            } else {
+                window.open(`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + window.location.origin)}`, '_blank')
+            }
+        } catch (error) {
+            console.error('Error sharing:', error)
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Join Dehati Sathi',
+                    text: shareText,
+                    url: window.location.origin
+                }).catch(console.error)
+            } else {
+                window.open(`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + window.location.origin)}`, '_blank')
+            }
         }
     }
 
