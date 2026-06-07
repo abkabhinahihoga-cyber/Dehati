@@ -1,9 +1,12 @@
-import { Loader2 } from 'lucide-react';
+import { Loader2, Key } from 'lucide-react';
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { useRouter } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
+import { signIn } from 'next-auth/react';
+import Image from 'next/image';
+import googleImage from '@/assets/google.png';
 
 function PasswordRegisterForm() {
   const t = useTranslations('Auth');
@@ -33,13 +36,27 @@ function PasswordRegisterForm() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Registration failed');
-      toast.success('Registered successfully! Please log in.');
-      router.push('/login');
+      // Auto-login after registration
+      const signInRes = await signIn('credentials', { mobile, password, redirect: false });
+      if (signInRes?.error) {
+        toast.success('Registered! Please log in.');
+        router.push('/login');
+        return;
+      }
+      toast.success('Welcome to Dehati Sathi! 🎉');
+      router.push('/welcome');
     } catch (error: any) {
       toast.error(error.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSignIn = () => {
+    if (referralCode.trim()) {
+      localStorage.setItem('pendingReferralCode', referralCode.trim().toUpperCase());
+    }
+    signIn('google', { callbackUrl: '/welcome' });
   };
 
   return (
@@ -108,6 +125,19 @@ function PasswordRegisterForm() {
           type="submit"
         >
           {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : t('register')}
+        </button>
+        <div className="flex items-center gap-2 text-gray-400 text-sm mt-2">
+          <span className="flex-1 h-px bg-gray-300"></span>
+          or
+          <span className="flex-1 h-px bg-gray-300"></span>
+        </div>
+        <button
+          type="button"
+          className="w-full flex items-center justify-center gap-3 border border-gray-300 hover:bg-gray-50 py-3 rounded-xl text-gray-700 font-medium transition-all duration-200 bg-white/80 backdrop-blur-sm shadow-sm"
+          onClick={handleGoogleSignIn}
+        >
+          <Image src={googleImage} width={20} height={20} alt='google' />
+          {t('continueWithGoogle')}
         </button>
         <p className="cursor-pointer text-gray-600 mt-6 text-sm flex items-center gap-1 justify-center" onClick={() => router.push('/login')}>
           {t('alreadyHaveAccount')} <span className="text-green-700 font-semibold hover:underline">{t('logIn')}</span>

@@ -74,7 +74,7 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
 
     // 2. FETCH RAILS
     useEffect(() => {
-        if (isSearch || (!latitude && !hasConnectedHub) || activeCategory) return; 
+        if (isSearch || activeCategory) return; 
 
         const fetchRails = async () => {
             setRailsLoading(true);
@@ -91,7 +91,7 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
 
     // 3. FETCH DATA
     useEffect(() => {
-        if (isSearch || (!latitude && !hasConnectedHub)) return;
+        if (isSearch) return;
 
         const fetchFeed = async () => {
             if (page === 1 && products.length === 0) setLoading(true);
@@ -123,7 +123,7 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
             finally { setLoading(false); setIsRefetching(false); }
         };
 
-        if (permissionGranted || hasConnectedHub) {
+        if (permissionGranted || hasConnectedHub || (!latitude && !longitude)) {
             const timeoutId = setTimeout(() => fetchFeed(), 50);
             return () => clearTimeout(timeoutId);
         }
@@ -138,9 +138,7 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
     const aiRecommendations = displayProducts.filter(p => p.isAiRecommendation);
     const standardFeed = displayProducts.filter(p => !p.isAiRecommendation);
 
-    if (!isSearch && !permissionGranted && !hasConnectedHub) { 
-        return ( <div className="w-[90%] mx-auto mt-10 p-8 text-center bg-red-50 rounded-2xl border border-red-100 flex flex-col items-center"> <MapPinOff className='w-8 h-8 text-red-500 mb-4' /> <h3 className='text-lg font-bold text-gray-800'>Location Required</h3> <button onClick={() => window.location.reload()} className='mt-4 px-6 py-2 bg-red-600 text-white font-bold rounded-full'>Enable Location</button> </div> )
-    }
+    // For new users with no location, we still render the feed and let it load with fallback coords
 
     return (
         <div className="w-full md:w-[90%] lg:w-[85%] mx-auto mt-4 md:mt-6 pb-24 px-4 md:px-0">

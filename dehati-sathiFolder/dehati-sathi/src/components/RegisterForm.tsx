@@ -100,7 +100,7 @@ function RegisterForm({ previousStep }: propType) {
             if (signInRes?.error) throw new Error("Could not start your session")
 
             toast.success("Welcome to Dehati Sathi! 🎉")
-            router.push("/")
+            router.push("/welcome")
             router.refresh()
         } catch (error: any) {
             toast.error(error.message || "Registration failed")

@@ -41,7 +41,14 @@ export async function GET(req: NextRequest) {
         const group = userHash % 2 === 0 ? 'A' : 'B';
         const chaosAmount = group === 'A' ? 0.4 : 0.1; 
 
-        if ((!lat || !lng) && !(session?.user as any)?.connectedHub) return NextResponse.json({ success: false, message: "GPS Required" }, { status: 400 });
+        // If no GPS and no hub, use Central India as a fallback so new users can see the feed
+        const effectiveLat = lat || 22.9734;
+        const effectiveLng = lng || 78.6569;
+        if (!lat) {
+            // Replace lat/lng with fallback but keep searching
+            (searchParams as any).set?.('lat', effectiveLat.toString());
+            (searchParams as any).set?.('lng', effectiveLng.toString());
+        }
 
         // ==========================================================
         // 🧠 STEP 1: FETCH AI PREDICTIONS (Based on Mode)
@@ -125,8 +132,8 @@ export async function GET(req: NextRequest) {
         const maxDistanceMeters = radiusParam ? parseFloat(radiusParam) * 1000 : 50000;
         
         let activeHub = null;
-        let searchLng = lng;
-        let searchLat = lat;
+        let searchLng = effectiveLng;
+        let searchLat = effectiveLat;
         let activeMaxDistance = maxDistanceMeters;
 
         if ((session?.user as any)?.connectedHub) {
@@ -135,7 +142,7 @@ export async function GET(req: NextRequest) {
         
         if (!activeHub) {
             activeHub = await Hub.findOne({
-                location: { $near: { $geometry: { type: "Point", coordinates: [lng, lat] }, $maxDistance: maxDistanceMeters } }
+                location: { $near: { $geometry: { type: "Point", coordinates: [effectiveLng, effectiveLat] }, $maxDistance: maxDistanceMeters } }
             });
         } else if (activeHub.location?.coordinates) {
             // If connected to a hub, search from the Hub's center so products always appear

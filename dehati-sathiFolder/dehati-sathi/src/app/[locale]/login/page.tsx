@@ -105,9 +105,13 @@ function Login() {
                         {t('continueWithGoogle')}
                     </button>
                 </motion.form>
-                <p className="cursor-pointer text-gray-600 mt-6 text-sm flex items-center gap-1 justify-center" onClick={() => router.push('/forgot-password')}>
-                    {t('forgotPassword')}
-                </p>
+                <button 
+                    type="button"
+                    className="cursor-pointer text-green-700 mt-6 text-sm font-semibold hover:underline flex items-center gap-1 justify-center" 
+                    onClick={() => router.push('/forgot-password')}
+                >
+                    🔑 {t('forgotPassword')}
+                </button>
                 <p className="cursor-pointer text-gray-600 mt-2 text-sm flex items-center gap-1 justify-center" onClick={() => router.push('/register')}>
                     {t('noAccount')} <span className="text-green-700 font-semibold hover:underline">{t('signUp')}</span>
                 </p>

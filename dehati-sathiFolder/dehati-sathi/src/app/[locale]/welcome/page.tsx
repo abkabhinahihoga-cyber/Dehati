@@ -1,7 +1,7 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, Globe, Phone, Store as StoreIcon, Loader2, Search, Check, Milestone, Building2, Flag, LocateFixed, ArrowLeft, MapPin } from 'lucide-react'
+import { ArrowRight, Globe, Phone, Store as StoreIcon, Loader2, Search, Check, Milestone, Building2, Flag, LocateFixed, ArrowLeft, MapPin, Navigation } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import axios from 'axios'
@@ -29,6 +29,16 @@ function WelcomePage() {
     const [language, setLanguage] = useState<'en'|'hi'>('en')
     const [mobile, setMobile] = useState('')
     const [loading, setLoading] = useState(false)
+
+    // Apply pending referral code for Google signups
+    useEffect(() => {
+        const pendingCode = localStorage.getItem('pendingReferralCode');
+        if (pendingCode && session?.user?.id) {
+            axios.post('/api/user/referral', { referredByCode: pendingCode }).then(() => {
+                localStorage.removeItem('pendingReferralCode');
+            }).catch(() => {});
+        }
+    }, [session?.user?.id]);
 
     // --- LOCATION STATE ---
     const [mapPos, setMapPos] = useState<[number, number]>([20.5937, 78.9629]) 
@@ -326,8 +336,24 @@ function WelcomePage() {
                                 </button>
                             </div>
 
+                            {/* 1. GPS Quick Button */}
+                            <button 
+                                onClick={handleGPS} 
+                                disabled={resolvingLocation}
+                                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-green-50 border-2 border-green-200 hover:border-green-400 hover:bg-green-100 transition-all mb-4 group"
+                            >
+                                <div className="p-3 rounded-full bg-green-100 text-green-700 group-hover:scale-110 transition-transform">
+                                    {resolvingLocation ? <Loader2 size={22} className="animate-spin" /> : <Navigation size={22} fill="currentColor" />}
+                                </div>
+                                <div className="text-left">
+                                    <h4 className="font-bold text-green-800 text-sm">Use Current Location</h4>
+                                    <p className="text-xs text-green-600 mt-0.5">Auto-detect via GPS</p>
+                                </div>
+                                {resolvingLocation && <span className="ml-auto text-xs text-green-600 font-semibold animate-pulse">Detecting...</span>}
+                            </button>
+
                             {/* 2. Map Container */}
-                            <div className="relative h-[320px] w-full rounded-2xl border border-gray-300 overflow-hidden shadow-md mb-8 bg-gray-100">
+                            <div className="relative h-[280px] w-full rounded-2xl border border-gray-300 overflow-hidden shadow-md mb-6 bg-gray-100">
                                 <CheckoutMap position={mapPos} setPosition={handleMapDrag} />
                                 
                                 <button onClick={handleGPS} className="absolute bottom-4 right-4 z-[500] bg-white text-gray-700 p-3 rounded-full shadow-lg hover:bg-gray-50 border border-gray-200 transition-transform active:scale-95">

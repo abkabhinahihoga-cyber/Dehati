@@ -77,10 +77,10 @@ export default function HubSelectorModal({
             const res = await axios.post('/api/user/update-hub', { hubId })
             if (res.data.success) {
                 toast.success("Hub connected successfully!")
-                // Force session update
+                // Force full page reload so session refreshes completely (fixes double-click issue)
                 await update()
                 onClose()
-                router.refresh()
+                setTimeout(() => { window.location.href = '/'; }, 300)
             }
         } catch (error) {
             toast.error("Failed to connect to hub")
