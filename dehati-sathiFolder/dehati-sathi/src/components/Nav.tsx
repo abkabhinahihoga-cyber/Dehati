@@ -52,6 +52,7 @@ function Nav({ user }: { user: INavUser }) {
     const { cartData } = useSelector((state: RootState) => state.cart)
     const { mode } = useSelector((state: RootState) => state.mode)
     const { address, permissionGranted } = useSelector((state: RootState) => state.location);
+    const { userData } = useSelector((state: RootState) => state.user);
 
     const isGrocery = mode === 'grocery';
     const themeColor = isGrocery ? 'text-green-600' : 'text-blue-600';
@@ -211,12 +212,12 @@ function Nav({ user }: { user: INavUser }) {
                                     <Share2 className='text-green-600' /> {t('referAndEarn')}
                                 </Link>
 
-                                {user.walletBalance !== undefined && (
+                                {userData?.walletBalance !== undefined && (
                                     <div className='flex items-center justify-between p-3 mx-2 mt-2 rounded-lg bg-green-50 border border-green-100'>
                                         <div className='flex items-center gap-4 text-green-800 font-medium'>
                                             <Wallet className='text-green-600' /> Wallet Balance
                                         </div>
-                                        <span className='font-bold text-green-700'>₹{user.walletBalance}</span>
+                                        <span className='font-bold text-green-700'>₹{userData.walletBalance}</span>
                                     </div>
                                 )}
                             </div>
