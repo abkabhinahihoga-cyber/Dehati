@@ -16,8 +16,8 @@ export const metadata: Metadata = {
   title: "Dehati Sathi | Direct Farm To Home",
   description: "Direct Farm To Home",
   icons: {
-    icon: '/icon.png?v=3',
-    apple: '/icon.png?v=3',
+    icon: '/icon.png?v=4',
+    apple: '/icon.png?v=4',
   }
 };
 
