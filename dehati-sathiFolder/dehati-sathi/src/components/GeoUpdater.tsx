@@ -64,6 +64,11 @@ function GeoUpdater({ type = 'user' }: { type?: 'user' | 'delivery' }) {
 
         dispatch(updateLocation({ lat, lng, address: addressName, isManual: false }));
 
+        // ── SAVE TO LOCAL STORAGE FOR USERS ─────────────
+        if (type === 'user') {
+            localStorage.setItem('userLocation', JSON.stringify({ lat, lng, address: addressName }));
+        }
+
         // ── Delivery: socket emit + periodic DB save ───────────────────────────
         if (type === 'delivery' && sessionRef.current?.user?.id) {
             if (socketRef.current) {

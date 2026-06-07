@@ -55,7 +55,15 @@
     "register": "पंजीकरण करें",
     "alreadyHaveAccount": "पहले से खाता है?",
     "logIn": "लॉग इन",
-    "loginDehatiSathi": "देहाती साथी में लॉग इन करें"
+    "loginDehatiSathi": "देहाती साथी में लॉग इन करें",
+    "loginWithPassword": "पासवर्ड से लॉग इन करें",
+    "forgotPassword": "पासवर्ड भूल गए?",
+    "noAccount": "खाता नहीं है?",
+    "resetPassword": "पासवर्ड रीसेट करें",
+    "enterOtp": "OTP दर्ज करें",
+    "newPassword": "नया पासवर्ड",
+    "sendOtp": "OTP भेजें",
+    "backToLogin": "लॉग इन पर वापस जाएं"
   },
   "Feed": {
     "recommended": "आपके लिए अनुशंसित",

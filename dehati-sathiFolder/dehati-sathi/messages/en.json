@@ -55,7 +55,15 @@
     "register": "Register",
     "alreadyHaveAccount": "Already have an Account ?",
     "logIn": "Log in",
-    "loginDehatiSathi": "Login Dehati Sathi"
+    "loginDehatiSathi": "Login Dehati Sathi",
+    "loginWithPassword": "Login with Password",
+    "forgotPassword": "Forgot Password?",
+    "noAccount": "Don't have an account?",
+    "resetPassword": "Reset Password",
+    "enterOtp": "Enter OTP",
+    "newPassword": "New Password",
+    "sendOtp": "Send OTP",
+    "backToLogin": "Back to Login"
   },
   "Feed": {
     "recommended": "Recommended for you",

@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
         const group = userHash % 2 === 0 ? 'A' : 'B';
         const chaosAmount = group === 'A' ? 0.4 : 0.1; 
 
-        if (!lat || !lng) return NextResponse.json({ success: false, message: "GPS Required" }, { status: 400 });
+        if ((!lat || !lng) && !(session?.user as any)?.connectedHub) return NextResponse.json({ success: false, message: "GPS Required" }, { status: 400 });
 
         // ==========================================================
         // 🧠 STEP 1: FETCH AI PREDICTIONS (Based on Mode)

@@ -10,6 +10,7 @@ import axios from 'axios'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { GROCERY_CATEGORIES, BOOK_CATEGORIES, HUB_GROCERY_CATEGORIES } from '@/lib/constants'
 
 interface ProductFeedProps {
@@ -26,6 +27,8 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
 
     const { mode } = useSelector((state: RootState) => state.mode)
     const { latitude, longitude, permissionGranted } = useSelector((state: RootState) => state.location)
+    const { data: session } = useSession()
+    const hasConnectedHub = !!(session?.user as any)?.connectedHub;
     
     const [products, setProducts] = useState<any[]>([])
     const [loading, setLoading] = useState(false)
@@ -71,7 +74,7 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
 
     // 2. FETCH RAILS
     useEffect(() => {
-        if (isSearch || !latitude || !longitude || activeCategory) return; 
+        if (isSearch || (!latitude && !hasConnectedHub) || activeCategory) return; 
 
         const fetchRails = async () => {
             setRailsLoading(true);
@@ -84,19 +87,19 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
             finally { setRailsLoading(false) }
         }
         fetchRails();
-    }, [latitude, longitude, isSearch, activeCategory, mode]); 
+    }, [latitude, longitude, hasConnectedHub, isSearch, activeCategory, mode]); 
 
     // 3. FETCH DATA
     useEffect(() => {
-        if (isSearch || (!latitude || !longitude)) return;
+        if (isSearch || (!latitude && !hasConnectedHub)) return;
 
         const fetchFeed = async () => {
             if (page === 1 && products.length === 0) setLoading(true);
 
             try {
                 const params = new URLSearchParams({
-                    lat: latitude.toString(),
-                    lng: longitude.toString(),
+                    lat: (latitude || 0).toString(),
+                    lng: (longitude || 0).toString(),
                     mode: mode,
                     radius: RADIUS_KM.toString(),
                     sort: sort,
@@ -120,11 +123,11 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
             finally { setLoading(false); setIsRefetching(false); }
         };
 
-        if (permissionGranted) {
+        if (permissionGranted || hasConnectedHub) {
             const timeoutId = setTimeout(() => fetchFeed(), 50);
             return () => clearTimeout(timeoutId);
         }
-    }, [latitude, longitude, mode, permissionGranted, isSearch, sort, priceRange, minRating, activeCategory, minDiscount, page, refreshKey]); 
+    }, [latitude, longitude, hasConnectedHub, mode, permissionGranted, isSearch, sort, priceRange, minRating, activeCategory, minDiscount, page, refreshKey]); 
 
     // Helpers
     const handleRefresh = () => { if (!latitude || !longitude || isRefetching) return; setIsRefetching(true); setProducts([]); setPage(1); setRefreshKey(prev => prev + 1); };
@@ -135,7 +138,7 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
     const aiRecommendations = displayProducts.filter(p => p.isAiRecommendation);
     const standardFeed = displayProducts.filter(p => !p.isAiRecommendation);
 
-    if (!isSearch && !permissionGranted) { 
+    if (!isSearch && !permissionGranted && !hasConnectedHub) { 
         return ( <div className="w-[90%] mx-auto mt-10 p-8 text-center bg-red-50 rounded-2xl border border-red-100 flex flex-col items-center"> <MapPinOff className='w-8 h-8 text-red-500 mb-4' /> <h3 className='text-lg font-bold text-gray-800'>Location Required</h3> <button onClick={() => window.location.reload()} className='mt-4 px-6 py-2 bg-red-600 text-white font-bold rounded-full'>Enable Location</button> </div> )
     }
 

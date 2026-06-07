@@ -2,7 +2,7 @@
 import { 
     LogOut, ShoppingCartIcon, User, X, UserCircle, Store, BookOpen, Briefcase, 
     Bike, Laptop, Share2, ChevronDown, MapPin, Home, LayoutDashboard, 
-    ShieldCheck, Tractor, ShoppingBag, Truck, PlayCircle 
+    ShieldCheck, Tractor, ShoppingBag, Truck, PlayCircle, Wallet 
 } from 'lucide-react'
 import { Link, useRouter, usePathname } from '@/i18n/routing'
 import React, { useEffect, useState } from 'react'
@@ -210,6 +210,15 @@ function Nav({ user }: { user: INavUser }) {
                                 <Link href="/refer-earn" className='flex items-center gap-4 p-3 mx-2 rounded-lg text-gray-700 hover:bg-gray-50 font-medium'>
                                     <Share2 className='text-green-600' /> {t('referAndEarn')}
                                 </Link>
+
+                                {user.walletBalance !== undefined && (
+                                    <div className='flex items-center justify-between p-3 mx-2 mt-2 rounded-lg bg-green-50 border border-green-100'>
+                                        <div className='flex items-center gap-4 text-green-800 font-medium'>
+                                            <Wallet className='text-green-600' /> Wallet Balance
+                                        </div>
+                                        <span className='font-bold text-green-700'>₹{user.walletBalance}</span>
+                                    </div>
+                                )}
                             </div>
                             <div className='p-4 border-t border-gray-100'>
                                 <button onClick={() => signOut({ callbackUrl: "/login" })} className='w-full flex items-center justify-center gap-2 text-red-600 bg-red-50 font-bold text-sm p-3 rounded-xl hover:bg-red-100 transition-all'>
