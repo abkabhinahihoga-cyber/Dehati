@@ -164,7 +164,7 @@ function ProductView({ product, similarProducts }: { product: any, similarProduc
             toast.error("Seller contact not available");
             return;
         }
-        const text = encodeURIComponent(`Hi, I want to order:\n\n📦 *${product.name}*\n💰 Price: ₹${activePrice}\n\nPlease confirm availability and delivery details.`);
+        const text = encodeURIComponent(`Hi, I want to order:\n\n📦 *${product.name}*\n💰 Price: ₹${activePrice}\n🔗 Link: ${window.location.href}\n🖼️ Image: ${product.images?.[0] || 'N/A'}\n\nPlease confirm availability and delivery details.`);
         window.open(`https://wa.me/91${product.seller.mobile.replace(/\D/g, '').slice(-10)}?text=${text}`, '_blank');
     }
 

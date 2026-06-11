@@ -50,6 +50,10 @@ export default function AdminDashboard() {
         managerName: '', managerMobile: ''
     })
 
+    // Edit Hub State
+    const [editingHub, setEditingHub] = useState<any | null>(null)
+    const [editHubForm, setEditHubForm] = useState({ hubName: '', address: '', lat: '', lng: '' })
+
     // --- FETCH DATA ---
     const fetchDashboardData = async () => {
         try {
@@ -130,6 +134,48 @@ export default function AdminDashboard() {
             }
         } catch (error: any) {
             alert(error.response?.data?.message || "Failed to create hub");
+        }
+    }
+
+    const handleDeleteHub = async (hubId: string, hubName: string) => {
+        if (!confirm(`Delete hub "${hubName}"? This will unlink all connected users.`)) return;
+        const toastId = toast.loading('Deleting hub...');
+        try {
+            await axios.delete(`/api/admin/dashboard?hubId=${hubId}`);
+            toast.success('Hub deleted', { id: toastId });
+            setHubs(prev => prev.filter(h => h._id !== hubId));
+            setStats((prev: any) => ({ ...prev, totalHubs: prev.totalHubs - 1 }));
+        } catch (error) {
+            toast.error('Failed to delete hub', { id: toastId });
+        }
+    }
+
+    const handleEditHub = (hub: any) => {
+        setEditingHub(hub);
+        setEditHubForm({
+            hubName: hub.name || '',
+            address: hub.location?.address || '',
+            lat: hub.location?.coordinates?.[1]?.toString() || '',
+            lng: hub.location?.coordinates?.[0]?.toString() || ''
+        });
+    }
+
+    const handleSaveHub = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const toastId = toast.loading('Saving hub...');
+        try {
+            const res = await axios.put('/api/admin/dashboard', {
+                action: 'update-hub',
+                hubId: editingHub._id,
+                ...editHubForm
+            });
+            if (res.data.success) {
+                toast.success('Hub updated!', { id: toastId });
+                setEditingHub(null);
+                fetchDashboardData();
+            }
+        } catch (error) {
+            toast.error('Failed to update hub', { id: toastId });
         }
     }
 
@@ -409,7 +455,22 @@ export default function AdminDashboard() {
                                         ) : <span className="text-red-500">Unassigned</span>}
                                     </td>
                                     <td className="p-4"><span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">Active</span></td>
-                                    <td className="p-4 text-gray-400 text-xs">Manage &rarr;</td>
+                                    <td className="p-4">
+                                        <div className="flex gap-2" onClick={e => e.stopPropagation()}>
+                                            <button
+                                                onClick={() => handleEditHub(hub)}
+                                                className="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-bold transition-colors"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteHub(hub._id, hub.name)}
+                                                className="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-xs font-bold transition-colors"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -676,6 +737,30 @@ export default function AdminDashboard() {
                                     </select>
                                 </div>
                                 <button type="submit" className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700">Save Slide</button>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Edit Hub Modal */}
+                {editingHub && (
+                    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-xl font-bold text-gray-800">Edit Hub: {editingHub.name}</h3>
+                                <button onClick={() => setEditingHub(null)} className="p-2 hover:bg-gray-100 rounded-full"><XCircle size={24} className="text-gray-400"/></button>
+                            </div>
+                            <form onSubmit={handleSaveHub} className="space-y-4">
+                                <div><label className="block text-xs font-bold text-gray-500">Hub Name</label><input required type="text" className="w-full p-3 border rounded-xl" value={editHubForm.hubName} onChange={e => setEditHubForm({...editHubForm, hubName: e.target.value})} /></div>
+                                <div><label className="block text-xs font-bold text-gray-500">Address</label><input type="text" className="w-full p-3 border rounded-xl" value={editHubForm.address} onChange={e => setEditHubForm({...editHubForm, address: e.target.value})} /></div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div><label className="block text-xs font-bold text-gray-500">Lat</label><input type="number" step="any" className="w-full p-3 border rounded-xl" value={editHubForm.lat} onChange={e => setEditHubForm({...editHubForm, lat: e.target.value})} /></div>
+                                    <div><label className="block text-xs font-bold text-gray-500">Lng</label><input type="number" step="any" className="w-full p-3 border rounded-xl" value={editHubForm.lng} onChange={e => setEditHubForm({...editHubForm, lng: e.target.value})} /></div>
+                                </div>
+                                <div className="flex gap-3 pt-2">
+                                    <button type="button" onClick={() => setEditingHub(null)} className="flex-1 py-3 border border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50">Cancel</button>
+                                    <button type="submit" className="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700">Save Changes</button>
+                                </div>
                             </form>
                         </div>
                     </div>

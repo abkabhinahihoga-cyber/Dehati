@@ -18,7 +18,7 @@ export default function LandingPage() {
     };
 
     const handleGetStarted = () => {
-        router.push('/welcome');
+        router.push('/register');
     };
 
     return (
