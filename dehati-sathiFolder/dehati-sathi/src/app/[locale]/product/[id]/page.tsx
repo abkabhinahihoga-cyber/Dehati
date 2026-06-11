@@ -22,7 +22,7 @@ async function ProductDetails(props: Props) {
         .populate({ 
             path: "seller", 
             model: User, // <--- THIS LINE STOPS THE CRASH
-            select: "name role sellerDetails" 
+            select: "name role sellerDetails mobile" 
         })
         .lean();
     
@@ -39,7 +39,7 @@ async function ProductDetails(props: Props) {
     .populate({ 
         path: "seller", 
         model: User, // <--- Apply fix here too
-        select: "name role" 
+        select: "name role mobile" 
     })
     .lean();
 

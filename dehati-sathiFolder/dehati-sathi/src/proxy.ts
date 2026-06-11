@@ -100,7 +100,7 @@ export async function proxy(req: NextRequest) {
   }
 
   // --- 1. Allow public routes (checked on bare path) ---
-  const publicRoutes = ["/login", "/register", "/api/auth"];
+  const publicRoutes = ["/login", "/register", "/api/auth", "/landing"];
   if (publicRoutes.some((path) => barePath.startsWith(path))) {
     const response = createFinalResponse();
     // Set locale cookie for next-intl to pick up
