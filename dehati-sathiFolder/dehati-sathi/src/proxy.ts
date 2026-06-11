@@ -117,11 +117,9 @@ export async function proxy(req: NextRequest) {
     cookieName: isProduction ? "__Secure-authjs.session-token" : "authjs.session-token",
   });
 
-  // --- 3. If Not Logged In -> Go to Register ---
+  // --- 3. If Not Logged In -> Show Landing Page ---
   if (!token) {
-    const loginUrl = localizedUrl("/register", pathLocale, req.url);
-    loginUrl.searchParams.set("callbackUrl", req.url);
-    return NextResponse.redirect(loginUrl);
+    return NextResponse.redirect(localizedUrl("/landing", pathLocale, req.url));
   }
 
   // --- 4. ONBOARDING CHECK ---
