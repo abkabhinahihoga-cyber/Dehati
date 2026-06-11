@@ -22,7 +22,7 @@ async function Home(props: Props) {
   const session = await auth();
 
   if (!session?.user) {
-    redirect("/login");
+    redirect("/landing");
   }
 
   const user = await User.findById(session.user.id);

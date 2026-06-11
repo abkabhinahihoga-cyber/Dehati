@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 import Image from 'next/image'
-import { Star, Minus, Plus, ShoppingCart, ShieldCheck, Zap, Upload, Book, MapPin, Share2, Check, ArrowRight, Copy, MoreHorizontal, Gift, Wallet } from 'lucide-react' 
+import { Star, Minus, Plus, ShoppingCart, ShieldCheck, Zap, Upload, Book, MapPin, Share2, Check, ArrowRight, Copy, MoreHorizontal, Gift, Wallet, Phone } from 'lucide-react' 
 import { useDispatch, useSelector } from 'react-redux'
 import { addToCart, decreaseQuantity, increaseQuantity } from '@/redux/cartSlice'
 import { RootState } from '@/redux/store'
@@ -157,6 +157,23 @@ function ProductView({ product, similarProducts }: { product: any, similarProduc
             }))
         }
         router.push('/user/checkout')
+    }
+
+    const handleWhatsAppOrder = () => {
+        if (!product.seller?.mobile) {
+            toast.error("Seller contact not available");
+            return;
+        }
+        const text = encodeURIComponent(`Hi, I want to order:\n\n📦 *${product.name}*\n💰 Price: ₹${activePrice}\n\nPlease confirm availability and delivery details.`);
+        window.open(`https://wa.me/91${product.seller.mobile.replace(/\D/g, '').slice(-10)}?text=${text}`, '_blank');
+    }
+
+    const handlePhoneOrder = () => {
+        if (!product.seller?.mobile) {
+            toast.error("Seller contact not available");
+            return;
+        }
+        window.open(`tel:${product.seller.mobile}`, '_self');
     }
 
     const handleReviewImage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -324,6 +341,16 @@ function ProductView({ product, similarProducts }: { product: any, similarProduc
                             </button>
                         </div>
                     )}
+
+                    {/* 📞 DIRECT ORDER BUTTONS */}
+                    <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                        <button onClick={handleWhatsAppOrder} className="flex-1 font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 bg-[#25D366] text-white hover:bg-[#128C7E] shadow-sm">
+                            <WhatsAppIcon size={20} className="text-white" /> Order via WhatsApp
+                        </button>
+                        <button onClick={handlePhoneOrder} className="flex-1 font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 bg-blue-100 text-blue-800 hover:bg-blue-200 shadow-sm">
+                            <Phone size={20} /> Call to Order
+                        </button>
+                    </div>
                 </div>
 
                 <div className="space-y-4">
