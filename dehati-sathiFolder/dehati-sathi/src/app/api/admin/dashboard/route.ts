@@ -19,11 +19,7 @@ export async function GET(req: NextRequest) {
 
         const users = await User.find({ role: { $ne: "admin" } }).sort({ createdAt: -1 }).lean();
 
-        const orders = await Order.find({})
-            .populate("items.product")
-            .populate("userId", "name mobile email")
-            .sort({ createdAt: -1 })
-            .lean();
+        const ordersDocs = await Order.find({}).populate("items.product").populate("user", "name mobile email").sort({ createdAt: -1 }).lean(); const orders = ordersDocs.map((o: any) => ({ ...o, userId: o.user }));
 
         const hubs = await Hub.find({}).populate("managerId", "name mobile").lean();
 
