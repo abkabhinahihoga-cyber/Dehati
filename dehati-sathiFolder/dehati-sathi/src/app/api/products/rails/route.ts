@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+﻿export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Grocery from "@/app/models/grocery.model";
@@ -28,40 +28,48 @@ export async function GET(req: NextRequest) {
         const typeFilter = isStudent ? { productType: 'book' } : { productType: { $ne: 'book' } };
         
         // 2. Exact Price Caps Requested
-        // Grocery: < 49, Student: < 99
         const budgetPriceCap = isStudent ? 99 : 49;
 
         let searchLng = lng;
         let searchLat = lat;
         let searchRadius = radius;
+        let validSellerIds: any[] = [];
+        let hasActiveHub = false;
 
         if ((session?.user as any)?.connectedHub) {
              const Hub = (await import('@/app/models/hub.model')).default;
+             const User = (await import('@/app/models/user.model')).default;
              const activeHub = await Hub.findById((session?.user as any).connectedHub);
-             if (activeHub && activeHub.location?.coordinates) {
-                 searchLng = activeHub.location.coordinates[0];
-                 searchLat = activeHub.location.coordinates[1];
-                 searchRadius = 100000000; // Large radius
+             if (activeHub) {
+                 hasActiveHub = true;
+                 const connectedSellers = await User.find({ connectedHub: activeHub._id, role: 'seller' }).select('_id');
+                 validSellerIds = connectedSellers.map(s => s._id);
+                 if (activeHub.managerId) {
+                     validSellerIds.push(activeHub.managerId);
+                 }
+                 validSellerIds.push(activeHub._id);
              }
         }
 
         // 3. Base Location Query
-        const baseQuery = {
-            location: {
-                $near: {
-                    $geometry: { type: "Point", coordinates: [searchLng, searchLat] },
-                    $maxDistance: searchRadius
-                }
-            },
+        let baseQuery: any = {
             status: 'active',
             stock: { $gt: 0 },
             ...typeFilter
         };
 
+        if (hasActiveHub && validSellerIds.length > 0) {
+            baseQuery.seller = { $in: validSellerIds };
+        } else {
+            baseQuery.location = {
+                $near: {
+                    $geometry: { type: "Point", coordinates: [searchLng, searchLat] },
+                    $maxDistance: searchRadius
+                }
+            };
+        }
+
         // 4. Fetch Rails
-        // We do Deals separately to handle the "Fallback" logic
-        
-        // A. Try fetching Discounted Items
         let dealsQuery: any = { ...baseQuery };
         if (isStudent) {
             dealsQuery.$expr = { $gt: [ { $convert: { input: "$bookDetails.printedPrice", to: "double", onError: 0, onNull: 0 } }, "$price" ] };
@@ -94,7 +102,7 @@ export async function GET(req: NextRequest) {
             success: true, 
             data: { 
                 deals, 
-                trending, // Can be empty now (handled in UI)
+                trending, 
                 under99: underBudget,
                 budgetPriceCap 
             } 

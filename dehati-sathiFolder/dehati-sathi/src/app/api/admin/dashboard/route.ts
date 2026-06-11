@@ -3,14 +3,12 @@ import connectDb from "@/lib/db";
 import User from "@/app/models/user.model";
 import Order from "@/app/models/order.model";
 import Hub from "@/app/models/hub.model";
-// CRITICAL: registers the "Grocery" schema so Orders can populate products
 import "@/app/models/grocery.model"; 
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs"; 
 
 export const dynamic = "force-dynamic";
 
-// --- GET: Fetch Dashboard Stats ---
 export async function GET(req: NextRequest) {
     try {
         const session = await auth();
@@ -19,19 +17,16 @@ export async function GET(req: NextRequest) {
         }
         await connectDb();
 
-        // Fetch Users (Exclude admins)
-        const users = await User.find({ role: { $ne: "admin" } }).sort({ createdAt: -1 });
+        const users = await User.find({ role: { $ne: "admin" } }).sort({ createdAt: -1 }).lean();
 
-        // Fetch Orders (Populate Product Details)
         const orders = await Order.find({})
             .populate("items.product")
             .populate("userId", "name mobile email")
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean();
 
-        // Fetch Hubs (Populate Manager Details)
-        const hubs = await Hub.find({}).populate("managerId", "name mobile");
+        const hubs = await Hub.find({}).populate("managerId", "name mobile").lean();
 
-        // Calculate Stats
         const totalRevenue = orders.reduce((acc, order: any) => 
             order.status === "delivered" ? acc + order.totalAmount : acc, 0
         );
@@ -56,7 +51,6 @@ export async function GET(req: NextRequest) {
     }
 }
 
-// --- PUT: Manage Users (Approve/Block) OR Update Hub ---
 export async function PUT(req: NextRequest) {
     try {
         const session = await auth();
@@ -66,7 +60,6 @@ export async function PUT(req: NextRequest) {
         const body = await req.json(); 
         await connectDb();
 
-        // Handle Hub Update
         if (body.action === "update-hub") {
             const { hubId, hubName, address, lat, lng } = body;
             const updateData: any = {};
@@ -78,7 +71,6 @@ export async function PUT(req: NextRequest) {
             return NextResponse.json({ success: true, message: "Hub updated", hub: updatedHub });
         }
 
-        // Handle User Actions
         const { userId, action } = body;
         let updateData = {};
         if (action === "approve") updateData = { sellerStatus: "approved" };
@@ -94,7 +86,6 @@ export async function PUT(req: NextRequest) {
     }
 }
 
-// --- POST: Create New Hub & Manager ---
 export async function POST(req: NextRequest) {
     try {
         const session = await auth();
@@ -107,7 +98,6 @@ export async function POST(req: NextRequest) {
             const { hubName, address, lat, lng, managerName, managerMobile } = body;
             await connectDb();
 
-            // 1. Create the Manager User
             const newManager = await User.create({
                 name: managerName,
                 mobile: managerMobile,
@@ -115,7 +105,6 @@ export async function POST(req: NextRequest) {
                 location: { type: "Point", coordinates: [lng, lat], address }
             });
 
-            // 2. Create the Hub linked to Manager
             const newHub = await Hub.create({
                 name: hubName,
                 code: `HUB-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -124,7 +113,6 @@ export async function POST(req: NextRequest) {
                 range: 3500
             });
 
-            // 3. Link Manager back to Hub
             await User.findByIdAndUpdate(newManager._id, { connectedHub: newHub._id });
 
             return NextResponse.json({ success: true, message: "Hub & Manager Created Successfully", hub: newHub });
@@ -137,7 +125,6 @@ export async function POST(req: NextRequest) {
     }
 }
 
-// --- DELETE: Remove a Hub ---
 export async function DELETE(req: NextRequest) {
     try {
         const session = await auth();
@@ -149,9 +136,7 @@ export async function DELETE(req: NextRequest) {
         if (!hubId) return NextResponse.json({ message: "Hub ID required" }, { status: 400 });
 
         await connectDb();
-        // Unlink all users from this hub
         await User.updateMany({ connectedHub: hubId }, { $unset: { connectedHub: 1 } });
-        // Delete the hub
         await Hub.findByIdAndDelete(hubId);
 
         return NextResponse.json({ success: true, message: "Hub deleted successfully" });

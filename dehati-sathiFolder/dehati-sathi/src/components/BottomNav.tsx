@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import React, { useEffect, useState } from 'react'
 import { Home, PlayCircle, ShoppingBag, User, Store } from 'lucide-react'
 import { Link, usePathname } from '@/i18n/routing'
@@ -37,7 +37,7 @@ export default function BottomNav({ user: propUser }: { user: any }) {
     }, [session, reduxUser, propUser]);
 
     // HIDE ON AUTH PAGES
-    const hideRoutes = ['/login', '/signup', '/register', '/welcome', '/forgot-password', '/onboarding'];
+    const hideRoutes = ['/login', '/signup', '/register', '/welcome', '/forgot-password', '/onboarding', '/landing'];
     if (hideRoutes.includes(pathname)) return null;
 
     return (

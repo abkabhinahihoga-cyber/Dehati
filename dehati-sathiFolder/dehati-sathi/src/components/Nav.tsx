@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { 
     LogOut, ShoppingCartIcon, User, X, UserCircle, Store, BookOpen, Briefcase, 
     Bike, Laptop, Share2, ChevronDown, MapPin, Home, LayoutDashboard, 
@@ -39,7 +39,7 @@ function Nav({ user }: { user: INavUser }) {
     const t = useTranslations('Nav');
     const common = useTranslations('Common');
     
-    // 👇 FIX: Destructure toggle from context
+    // ðŸ‘‡ FIX: Destructure toggle from context
     const { isOpen, close, toggle } = useSidebar(); 
     
     const [jobsOpen, setJobsOpen] = useState(true) 
@@ -76,7 +76,7 @@ function Nav({ user }: { user: INavUser }) {
         }
     }, [user._id, user.connectedHub]);
 
-    const authRoutes = ['/login', '/signup', '/register', '/welcome', '/forgot-password', '/onboarding'];
+    const authRoutes = ['/login', '/signup', '/register', '/welcome', '/forgot-password', '/onboarding', '/landing'];
     if (authRoutes.includes(pathname)) return null;
 
     const isHomePage = pathname === '/';
@@ -131,7 +131,7 @@ function Nav({ user }: { user: INavUser }) {
                                         <div className='flex items-center gap-3 text-green-800 font-semibold text-sm'>
                                             <Wallet className='text-green-600 w-5 h-5' /> Wallet Balance
                                         </div>
-                                        <span className='font-bold text-green-700 text-base'>₹{userData.walletBalance}</span>
+                                        <span className='font-bold text-green-700 text-base'>â‚¹{userData.walletBalance}</span>
                                     </div>
                                 )}
 
@@ -139,7 +139,7 @@ function Nav({ user }: { user: INavUser }) {
                                     {isGrocery ? <Store className='text-green-500' /> : <BookOpen className='text-blue-500' />} {t('home')}
                                 </Link>
                                 
-                                {/* 👇 NEW: Connections Link & Horizontal List */}
+                                {/* ðŸ‘‡ NEW: Connections Link & Horizontal List */}
                                 <Link href="/user/connections" onClick={close} className='flex items-center justify-between gap-4 p-3 mx-2 rounded-lg text-gray-700 hover:bg-gray-50 font-medium'>
                                     <div className="flex items-center gap-4"><Store className='text-blue-500' /> {t('following')}</div>
                                     {connections.length > 0 && <span className="bg-blue-100 text-blue-600 text-[10px] font-bold px-2 py-0.5 rounded-full">{connections.length}</span>}
@@ -260,12 +260,12 @@ function Nav({ user }: { user: INavUser }) {
         <>
             <GeoUpdater type="user" />
             
-            {/* ✅ FIXED: Sidebar Portal is always rendered */}
+            {/* âœ… FIXED: Sidebar Portal is always rendered */}
             {renderSidebar()}
             <LocationModal isOpen={isLocationModalOpen} onClose={() => setIsLocationModalOpen(false)} />
             <HubSelectorModal isOpen={isHubModalOpen} onClose={() => setIsHubModalOpen(false)} forceSelection={!user.connectedHub} />
 
-            {/* ✅ ONLY render visible Top Bar on Home Page */}
+            {/* âœ… ONLY render visible Top Bar on Home Page */}
             {isHomePage && (
                 <div className="fixed top-0 left-0 w-full z-50 flex flex-col bg-white shadow-sm">
                     <div className='w-full h-16 px-4 md:px-6 lg:px-8 flex items-center justify-between gap-4'>
@@ -292,7 +292,7 @@ function Nav({ user }: { user: INavUser }) {
 
                             <NotificationBell />
                             <EnhancedSwitcher />
-                            {/* 👇 FIXED: Desktop Profile click toggles Sidebar */}
+                            {/* ðŸ‘‡ FIXED: Desktop Profile click toggles Sidebar */}
                             <div 
                                 onClick={toggle} 
                                 className='hidden md:block w-10 h-10 relative rounded-full border border-gray-200 cursor-pointer overflow-hidden shadow-sm hover:ring-2 ring-offset-1 ring-gray-200 shrink-0'
