@@ -1,4 +1,4 @@
-﻿export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Grocery from "@/app/models/grocery.model";
@@ -35,8 +35,10 @@ export async function GET(req: NextRequest) {
         let searchRadius = radius;
         let validSellerIds: any[] = [];
         let hasActiveHub = false;
+        let isHubConnected = false; // user explicitly connected to a hub
 
         if ((session?.user as any)?.connectedHub) {
+             isHubConnected = true;
              const Hub = (await import('@/app/models/hub.model')).default;
              const User = (await import('@/app/models/user.model')).default;
              const activeHub = await Hub.findById((session?.user as any).connectedHub);
@@ -58,7 +60,9 @@ export async function GET(req: NextRequest) {
             ...typeFilter
         };
 
-        if (hasActiveHub && validSellerIds.length > 0) {
+        if (isHubConnected) {
+            // STRICT: User connected to a hub - ONLY show that hub's products. Never geo fallback.
+            // Even if validSellerIds is empty (hub has no sellers yet), return empty - not 144km products.
             baseQuery.seller = { $in: validSellerIds };
         } else {
             baseQuery.location = {

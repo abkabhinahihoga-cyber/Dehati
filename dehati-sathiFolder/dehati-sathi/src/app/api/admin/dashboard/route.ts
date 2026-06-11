@@ -1,4 +1,4 @@
-﻿import { auth } from "@/auth";
+import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import User from "@/app/models/user.model";
 import Order from "@/app/models/order.model";
@@ -57,13 +57,28 @@ export async function PUT(req: NextRequest) {
         await connectDb();
 
         if (body.action === "update-hub") {
-            const { hubId, hubName, address, lat, lng } = body;
-            const updateData: any = {};
-            if (hubName) updateData.name = hubName;
+            const { hubId, hubName, address, lat, lng, managerName, managerMobile } = body;
+            const hubUpdateData: any = {};
+            if (hubName) hubUpdateData.name = hubName;
             if (address && lat && lng) {
-                updateData.location = { type: "Point", coordinates: [parseFloat(lng), parseFloat(lat)], address };
+                hubUpdateData.location = { type: "Point", coordinates: [parseFloat(lng), parseFloat(lat)], address };
             }
-            const updatedHub = await Hub.findByIdAndUpdate(hubId, updateData, { new: true });
+            
+            // Update hub manager if provided
+            if (managerMobile) {
+                // Upsert the manager user
+                const managerData: any = { role: "hub", connectedHub: hubId };
+                if (managerName) managerData.name = managerName;
+                
+                const updatedManager = await User.findOneAndUpdate(
+                    { mobile: managerMobile },
+                    { $set: managerData },
+                    { new: true, upsert: true, setDefaultsOnInsert: true }
+                );
+                hubUpdateData.managerId = updatedManager._id;
+            }
+
+            const updatedHub = await Hub.findByIdAndUpdate(hubId, hubUpdateData, { new: true });
             return NextResponse.json({ success: true, message: "Hub updated", hub: updatedHub });
         }
 
@@ -94,22 +109,36 @@ export async function POST(req: NextRequest) {
             const { hubName, address, lat, lng, managerName, managerMobile } = body;
             await connectDb();
 
-            const newManager = await User.create({
-                name: managerName,
-                mobile: managerMobile,
+            // FIXED: Upsert manager user to avoid E11000 duplicate key on mobile
+            // If user with this mobile exists, update their role; else create fresh
+            const managerData: any = {
                 role: "hub",
                 location: { type: "Point", coordinates: [lng, lat], address }
-            });
+            };
+            if (managerName) managerData.name = managerName;
+
+            const managerUser = await User.findOneAndUpdate(
+                { mobile: managerMobile },
+                { $set: managerData },
+                { new: true, upsert: true, setDefaultsOnInsert: true }
+            );
+            
+            // If this is a new upsert, also set the name
+            if (managerName && !managerUser.name) {
+                managerUser.name = managerName;
+                await managerUser.save();
+            }
 
             const newHub = await Hub.create({
                 name: hubName,
                 code: `HUB-${Math.floor(1000 + Math.random() * 9000)}`,
-                managerId: newManager._id,
+                managerId: managerUser._id,
                 location: { type: "Point", coordinates: [lng, lat], address },
                 range: 3500
             });
 
-            await User.findByIdAndUpdate(newManager._id, { connectedHub: newHub._id });
+            // Link manager to hub
+            await User.findByIdAndUpdate(managerUser._id, { connectedHub: newHub._id });
 
             return NextResponse.json({ success: true, message: "Hub & Manager Created Successfully", hub: newHub });
         }

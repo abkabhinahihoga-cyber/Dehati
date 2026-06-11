@@ -1,4 +1,4 @@
-﻿export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db";
 import Grocery from "@/app/models/grocery.model";
@@ -69,7 +69,9 @@ export async function GET(req: NextRequest) {
             }
         }
 
-        const cacheKey = `feed:${userId}:${mode}:${Math.round(lat*100)}:${Math.round(lng*100)}:${sortOption}:${categoryParam}:${minDiscount}`;
+        // CRITICAL: Include connectedHub in cache key to prevent stale geo cache for hub-connected users
+        const connectedHubId = (session?.user as any)?.connectedHub || 'none';
+        const cacheKey = `feed:${userId}:${mode}:${connectedHubId}:${Math.round(lat*100)}:${Math.round(lng*100)}:${sortOption}:${categoryParam}:${minDiscount}`;
         const useCache = sortOption === 'relevance' && minPrice === 0 && minRating === 0 && categoryParam === "" && minDiscount === 0;
         let cachedData = null;
         if (useCache && !forceRefresh) {
@@ -105,25 +107,30 @@ export async function GET(req: NextRequest) {
         const radiusParam = searchParams.get('radius');
         const maxDistanceMeters = radiusParam ? parseFloat(radiusParam) * 1000 : 50000;
         
-        let activeHub = null;
+        let activeHub: any = null;
         let searchLng = effectiveLng;
         let searchLat = effectiveLat;
         let activeMaxDistance = maxDistanceMeters;
+        let isHubConnected = false; // Track if user explicitly connected to a hub
 
         if ((session?.user as any)?.connectedHub) {
             activeHub = await Hub.findById((session?.user as any).connectedHub);
+            if (activeHub) isHubConnected = true;
         }
         
-        if (!activeHub) {
+        // Only fall back to geo-discovery if user has NO connected hub
+        if (!activeHub && !isHubConnected) {
             activeHub = await Hub.findOne({
                 location: { $near: { $geometry: { type: "Point", coordinates: [effectiveLng, effectiveLat] }, $maxDistance: maxDistanceMeters } }
             });
-        } else if (activeHub.location?.coordinates) {
+        } else if (activeHub && activeHub.location?.coordinates) {
             searchLng = activeHub.location.coordinates[0];
             searchLat = activeHub.location.coordinates[1];
             activeMaxDistance = 100000000;
         }
 
+        // If hub-connected user's hub not found, return empty (not geo fallback)
+        if (isHubConnected && !activeHub) return NextResponse.json({ success: true, products: [] });
         if (!activeHub) return NextResponse.json({ success: true, products: [] });
 
         const typeFilter = mode === 'student' ? { productType: 'book' } : { productType: { $ne: 'book' } };
@@ -146,6 +153,7 @@ export async function GET(req: NextRequest) {
                 validSellerIds.push(activeHub.managerId);
             }
             validSellerIds.push(activeHub._id);
+            // STRICT: Always filter by hub sellers - never allow geo fallback
             matchStage.seller = { $in: validSellerIds };
         }
 

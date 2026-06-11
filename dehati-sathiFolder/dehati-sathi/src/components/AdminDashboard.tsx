@@ -52,7 +52,7 @@ export default function AdminDashboard() {
 
     // Edit Hub State
     const [editingHub, setEditingHub] = useState<any | null>(null)
-    const [editHubForm, setEditHubForm] = useState({ hubName: '', address: '', lat: '', lng: '' })
+    const [editHubForm, setEditHubForm] = useState({ hubName: '', address: '', lat: '', lng: '', managerName: '', managerMobile: '' })
 
     // --- FETCH DATA ---
     const fetchDashboardData = async () => {
@@ -156,7 +156,9 @@ export default function AdminDashboard() {
             hubName: hub.name || '',
             address: hub.location?.address || '',
             lat: hub.location?.coordinates?.[1]?.toString() || '',
-            lng: hub.location?.coordinates?.[0]?.toString() || ''
+            lng: hub.location?.coordinates?.[0]?.toString() || '',
+            managerName: hub.managerId?.name || '',
+            managerMobile: hub.managerId?.mobile || ''
         });
     }
 
@@ -745,7 +747,7 @@ export default function AdminDashboard() {
                 {/* Edit Hub Modal */}
                 {editingHub && (
                     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl">
+                        <div className="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="text-xl font-bold text-gray-800">Edit Hub: {editingHub.name}</h3>
                                 <button onClick={() => setEditingHub(null)} className="p-2 hover:bg-gray-100 rounded-full"><XCircle size={24} className="text-gray-400"/></button>
@@ -756,6 +758,12 @@ export default function AdminDashboard() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div><label className="block text-xs font-bold text-gray-500">Lat</label><input type="number" step="any" className="w-full p-3 border rounded-xl" value={editHubForm.lat} onChange={e => setEditHubForm({...editHubForm, lat: e.target.value})} /></div>
                                     <div><label className="block text-xs font-bold text-gray-500">Lng</label><input type="number" step="any" className="w-full p-3 border rounded-xl" value={editHubForm.lng} onChange={e => setEditHubForm({...editHubForm, lng: e.target.value})} /></div>
+                                </div>
+                                <div className="p-4 bg-indigo-50 rounded-xl space-y-3 border border-indigo-100">
+                                    <h4 className="text-sm font-bold text-indigo-600">Update Manager (Optional)</h4>
+                                    <div><label className="block text-xs font-bold text-gray-500">Manager Name</label><input type="text" placeholder="Manager Name" className="w-full p-3 bg-white border rounded-xl" value={editHubForm.managerName} onChange={e => setEditHubForm({...editHubForm, managerName: e.target.value})} /></div>
+                                    <div><label className="block text-xs font-bold text-gray-500">Manager Mobile</label><input type="text" placeholder="10-digit mobile" className="w-full p-3 bg-white border rounded-xl" value={editHubForm.managerMobile} onChange={e => setEditHubForm({...editHubForm, managerMobile: e.target.value})} /></div>
+                                    <p className="text-xs text-gray-400">If mobile matches an existing user, their role will be updated to Hub Manager.</p>
                                 </div>
                                 <div className="flex gap-3 pt-2">
                                     <button type="button" onClick={() => setEditingHub(null)} className="flex-1 py-3 border border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-50">Cancel</button>
