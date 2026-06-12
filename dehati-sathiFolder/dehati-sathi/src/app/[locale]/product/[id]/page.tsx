@@ -2,6 +2,7 @@ import React from 'react'
 import connectDb from "@/lib/db";
 import Grocery from "@/app/models/grocery.model";
 import User from "@/app/models/user.model"; 
+import Hub from "@/app/models/hub.model";
 import ProductView from '@/components/ProductView'; 
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
@@ -30,7 +31,27 @@ async function ProductDetails(props: Props) {
 
     const product = JSON.parse(JSON.stringify(productRaw));
 
-    // 2. Fetch Similar Products
+    // 3. Look up hub manager contact for WhatsApp/Call order
+    let hubManager: { name: string; mobile: string } | null = null;
+    try {
+        // Find hub from seller's connectedHub
+        const sellerUser = await User.findById(product.seller?._id || product.seller).select('connectedHub').lean();
+        if (sellerUser?.connectedHub) {
+            const hub = await Hub.findById(sellerUser.connectedHub).populate({ path: 'managerId', model: User, select: 'name mobile' }).lean();
+            if (hub?.managerId && typeof hub.managerId === 'object') {
+                const mgr = hub.managerId as any;
+                hubManager = { name: mgr.name || 'Hub Manager', mobile: mgr.mobile || '' };
+            }
+        }
+        // Fallback: if seller IS a hub manager (role = hub), use them directly
+        if (!hubManager && product.seller?.role === 'hub' && product.seller?.mobile) {
+            hubManager = { name: product.seller.name || 'Hub Manager', mobile: product.seller.mobile };
+        }
+    } catch (e) {
+        console.error('Hub manager lookup failed:', e);
+    }
+
+    // 4. Fetch Similar Products
     const similarRaw = await Grocery.find({
         category: product.category,
         _id: { $ne: product._id }
@@ -38,7 +59,7 @@ async function ProductDetails(props: Props) {
     .limit(4)
     .populate({ 
         path: "seller", 
-        model: User, // <--- Apply fix here too
+        model: User,
         select: "name role mobile" 
     })
     .lean();
@@ -54,7 +75,7 @@ async function ProductDetails(props: Props) {
             </div>
 
             <div className="max-w-6xl mx-auto px-4 mt-6">
-                <ProductView product={product} similarProducts={similarProducts} />
+                <ProductView product={product} similarProducts={similarProducts} hubManager={hubManager} />
             </div>
         </div>
     )

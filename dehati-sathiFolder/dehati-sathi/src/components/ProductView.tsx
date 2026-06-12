@@ -18,7 +18,7 @@ const WhatsAppIcon = ({ size = 20, className = "" }: { size?: number, className?
     </svg>
 )
 
-function ProductView({ product, similarProducts }: { product: any, similarProducts: any[] }) {
+function ProductView({ product, similarProducts, hubManager }: { product: any, similarProducts: any[], hubManager?: { name: string; mobile: string } | null }) {
     const dispatch = useDispatch()
     const router = useRouter()
     const { data: session } = useSession()
@@ -160,20 +160,33 @@ function ProductView({ product, similarProducts }: { product: any, similarProduc
     }
 
     const handleWhatsAppOrder = () => {
-        if (!product.seller?.mobile) {
-            toast.error("Seller contact not available");
+        // Always contact hub manager first, fall back to seller
+        const contact = hubManager?.mobile || product.seller?.mobile;
+        const contactName = hubManager?.name || product.seller?.name || 'Seller';
+        if (!contact) {
+            toast.error("Hub manager contact not available");
             return;
         }
-        const text = encodeURIComponent(`Hi, I want to order:\n\n📦 *${product.name}*\n💰 Price: ₹${activePrice}\n🔗 Link: ${window.location.href}\n🖼️ Image: ${product.images?.[0] || 'N/A'}\n\nPlease confirm availability and delivery details.`);
-        window.open(`https://wa.me/91${product.seller.mobile.replace(/\D/g, '').slice(-10)}?text=${text}`, '_blank');
+        const productUrl = window.location.href;
+        const imageUrl = product.images?.[0] || '';
+        const text = encodeURIComponent(
+            `नमस्ते ${contactName} जी! 🙏\n\nमैं यह सामान ऑर्डर करना चाहता हूँ:\n\n` +
+            `📦 *${product.name}*\n` +
+            `💰 कीमत: ₹${activePrice}\n` +
+            `🔗 लिंक: ${productUrl}\n` +
+            (imageUrl ? `🖼️ फोटो: ${imageUrl}\n` : '') +
+            `\nकृपया उपलब्धता और डिलीवरी की जानकारी दें।`
+        );
+        window.open(`https://wa.me/91${contact.replace(/\D/g, '').slice(-10)}?text=${text}`, '_blank');
     }
 
     const handlePhoneOrder = () => {
-        if (!product.seller?.mobile) {
-            toast.error("Seller contact not available");
+        const contact = hubManager?.mobile || product.seller?.mobile;
+        if (!contact) {
+            toast.error("Hub manager contact not available");
             return;
         }
-        window.open(`tel:${product.seller.mobile}`, '_self');
+        window.open(`tel:${contact}`, '_self');
     }
 
     const handleReviewImage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -365,13 +378,13 @@ function ProductView({ product, similarProducts }: { product: any, similarProduc
                             <div>
                                 <p className="text-xs text-gray-500 font-bold uppercase">Sold By (Hub)</p>
                                 <p className="font-semibold text-gray-900">Dehati Hub</p>
-                                <p className="text-xs text-gray-500">Manager: {product.seller?.name || "Hub Manager"}</p>
+                                <p className="text-xs text-gray-500">Hub Manager: {hubManager?.name || product.seller?.name || "Hub Manager"}</p>
                             </div>
                         ) : (
                             <div>
                                 <p className="text-xs text-gray-500 font-bold uppercase">Sold By (Seller)</p>
                                 <p className="font-semibold text-gray-900">{product.seller?.sellerDetails?.shopName || "Local Shop"}</p>
-                                <p className="text-xs text-gray-500">Seller: {product.seller?.name || "Verified Seller"}</p>
+                                <p className="text-xs text-gray-500">Hub Contact: {hubManager?.name || product.seller?.name || "Verified Seller"}</p>
                             </div>
                         )}
                     </div>

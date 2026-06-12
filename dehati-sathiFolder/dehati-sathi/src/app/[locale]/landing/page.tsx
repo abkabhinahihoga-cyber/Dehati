@@ -22,55 +22,26 @@ export default function LandingPage() {
     };
 
     return (
-        <div
-            className="min-h-screen w-full flex flex-col items-center justify-between font-sans"
-            style={{ background: 'linear-gradient(160deg, #EEF4EE 0%, #F7F2E8 40%, #EDF4ED 100%)' }}
-        >
-            {/* Top spacer */}
-            <div className="flex-1 flex flex-col items-center justify-center w-full px-6 py-8 max-w-sm mx-auto">
-                
-                {/* Logo Row */}
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="w-14 h-14 relative bg-white rounded-full shadow-md p-1.5 flex items-center justify-center">
-                        <Image src="/icon.png" width={44} height={44} alt="Dehati Sathi Logo" className="object-contain" />
-                    </div>
-                    <div className="flex flex-col text-left">
-                        <h1 className="text-2xl font-bold text-gray-800 leading-tight">देहाती साथी</h1>
-                        <span className="text-base font-semibold text-green-700 tracking-wide">Dehati Sathi</span>
-                    </div>
-                </div>
-
-                {/* Subtitle */}
-                <div className="text-center mb-5">
-                    <h2 className="text-xl font-bold text-gray-800">गाँव का उत्पाद, आपके पास</h2>
-                    <p className="text-sm text-gray-500 font-medium mt-0.5">From our fields to your home</p>
-                </div>
-
-                {/* Main Image Card */}
-                <div
-                    className="w-full rounded-3xl overflow-hidden shadow-xl relative"
-                    style={{ aspectRatio: '4/5', maxHeight: '55vh' }}
-                >
+        <div className="min-h-screen w-full flex flex-col items-center justify-between font-sans bg-[#F9F7F2]">
+            {/* Main Image Container */}
+            <div className="flex-1 w-full flex flex-col justify-start relative max-w-md mx-auto">
+                <div className="relative w-full h-[75vh] min-h-[500px]">
                     <Image
                         src="/farmer-bg.png"
                         fill
-                        alt="Farmer with fresh produce"
-                        className="object-cover object-top"
+                        alt="Dehati Sathi Landing"
+                        className="object-contain object-top"
                         priority
                         unoptimized
                     />
-                    {/* Subtle bottom fade */}
-                    <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/10 to-transparent" />
                 </div>
             </div>
 
             {/* Bottom Action Card */}
-            <div
-                className="w-full max-w-sm mx-auto px-6 pb-10 pt-6"
-            >
+            <div className="w-full max-w-sm mx-auto px-6 pb-8 pt-4 bg-white rounded-t-[2.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-10 -mt-10 relative">
                 {/* Language Switcher */}
                 <div
-                    className="flex items-center bg-white border border-gray-200 rounded-full p-1.5 w-full shadow-sm mb-4 relative"
+                    className="flex items-center bg-gray-50 border border-gray-200 rounded-full p-1.5 w-full shadow-sm mb-4 relative"
                     style={{ height: '48px' }}
                 >
                     {/* Sliding indicator */}
@@ -105,11 +76,6 @@ export default function LandingPage() {
                 >
                     {currentLocale === 'en' ? 'Get Started →' : 'शुरू करें / Get Started →'}
                 </button>
-
-                {/* Footer hint */}
-                <p className="text-center text-xs text-gray-400 mt-3">
-                    {currentLocale === 'en' ? 'Fresh from your local hub · Trusted by farmers' : 'आपके नजदीकी हब से ताज़ा सामान'}
-                </p>
             </div>
         </div>
     );
