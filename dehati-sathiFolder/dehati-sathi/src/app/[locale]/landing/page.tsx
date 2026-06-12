@@ -30,7 +30,7 @@ export default function LandingPage() {
                     src="/farmer-bg.png"
                     fill
                     alt="Dehati Sathi"
-                    className="object-cover object-top md:object-contain"
+                    className="object-contain object-top"
                     priority
                     unoptimized
                 />
