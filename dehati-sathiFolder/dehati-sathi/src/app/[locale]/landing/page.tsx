@@ -22,25 +22,24 @@ export default function LandingPage() {
     };
 
     return (
-        <div className="h-screen w-full relative font-sans bg-[#FAF7F2] overflow-hidden flex flex-col justify-end">
+        <div className="min-h-screen w-full relative font-sans bg-[#FAF7F2] overflow-x-hidden flex flex-col justify-start">
             
-            {/* Full Screen Image Container */}
-            <div className="absolute inset-0 w-full h-full z-0">
+            {/* Image Container - scales proportionally without cropping */}
+            <div className="w-full flex-none max-w-lg mx-auto">
                 <Image
                     src="/farmer-bg.png"
-                    fill
+                    width={1080}
+                    height={1920}
                     alt="Dehati Sathi"
-                    className="object-contain object-top"
+                    className="w-full h-auto object-contain object-top"
                     priority
                     unoptimized
                 />
-                {/* Subtle gradient to ensure bottom card text/border has good contrast if needed */}
-                <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#FAF7F2]/80 to-transparent pointer-events-none" />
             </div>
 
-            {/* Bottom Floating Action Card - Overlapping */}
-            <div className="relative z-10 w-full bg-white/95 backdrop-blur-xl rounded-t-[2.5rem] shadow-[0_-15px_40px_rgba(0,0,0,0.08)] px-6 pb-10 pt-8 border-t border-white shadow-t-xl">
-                <div className="max-w-sm mx-auto">
+            {/* Bottom Floating Action Card - Expands to fill remaining screen if any */}
+            <div className="relative z-10 w-full bg-white/95 backdrop-blur-xl rounded-t-[2.5rem] shadow-[0_-15px_40px_rgba(0,0,0,0.08)] px-6 pb-12 pt-8 border-t border-white shadow-t-xl -mt-12 flex-1 flex flex-col">
+                <div className="max-w-sm mx-auto w-full">
                     {/* Language Switcher */}
                     <div
                         className="flex items-center bg-gray-50 border border-gray-200/80 rounded-full p-1.5 w-full shadow-inner mb-5 relative"
