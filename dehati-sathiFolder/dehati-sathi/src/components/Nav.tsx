@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 import { 
     LogOut, ShoppingCartIcon, User, X, UserCircle, Store, BookOpen, Briefcase, 
     Bike, Laptop, Share2, ChevronDown, MapPin, Home, LayoutDashboard, 
@@ -131,7 +131,7 @@ function Nav({ user }: { user: INavUser }) {
                                         <div className='flex items-center gap-3 text-green-800 font-semibold text-sm'>
                                             <Wallet className='text-green-600 w-5 h-5' /> Wallet Balance
                                         </div>
-                                        <span className='font-bold text-green-700 text-base'>â‚¹{userData.walletBalance}</span>
+                                        <span className='font-bold text-green-700 text-base'>₹{userData.walletBalance}</span>
                                     </div>
                                 )}
 
