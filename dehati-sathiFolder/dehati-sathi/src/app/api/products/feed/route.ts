@@ -69,9 +69,9 @@ export async function GET(req: NextRequest) {
             }
         }
 
-        // CRITICAL: Include connectedHub in cache key to prevent stale geo cache for hub-connected users
+        // CRITICAL: Removed userId from cacheKey so all users share the same fast cache
         const connectedHubId = (session?.user as any)?.connectedHub || 'none';
-        const cacheKey = `feed:${userId}:${mode}:${connectedHubId}:${Math.round(lat*100)}:${Math.round(lng*100)}:${sortOption}:${categoryParam}:${minDiscount}`;
+        const cacheKey = `feed:${mode}:${connectedHubId}:${Math.round(lat*100)}:${Math.round(lng*100)}:${sortOption}:${categoryParam}:${minDiscount}`;
         const useCache = sortOption === 'relevance' && minPrice === 0 && minRating === 0 && categoryParam === "" && minDiscount === 0;
         let cachedData = null;
         if (useCache && !forceRefresh) {
@@ -90,19 +90,7 @@ export async function GET(req: NextRequest) {
         }
 
         let userTopCategories: string[] = [];
-        if (session?.user?.id) {
-            try {
-                const topInterests = await Interaction.aggregate([
-                    { $match: { user: new mongoose.Types.ObjectId(session.user.id) } },
-                    { $sort: { createdAt: -1 } },
-                    { $limit: 50 },
-                    { $group: { _id: "$category", count: { $sum: "$score" } } },
-                    { $sort: { count: -1 } },
-                    { $limit: 5 }
-                ]);
-                userTopCategories = topInterests.map(i => i._id);
-            } catch (e) { }
-        }
+        // Removed heavy Interaction.aggregate to drastically speed up feed loading and allow global caching
 
         const radiusParam = searchParams.get('radius');
         const maxDistanceMeters = radiusParam ? parseFloat(radiusParam) * 1000 : 50000;
@@ -165,9 +153,11 @@ export async function GET(req: NextRequest) {
         const startIndex = (page - 1) * limit;
         const pipeline: any[] = [];
 
-        // Skip geoNear entirely if we have an activeHub, preventing location-less products from being dropped
+        // Skip geoNear entirely if we have an activeHub
         if (activeHub) {
             pipeline.push({ $match: matchStage });
+            // ULTRA FAST OPTIMIZATION: Limit to 300 products before doing heavy math calculations
+            pipeline.push({ $limit: 300 });
         } else {
             pipeline.push(
                 {
@@ -206,7 +196,6 @@ export async function GET(req: NextRequest) {
                         recencyScore: { $divide: [1, { $add: [1, { $divide: [{ $divide: [{ $subtract: [new Date(), "$createdAt"] }, 3600000] }, 24] }] }] },
                         distanceScore: { $cond: { if: { $isNumber: "$distance" }, then: { $subtract: [1, { $divide: ["$distance", maxDistanceMeters] }] }, else: 1 } },
                         ratingScore: { $divide: [{ $ifNull: ["$averageRating", 3.5] }, 5] },
-                        interestScore: { $cond: { if: { $in: ["$category", userTopCategories] }, then: 1.0, else: 0.0 } },
                         randomScore: { $rand: {} }
                     }
                 },
@@ -214,10 +203,9 @@ export async function GET(req: NextRequest) {
                     $addFields: {
                         finalScore: {
                             $add: [
-                                { $multiply: ["$recencyScore", 0.25] },
-                                { $multiply: ["$distanceScore", 0.15] },
-                                { $multiply: ["$ratingScore", 0.15] },
-                                { $multiply: ["$interestScore", 0.15] }, 
+                                { $multiply: ["$recencyScore", 0.35] },
+                                { $multiply: ["$distanceScore", 0.20] },
+                                { $multiply: ["$ratingScore", 0.20] },
                                 { $multiply: ["$randomScore", chaosAmount] } 
                             ]
                         }

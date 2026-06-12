@@ -33,7 +33,6 @@ export default function LandingPage() {
                     alt="Dehati Sathi"
                     className="w-full h-auto object-contain object-top"
                     priority
-                    unoptimized
                 />
             </div>
 
