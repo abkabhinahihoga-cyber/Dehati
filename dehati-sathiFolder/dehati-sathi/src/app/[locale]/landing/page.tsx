@@ -38,7 +38,7 @@ export default function LandingPage() {
             </div>
 
             {/* Bottom Floating Action Card - Expands to fill remaining screen if any */}
-            <div className="relative z-10 w-full bg-white/95 backdrop-blur-xl rounded-t-[2.5rem] shadow-[0_-15px_40px_rgba(0,0,0,0.08)] px-6 pb-12 pt-8 border-t border-white shadow-t-xl -mt-12 flex-1 flex flex-col">
+            <div className="relative z-10 w-full bg-white/95 backdrop-blur-xl rounded-t-[2.5rem] shadow-[0_-15px_40px_rgba(0,0,0,0.08)] px-6 pb-12 pt-8 border-t border-white shadow-t-xl -mt-6 flex-1 flex flex-col">
                 <div className="max-w-sm mx-auto w-full">
                     {/* Language Switcher */}
                     <div
