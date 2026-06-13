@@ -69,7 +69,7 @@ const orderSchema = new mongoose.Schema<IOrder>(
     ],
     paymentMethod: {
       type: String,
-      enum: ["cod"], // Online payments on hold for now
+      enum: ["cod", "upi"], 
       default: "cod",
     },
     isPaid: {
