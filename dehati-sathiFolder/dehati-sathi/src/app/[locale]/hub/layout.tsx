@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { LayoutDashboard, Package, Users, LogOut, Store, MapPin, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Package, Users, LogOut, Store, MapPin, Menu, X, List } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 
@@ -41,6 +41,7 @@ export default function HubLayout({ children }: { children: React.ReactNode }) {
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           <NavItem href="/hub/dashboard" icon={<LayoutDashboard size={20} />} label="Dashboard" active={isActive('/hub/dashboard')} onClick={() => setMobileMenuOpen(false)} />
           <NavItem href="/hub/inventory" icon={<Store size={20} />} label="Dehati Shop" active={isActive('/hub/inventory')} onClick={() => setMobileMenuOpen(false)} />
+          <NavItem href="/hub/catalog" icon={<List size={20} />} label="Product Catalog" active={isActive('/hub/catalog')} onClick={() => setMobileMenuOpen(false)} />
           <NavItem href="/hub/orders" icon={<Package size={20} />} label="Manage Orders" active={isActive('/hub/orders')} onClick={() => setMobileMenuOpen(false)} />
           <NavItem href="/hub/users" icon={<Users size={20} />} label="Linked Users" active={isActive('/hub/users')} onClick={() => setMobileMenuOpen(false)} />
         </nav>

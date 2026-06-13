@@ -11,6 +11,7 @@ import {
 import { signOut } from 'next-auth/react'
 import axios from 'axios'
 import Image from 'next/image'
+import Link from 'next/link'
 import { toast } from 'sonner'
 
 export default function AdminDashboard() {
@@ -675,6 +676,9 @@ export default function AdminDashboard() {
                     <SidebarItem icon={<Users/>} label="Global Users" active={activeTab === 'users'} onClick={() => setActiveTab('users')} />
                     <SidebarItem icon={<ShoppingBag/>} label="Global Orders" active={activeTab === 'orders'} onClick={() => setActiveTab('orders')} />
                     <SidebarItem icon={<Layers/>} label="Content & Hero" active={activeTab === 'content'} onClick={() => setActiveTab('content')} />
+                    <Link href="/admin/catalog" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-gray-500 hover:bg-gray-50">
+                        <Package size={20} /> Product Catalog
+                    </Link>
                 </nav>
                 <div className="p-4 border-t border-gray-100">
                     <button onClick={() => signOut()} className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl font-bold transition-all"><LogOut size={20}/> Logout</button>
