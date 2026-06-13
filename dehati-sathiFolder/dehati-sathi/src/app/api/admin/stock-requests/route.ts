@@ -5,14 +5,16 @@ import Hub from "@/app/models/hub.model"; // Required for populate
 import MasterProduct from "@/app/models/masterProduct.model"; // Required for populate
 import { auth } from "@/auth";
 
+export const dynamic = "force-dynamic";
+
 // GET — admin views all stock requests
 export async function GET() {
   try {
-    await connectDb();
     const session = await auth();
-    if ((session?.user as any)?.role !== "admin") {
+    if (session?.user?.role !== "admin") {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 403 });
     }
+    await connectDb();
 
     const requests = await StockRequest.find({})
       .populate("hubId", "name")
@@ -29,11 +31,11 @@ export async function GET() {
 // PUT — admin approves or ships a stock request
 export async function PUT(req: NextRequest) {
   try {
-    await connectDb();
     const session = await auth();
-    if ((session?.user as any)?.role !== "admin") {
+    if (session?.user?.role !== "admin") {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 403 });
     }
+    await connectDb();
 
     const { requestId, action } = await req.json();
     const stockReq = await StockRequest.findById(requestId);
