@@ -17,10 +17,9 @@ export async function GET() {
     const hub = await Hub.findOne({ managerId: userId }).lean() as any;
     if (!hub) return NextResponse.json({ success: false, error: "No hub found" }, { status: 404 });
 
-    // Get all GST products that are enabled for this hub
-    const enabledProductIds = hub.enabledProducts || [];
+    // Get ALL active GST products — they are globally managed by Admin and visible to all hubs
+    // NOTE: enabledProducts is only for RAW/Mandi Bhav products, NOT for GST hub products
     const gstProducts = await MasterProduct.find({
-      _id: { $in: enabledProductIds },
       isActive: true,
       isHubProduct: true,
     }).lean();
