@@ -34,8 +34,8 @@ function AdminStockRequestsPage() {
     try {
       const { data } = await axios.get('/api/admin/stock-requests')
       setRequests(data.requests)
-    } catch {
-      toast.error('Failed to load requests')
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to load requests')
     } finally {
       setLoading(false)
     }
@@ -149,8 +149,8 @@ function AdminStockRequestsPage() {
           <div className="flex justify-center py-20"><Loader2 className="animate-spin w-8 h-8 text-blue-500" /></div>
         ) : (
           <div className="bg-white rounded-3xl border border-blue-100 shadow-sm overflow-hidden">
-            {/* Table Header */}
-            <div className="grid grid-cols-[1fr_2fr_110px_1fr] gap-4 p-4 border-b border-blue-50 bg-blue-50/50 text-xs font-bold text-blue-800 uppercase">
+            {/* Table Header (Hidden on Mobile) */}
+            <div className="hidden md:grid grid-cols-[1fr_2fr_110px_1fr] gap-4 p-4 border-b border-blue-50 bg-blue-50/50 text-xs font-bold text-blue-800 uppercase">
               <div>Hub</div>
               <div>Product & Quantity</div>
               <div>Status</div>
@@ -167,56 +167,65 @@ function AdminStockRequestsPage() {
                 {filtered.map(req => {
                   const isLoading = (id: string) => actionLoading === req._id + id
                   return (
-                    <div key={req._id} className={`grid grid-cols-[1fr_2fr_110px_1fr] gap-4 p-4 items-center hover:bg-gray-50 transition ${req.status === 'pending' ? 'border-l-4 border-orange-400' : req.status === 'approved' ? 'border-l-4 border-blue-400' : ''}`}>
-                      {/* Hub */}
-                      <div>
+                    <div key={req._id} className={`flex flex-col md:grid md:grid-cols-[1fr_2fr_110px_1fr] gap-4 p-4 md:items-center hover:bg-indigo-50/30 transition-all ${req.status === 'pending' ? 'border-l-4 border-orange-400' : req.status === 'approved' ? 'border-l-4 border-blue-400' : 'border-l-4 border-transparent'}`}>
+                      {/* Mobile Top Row: Hub & Status */}
+                      <div className="flex justify-between items-start md:hidden">
+                        <div>
+                          <div className="font-bold text-gray-800 text-sm">{req.hubId?.name || 'Unknown Hub'}</div>
+                          <div className="text-xs text-gray-400">{new Date(req.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                        </div>
+                        <div>{getStatusBadge(req.status)}</div>
+                      </div>
+
+                      {/* Desktop Hub */}
+                      <div className="hidden md:block">
                         <div className="font-bold text-gray-800 text-sm">{req.hubId?.name || 'Unknown Hub'}</div>
                         <div className="text-xs text-gray-400">{new Date(req.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
                       </div>
 
                       {/* Product */}
                       <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0">
+                        <div className="w-14 h-14 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl overflow-hidden flex-shrink-0 border border-gray-100 shadow-inner">
                           {req.masterProductId?.image ? (
-                            <Image src={req.masterProductId.image} alt="img" width={44} height={44} className="w-full h-full object-cover" />
-                          ) : <div className="w-full h-full flex items-center justify-center text-xl">📦</div>}
+                            <Image src={req.masterProductId.image} alt="img" width={56} height={56} className="w-full h-full object-cover" />
+                          ) : <div className="w-full h-full flex items-center justify-center text-2xl">📦</div>}
                         </div>
                         <div>
-                          <div className="font-bold text-gray-800 text-sm">{req.masterProductId?.name || 'Unknown'}</div>
+                          <div className="font-bold text-gray-800">{req.masterProductId?.name || 'Unknown'}</div>
                           {req.masterProductId?.category && (
-                            <div className="text-[10px] text-gray-400">{req.masterProductId.category}</div>
+                            <div className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">{req.masterProductId.category}</div>
                           )}
-                          <div className="mt-1">
-                            <span className="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded-md">
+                          <div className="mt-1.5">
+                            <span className="text-xs text-blue-700 font-bold bg-blue-50/80 px-2.5 py-1 rounded-md border border-blue-100/50">
                               Qty: {req.quantity} {req.masterProductId?.unit}
                             </span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Status */}
-                      <div>{getStatusBadge(req.status)}</div>
+                      {/* Desktop Status */}
+                      <div className="hidden md:block">{getStatusBadge(req.status)}</div>
 
                       {/* Actions */}
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-start md:justify-end gap-2 mt-2 md:mt-0 pt-3 md:pt-0 border-t border-dashed md:border-none border-gray-100">
                         {req.status === 'pending' && (
                           <>
                             <button
                               onClick={() => handleAction(req._id, 'approve')}
                               disabled={!!actionLoading}
-                              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm disabled:opacity-50"
+                              className="flex-1 md:flex-none justify-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1.5 shadow-md shadow-blue-500/20 active:scale-95 transition-all disabled:opacity-50"
                               title="Approve"
                             >
-                              {isLoading('approve') ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+                              {isLoading('approve') ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                               Approve
                             </button>
                             <button
                               onClick={() => handleAction(req._id, 'reject')}
                               disabled={!!actionLoading}
-                              className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 disabled:opacity-50"
+                              className="flex-1 md:flex-none justify-center bg-white hover:bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1.5 active:scale-95 transition-all disabled:opacity-50"
                               title="Reject"
                             >
-                              {isLoading('reject') ? <Loader2 className="w-3 h-3 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
+                              {isLoading('reject') ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
                               Reject
                             </button>
                           </>
@@ -225,14 +234,14 @@ function AdminStockRequestsPage() {
                           <button
                             onClick={() => handleAction(req._id, 'ship')}
                             disabled={!!actionLoading}
-                            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-1.5 text-xs font-bold rounded-lg shadow-sm flex items-center gap-1.5 disabled:opacity-50"
+                            className="flex-1 md:flex-none justify-center bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700 text-white px-5 py-2 text-sm font-bold rounded-xl shadow-md shadow-purple-500/20 flex items-center gap-2 active:scale-95 transition-all disabled:opacity-50"
                           >
-                            {isLoading('ship') ? <Loader2 className="w-3 h-3 animate-spin" /> : <Truck className="w-3.5 h-3.5" />}
+                            {isLoading('ship') ? <Loader2 className="w-4 h-4 animate-spin" /> : <Truck className="w-4 h-4" />}
                             Mark Shipped
                           </button>
                         )}
                         {(req.status === 'shipped' || req.status === 'received') && (
-                          <span className="text-xs text-gray-400 italic">Awaiting hub</span>
+                          <span className="text-xs text-gray-400 italic font-medium">Awaiting hub action</span>
                         )}
                       </div>
                     </div>

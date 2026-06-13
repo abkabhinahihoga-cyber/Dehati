@@ -12,6 +12,7 @@ export default function HubPOSPage() {
 
   const [selectedUser, setSelectedUser] = useState<any>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [productSearch, setProductSearch] = useState('')
   const [cart, setCart] = useState<{product: any, quantity: number}[]>([])
   const [paymentMode, setPaymentMode] = useState('cod')
   const [deliveryType, setDeliveryType] = useState('hub-pickup')
@@ -22,7 +23,7 @@ export default function HubPOSPage() {
       try {
         const [usersRes, inventoryRes] = await Promise.all([
           axios.get('/api/hub/users'),
-          axios.get('/api/hub/inventory')
+          axios.get('/api/hub/pos/inventory')
         ])
         setUsers(usersRes.data.users.filter((u: any) => u.role === 'user' || u.role === 'seller'))
         setProducts(inventoryRes.data.products)
@@ -38,6 +39,11 @@ export default function HubPOSPage() {
   const filteredUsers = users.filter(u => 
     u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     u.mobile.includes(searchQuery)
+  )
+
+  const filteredProducts = products.filter(p =>
+    p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+    (p.seller?.name && p.seller.name.toLowerCase().includes(productSearch.toLowerCase()))
   )
 
   const addToCart = (product: any) => {
@@ -99,7 +105,7 @@ export default function HubPOSPage() {
       setSelectedUser(null)
       setSearchQuery('')
       // Refresh inventory stock
-      const inventoryRes = await axios.get('/api/hub/inventory')
+      const inventoryRes = await axios.get('/api/hub/pos/inventory')
       setProducts(inventoryRes.data.products)
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Failed to place order')
@@ -163,33 +169,57 @@ export default function HubPOSPage() {
 
         {/* Product Grid */}
         <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex-1 flex flex-col min-h-0">
-          <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2 mb-4 shrink-0">
-            <Package className="w-5 h-5 text-indigo-600" /> Hub Inventory
-          </h2>
+          <div className="flex justify-between items-center mb-4 shrink-0 gap-4">
+            <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <Package className="w-5 h-5 text-indigo-600" /> Catalog
+            </h2>
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+              <input 
+                type="text" 
+                placeholder="Search products or sellers..." 
+                value={productSearch}
+                onChange={(e) => setProductSearch(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm"
+              />
+            </div>
+          </div>
           <div className="overflow-y-auto grid grid-cols-2 lg:grid-cols-3 gap-3 pr-2">
-            {products.map(p => (
-              <div key={p._id} className="border border-gray-100 rounded-xl p-3 flex flex-col gap-2 hover:border-indigo-200 hover:shadow-sm transition-all bg-gray-50">
-                <div className="aspect-square bg-white rounded-lg overflow-hidden border border-gray-100">
-                  {p.images?.[0] ? (
-                    <Image src={p.images[0]} alt={p.name} width={100} height={100} className="w-full h-full object-cover" />
-                  ) : <div className="w-full h-full flex items-center justify-center text-gray-300">No Image</div>}
-                </div>
-                <div className="font-bold text-sm text-gray-800 line-clamp-1">{p.name}</div>
-                <div className="flex justify-between items-end">
-                  <div>
-                    <div className="text-indigo-600 font-bold">₹{p.price}</div>
-                    <div className="text-[10px] text-gray-500">Stock: {p.stock} {p.unit}</div>
-                  </div>
-                  <button 
-                    onClick={() => addToCart(p)}
-                    disabled={p.stock <= 0}
-                    className="bg-indigo-100 text-indigo-700 hover:bg-indigo-600 hover:text-white w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
+            {filteredProducts.length === 0 ? (
+              <div className="col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-12 text-gray-400">
+                <Package className="w-14 h-14 mb-3 opacity-20" />
+                <p className="font-semibold">No products found</p>
+                <p className="text-sm mt-1">Add products from Hub Inventory or connect sellers</p>
               </div>
-            ))}
+            ) : (
+              filteredProducts.map(p => (
+                <div key={p._id} className="border border-gray-100 rounded-xl p-3 flex flex-col gap-2 hover:border-indigo-200 hover:shadow-sm transition-all bg-gray-50">
+                  <div className="aspect-square bg-white rounded-lg overflow-hidden border border-gray-100">
+                    {p.images?.[0] ? (
+                      <Image src={p.images[0]} alt={p.name} width={100} height={100} className="w-full h-full object-cover" />
+                    ) : <div className="w-full h-full flex items-center justify-center text-3xl">🛒</div>}
+                  </div>
+                  <div>
+                    <div className="font-bold text-sm text-gray-800 line-clamp-1">{p.name}</div>
+                    <div className="text-[10px] text-gray-500">By: {p.seller?.name || 'Hub'}</div>
+                    {p.isHubProduct && <div className="text-[10px] text-blue-600 font-bold">GST Product</div>}
+                  </div>
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <div className="text-indigo-600 font-bold">₹{p.price}</div>
+                      <div className="text-[10px] text-gray-500">Stock: {p.stock === 999 ? '∞' : p.stock} {p.unit}</div>
+                    </div>
+                    <button 
+                      onClick={() => addToCart(p)}
+                      disabled={p.stock <= 0}
+                      className="bg-indigo-100 text-indigo-700 hover:bg-indigo-600 hover:text-white w-8 h-8 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

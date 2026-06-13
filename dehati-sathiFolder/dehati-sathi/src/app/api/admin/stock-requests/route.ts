@@ -3,6 +3,7 @@ import connectDb from "@/lib/db";
 import StockRequest from "@/app/models/stockRequest.model";
 import Hub from "@/app/models/hub.model"; // Required for populate
 import MasterProduct from "@/app/models/masterProduct.model"; // Required for populate
+import User from "@/app/models/user.model"; // Required for populate via Hub
 import { auth } from "@/auth";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +17,9 @@ export async function GET() {
     }
     await connectDb();
 
+    // Prevent Turbopack from tree-shaking these models which are required for populate
+    console.log("Models loaded:", Hub.modelName, MasterProduct.modelName, User.modelName);
+
     const requests = await StockRequest.find({})
       .populate("hubId", "name")
       .populate("masterProductId", "name nameHindi image unit category")
@@ -24,7 +28,8 @@ export async function GET() {
 
     return NextResponse.json({ success: true, requests });
   } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    console.error("ADMIN STOCK REQUESTS ERROR:", error);
+    return NextResponse.json({ success: false, error: error.message, stack: error.stack }, { status: 500 });
   }
 }
 
