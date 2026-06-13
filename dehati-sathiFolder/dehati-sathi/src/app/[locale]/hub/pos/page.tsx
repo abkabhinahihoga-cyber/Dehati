@@ -117,10 +117,10 @@ export default function HubPOSPage() {
   if (loading) return <div className="flex justify-center p-10"><Loader2 className="animate-spin w-8 h-8 text-indigo-500" /></div>
 
   return (
-    <div className="max-w-7xl mx-auto h-[calc(100vh-80px)] flex flex-col md:flex-row gap-6">
+    <div className="max-w-7xl mx-auto min-h-[calc(100vh-80px)] flex flex-col lg:flex-row gap-6 p-4">
       
       {/* Left Column - Products & Customers */}
-      <div className="flex-1 flex flex-col gap-6 overflow-hidden">
+      <div className="flex-1 flex flex-col gap-6 min-h-0">
         
         {/* Customer Selection */}
         <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm shrink-0">
@@ -168,12 +168,12 @@ export default function HubPOSPage() {
         </div>
 
         {/* Product Grid */}
-        <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex-1 flex flex-col min-h-0">
-          <div className="flex justify-between items-center mb-4 shrink-0 gap-4">
+        <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex-1 flex flex-col min-h-[400px]">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 shrink-0 gap-4">
             <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
               <Package className="w-5 h-5 text-indigo-600" /> Catalog
             </h2>
-            <div className="relative flex-1 max-w-sm">
+            <div className="relative w-full sm:flex-1 sm:max-w-sm">
               <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
               <input 
                 type="text" 
@@ -184,9 +184,9 @@ export default function HubPOSPage() {
               />
             </div>
           </div>
-          <div className="overflow-y-auto grid grid-cols-2 lg:grid-cols-3 gap-3 pr-2">
+          <div className="overflow-y-auto grid grid-cols-2 md:grid-cols-3 gap-3 pr-1 max-h-[500px] lg:max-h-[600px]">
             {filteredProducts.length === 0 ? (
-              <div className="col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-12 text-gray-400">
+              <div className="col-span-2 md:col-span-3 flex flex-col items-center justify-center py-12 text-gray-400">
                 <Package className="w-14 h-14 mb-3 opacity-20" />
                 <p className="font-semibold">No products found</p>
                 <p className="text-sm mt-1">Add products from Hub Inventory or connect sellers</p>
@@ -194,7 +194,7 @@ export default function HubPOSPage() {
             ) : (
               filteredProducts.map(p => (
                 <div key={p._id} className="border border-gray-100 rounded-xl p-3 flex flex-col gap-2 hover:border-indigo-200 hover:shadow-sm transition-all bg-gray-50">
-                  <div className="aspect-square bg-white rounded-lg overflow-hidden border border-gray-100">
+                  <div className="aspect-square bg-white rounded-lg overflow-hidden border border-gray-100 relative">
                     {p.images?.[0] ? (
                       <Image src={p.images[0]} alt={p.name} width={100} height={100} className="w-full h-full object-cover" />
                     ) : <div className="w-full h-full flex items-center justify-center text-3xl">🛒</div>}
@@ -204,7 +204,7 @@ export default function HubPOSPage() {
                     <div className="text-[10px] text-gray-500">By: {p.seller?.name || 'Hub'}</div>
                     {p.isHubProduct && <div className="text-[10px] text-blue-600 font-bold">GST Product</div>}
                   </div>
-                  <div className="flex justify-between items-end">
+                  <div className="flex justify-between items-end mt-auto">
                     <div>
                       <div className="text-indigo-600 font-bold">₹{p.price}</div>
                       <div className="text-[10px] text-gray-500">Stock: {p.stock === 999 ? '∞' : p.stock} {p.unit}</div>
@@ -226,14 +226,14 @@ export default function HubPOSPage() {
       </div>
 
       {/* Right Column - Cart & Checkout */}
-      <div className="w-full md:w-96 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden shrink-0">
+      <div className="w-full lg:w-96 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden shrink-0">
         <div className="p-4 bg-indigo-50 border-b border-indigo-100 flex items-center gap-2">
           <ShoppingCart className="w-5 h-5 text-indigo-700" />
           <h2 className="text-lg font-bold text-indigo-900">Current Order</h2>
         </div>
 
         {/* Cart Items */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        <div className="max-h-[300px] lg:max-h-none lg:flex-1 overflow-y-auto p-4 space-y-3">
           {cart.length === 0 ? (
             <div className="text-center text-gray-400 py-10 flex flex-col items-center gap-2">
               <ShoppingCart className="w-10 h-10 opacity-20" />
