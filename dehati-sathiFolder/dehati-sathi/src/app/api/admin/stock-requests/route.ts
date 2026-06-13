@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import StockRequest from "@/app/models/stockRequest.model";
+import Hub from "@/app/models/hub.model"; // Required for populate
+import MasterProduct from "@/app/models/masterProduct.model"; // Required for populate
 import { auth } from "@/auth";
 
 // GET — admin views all stock requests

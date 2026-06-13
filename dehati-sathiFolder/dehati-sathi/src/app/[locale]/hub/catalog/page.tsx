@@ -46,7 +46,6 @@ function HubCatalogPage() {
     try {
       const { data } = await axios.get('/api/hub/catalog')
       setProducts(data.products)
-      // Initialize price state from existing mandi bhav data
       const priceInit: Record<string, PriceEntry> = {}
       data.products.forEach((p: Product) => {
         if (p.isEnabled) {
@@ -182,12 +181,9 @@ function HubCatalogPage() {
                       onClick={() => !toggling && toggleProduct(p._id, p.isEnabled)}
                       disabled={toggling === p._id}
                       className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left w-full ${
-                        p.isEnabled
-                          ? 'border-green-400 bg-green-50'
-                          : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                        p.isEnabled ? 'border-green-400 bg-green-50' : 'border-gray-200 bg-gray-50 hover:border-gray-300'
                       }`}
                     >
-                      {/* Checkbox */}
                       <div className="flex-shrink-0">
                         {toggling === p._id ? (
                           <Loader2 className="w-5 h-5 animate-spin text-green-500" />
@@ -197,7 +193,6 @@ function HubCatalogPage() {
                           <Square className="w-5 h-5 text-gray-400" />
                         )}
                       </div>
-                      {/* Image */}
                       <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                         {p.image ? (
                           <Image src={p.image} alt={p.name} width={40} height={40} className="object-cover w-full h-full" />
@@ -205,13 +200,11 @@ function HubCatalogPage() {
                           <div className="flex items-center justify-center h-full text-lg">🌿</div>
                         )}
                       </div>
-                      {/* Info */}
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-gray-800 text-sm truncate">{p.name}</div>
                         {p.nameHindi && <div className="text-gray-500 text-xs">{p.nameHindi}</div>}
                         <div className="text-green-600 text-xs font-medium">per {p.unit}</div>
                       </div>
-                      {/* Price badge */}
                       {p.isEnabled && (p.mandiBhav?.retailMinPrice || p.mandiBhav?.wholesaleMinPrice) ? (
                         <div className="text-[10px] bg-green-100 text-green-800 font-bold px-2 py-1 rounded-lg flex-shrink-0 flex flex-col gap-0.5">
                           <span>R: ₹{p.mandiBhav.retailMinPrice}–{p.mandiBhav.retailMaxPrice}</span>
@@ -237,103 +230,92 @@ function HubCatalogPage() {
               <div className="text-center py-16 text-gray-400">
                 <TrendingUp className="w-14 h-14 mx-auto mb-3 opacity-30" />
                 <p>No products enabled yet.</p>
-                <p className="text-sm">Go to "Enable Products" tab first.</p>
+                <p className="text-sm">Go to &quot;Enable Products&quot; tab first.</p>
               </div>
             ) : (
               <>
                 <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3">
                   <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-amber-800">
-                    <strong>Mandi Bhav</strong> — Set today's price range (Min & Max) for Retail and Wholesale. Sellers can set any price within this range.
+                    <strong>Mandi Bhav</strong> — Set today&apos;s price range (Min &amp; Max) for Retail and Wholesale. Sellers can set any price within this range.
                   </div>
                 </div>
 
-                {/* Price Table */}
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                  {/* Header */}
-                  <div className="grid grid-cols-[1fr_200px_200px] gap-0 bg-gray-50 px-4 py-3 text-xs font-bold text-gray-500 uppercase border-b">
-                    <div>Product</div>
-                    <div className="text-center border-l border-r border-gray-200 px-2 bg-blue-50/50">Retail Price (₹)</div>
-                    <div className="text-center bg-purple-50/50 px-2">Wholesale Price (₹)</div>
-                  </div>
+                {/* Price Table — horizontally scrollable on mobile */}
+                <div className="overflow-x-auto rounded-2xl border border-gray-100 shadow-sm bg-white">
+                  <div style={{ minWidth: '540px' }}>
 
-                  {/* Sub-header */}
-                  <div className="grid grid-cols-[1fr_200px_200px] gap-0 border-b">
-                    <div />
-                    <div className="grid grid-cols-2 border-l border-r border-gray-200 bg-blue-50/20">
-                      <div className="text-[10px] font-bold text-blue-600 text-center py-1.5 border-r border-gray-100">Min (₹)</div>
-                      <div className="text-[10px] font-bold text-blue-600 text-center py-1.5">Max (₹)</div>
+                    {/* Header row */}
+                    <div className="grid grid-cols-[160px_1fr_1fr] gap-0 bg-gray-50 px-3 py-2.5 text-xs font-bold text-gray-500 uppercase border-b">
+                      <div>Product</div>
+                      <div className="text-center border-l border-gray-200 px-2 text-blue-700 bg-blue-50/60">Retail Price (₹)</div>
+                      <div className="text-center border-l border-gray-200 px-2 text-purple-700 bg-purple-50/60">Wholesale Price (₹)</div>
                     </div>
-                    <div className="grid grid-cols-2 bg-purple-50/20">
-                      <div className="text-[10px] font-bold text-purple-600 text-center py-1.5 border-r border-gray-100">Min (₹)</div>
-                      <div className="text-[10px] font-bold text-purple-600 text-center py-1.5">Max (₹)</div>
-                    </div>
-                  </div>
 
-                  {enabledProducts.map((p, i) => (
-                    <div key={p._id} className={`grid grid-cols-[1fr_200px_200px] gap-0 items-stretch border-b last:border-0 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
-                      {/* Product Info */}
-                      <div className="flex items-center gap-3 px-4 py-3">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                          {p.image ? (
-                            <Image src={p.image} alt={p.name} width={40} height={40} className="object-cover w-full h-full" />
-                          ) : <div className="flex items-center justify-center h-full">🌿</div>}
-                        </div>
-                        <div>
-                          <div className="font-semibold text-gray-800 text-sm">{p.name}</div>
-                          <div className="text-gray-400 text-[10px]">per {p.unit}</div>
-                        </div>
+                    {/* Sub-header row */}
+                    <div className="grid grid-cols-[160px_1fr_1fr] gap-0 border-b bg-gray-50/50">
+                      <div />
+                      <div className="grid grid-cols-2 border-l border-gray-200">
+                        <div className="text-[10px] font-bold text-blue-600 text-center py-1.5 border-r border-gray-100">Min</div>
+                        <div className="text-[10px] font-bold text-blue-600 text-center py-1.5">Max</div>
                       </div>
+                      <div className="grid grid-cols-2 border-l border-gray-200">
+                        <div className="text-[10px] font-bold text-purple-600 text-center py-1.5 border-r border-gray-100">Min</div>
+                        <div className="text-[10px] font-bold text-purple-600 text-center py-1.5">Max</div>
+                      </div>
+                    </div>
 
-                      {/* Retail Min / Max */}
-                      <div className="grid grid-cols-2 gap-1 px-2 py-2 border-l border-r border-gray-200 bg-blue-50/10">
-                        <div className="flex flex-col justify-center">
+                    {/* Product rows */}
+                    {enabledProducts.map((p, i) => (
+                      <div key={p._id} className={`grid grid-cols-[160px_1fr_1fr] gap-0 items-center border-b last:border-0 ${i % 2 === 0 ? 'bg-white' : 'bg-gray-50/40'}`}>
+                        {/* Product info */}
+                        <div className="flex items-center gap-2 px-3 py-2.5">
+                          <div className="w-9 h-9 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                            {p.image ? (
+                              <Image src={p.image} alt={p.name} width={36} height={36} className="object-cover w-full h-full" />
+                            ) : <div className="flex items-center justify-center h-full">🌿</div>}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-semibold text-gray-800 text-xs truncate">{p.name}</div>
+                            <div className="text-gray-400 text-[10px]">/{p.unit}</div>
+                          </div>
+                        </div>
+
+                        {/* Retail Min / Max */}
+                        <div className="grid grid-cols-2 gap-1.5 px-2 py-2 border-l border-gray-200">
                           <input
-                            type="number"
-                            min="0"
-                            placeholder="Min"
+                            type="number" min="0" placeholder="Min"
                             value={prices[p._id]?.retailMinPrice || ''}
                             onChange={e => setPrices(prev => ({ ...prev, [p._id]: { ...prev[p._id], retailMinPrice: e.target.value } }))}
-                            className="w-full px-1 py-1.5 border border-blue-300 rounded text-sm font-bold text-blue-700 text-center focus:ring-2 focus:ring-blue-400 outline-none"
+                            className="w-full px-1 py-1.5 border border-blue-300 rounded-lg text-sm font-bold text-blue-700 text-center focus:ring-2 focus:ring-blue-400 outline-none"
                           />
-                        </div>
-                        <div className="flex flex-col justify-center">
                           <input
-                            type="number"
-                            min="0"
-                            placeholder="Max"
+                            type="number" min="0" placeholder="Max"
                             value={prices[p._id]?.retailMaxPrice || ''}
                             onChange={e => setPrices(prev => ({ ...prev, [p._id]: { ...prev[p._id], retailMaxPrice: e.target.value } }))}
-                            className="w-full px-1 py-1.5 border border-blue-200 rounded text-sm text-blue-600 text-center focus:ring-2 focus:ring-blue-300 outline-none"
+                            className="w-full px-1 py-1.5 border border-blue-200 rounded-lg text-sm text-blue-600 text-center focus:ring-2 focus:ring-blue-300 outline-none"
                           />
                         </div>
-                      </div>
 
-                      {/* Wholesale Min / Max */}
-                      <div className="grid grid-cols-2 gap-1 px-2 py-2 bg-purple-50/10">
-                        <div className="flex flex-col justify-center">
+                        {/* Wholesale Min / Max */}
+                        <div className="grid grid-cols-2 gap-1.5 px-2 py-2 border-l border-gray-200">
                           <input
-                            type="number"
-                            min="0"
-                            placeholder="Min"
+                            type="number" min="0" placeholder="Min"
                             value={prices[p._id]?.wholesaleMinPrice || ''}
                             onChange={e => setPrices(prev => ({ ...prev, [p._id]: { ...prev[p._id], wholesaleMinPrice: e.target.value } }))}
-                            className="w-full px-1 py-1.5 border border-purple-300 rounded text-sm font-bold text-purple-700 text-center focus:ring-2 focus:ring-purple-400 outline-none"
+                            className="w-full px-1 py-1.5 border border-purple-300 rounded-lg text-sm font-bold text-purple-700 text-center focus:ring-2 focus:ring-purple-400 outline-none"
                           />
-                        </div>
-                        <div className="flex flex-col justify-center">
                           <input
-                            type="number"
-                            min="0"
-                            placeholder="Max"
+                            type="number" min="0" placeholder="Max"
                             value={prices[p._id]?.wholesaleMaxPrice || ''}
                             onChange={e => setPrices(prev => ({ ...prev, [p._id]: { ...prev[p._id], wholesaleMaxPrice: e.target.value } }))}
-                            className="w-full px-1 py-1.5 border border-purple-200 rounded text-sm text-purple-600 text-center focus:ring-2 focus:ring-purple-300 outline-none"
+                            className="w-full px-1 py-1.5 border border-purple-200 rounded-lg text-sm text-purple-600 text-center focus:ring-2 focus:ring-purple-300 outline-none"
                           />
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+
+                  </div>
                 </div>
 
                 {/* Save Button */}
