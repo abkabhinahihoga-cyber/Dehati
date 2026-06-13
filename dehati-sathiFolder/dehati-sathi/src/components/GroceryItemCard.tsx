@@ -207,7 +207,22 @@ function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
       {/* Content Section */}
       <div className='p-4 flex flex-col flex-1'>
         <div className='flex justify-between items-start mb-1'>
-            <p className={`text-[10px] font-bold uppercase tracking-wider ${isBook ? 'text-indigo-500' : 'text-gray-500'}`}>{item.category}</p>
+            <div className="flex flex-col gap-1">
+              <p className={`text-[10px] font-bold uppercase tracking-wider ${isBook ? 'text-indigo-500' : 'text-gray-500'}`}>{item.category}</p>
+              {!isBook && item.qualityScale && (
+                <div className="flex items-center gap-1">
+                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-sm ${
+                    item.qualityScale <= 2 ? 'bg-red-100 text-red-700' :
+                    item.qualityScale <= 4 ? 'bg-orange-100 text-orange-700' :
+                    item.qualityScale <= 6 ? 'bg-yellow-100 text-yellow-700' :
+                    item.qualityScale <= 8 ? 'bg-emerald-100 text-emerald-700' :
+                    'bg-green-100 text-green-700'
+                  }`}>
+                    Quality: {item.qualityScale}/10
+                  </span>
+                </div>
+              )}
+            </div>
             <div className='flex items-center gap-2'>
                 <div className='flex items-center gap-1 bg-yellow-50 px-1.5 py-0.5 rounded text-[10px] font-bold text-yellow-700 border border-yellow-100'>
                     {item.averageRating ? item.averageRating.toFixed(1) : "New"} 

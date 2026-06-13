@@ -1,0 +1,38 @@
+import { NextRequest, NextResponse } from "next/server";
+import connectDb from "@/lib/db";
+import MandiBhav from "@/app/models/mandiBhav.model";
+import MasterProduct from "@/app/models/masterProduct.model";
+import Hub from "@/app/models/hub.model";
+
+// Public route — get mandi bhav for a hub (for buyer home page display)
+export async function GET(req: NextRequest) {
+  try {
+    await connectDb();
+    const { searchParams } = new URL(req.url);
+    const hubId = searchParams.get("hubId");
+
+    if (!hubId) return NextResponse.json({ success: false, error: "hubId required" }, { status: 400 });
+
+    const hub = await Hub.findById(hubId).lean() as any;
+    if (!hub) return NextResponse.json({ success: false, error: "Hub not found" }, { status: 404 });
+
+    const enabledProductIds = hub.enabledProducts || [];
+    const mandiBhavList = await MandiBhav.find({
+      hubId,
+      masterProductId: { $in: enabledProductIds },
+    }).populate("masterProductId", "name nameHindi category unit image").lean();
+
+    const result = mandiBhavList.map((mb: any) => ({
+      _id: mb._id,
+      product: mb.masterProductId,
+      price: mb.price,
+      minPrice: mb.minPrice,
+      maxPrice: mb.maxPrice,
+      updatedAt: mb.updatedAt,
+    }));
+
+    return NextResponse.json({ success: true, mandiBhav: result });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}

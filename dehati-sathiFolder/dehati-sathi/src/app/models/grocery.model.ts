@@ -23,6 +23,8 @@ export interface IGrocery {
     stock: number;
     images: string[];
     seller: mongoose.Types.ObjectId;
+    masterProductId?: mongoose.Types.ObjectId;
+    qualityScale?: number; // 1-10 scale
     reviews: any[];
     numReviews: number;
     averageRating: number;
@@ -63,6 +65,8 @@ const grocerySchema = new Schema<IGrocery>(
         stock: { type: Number, default: 0 },
         images: [{ type: String }],
         seller: { type: Schema.Types.ObjectId, ref: "User", required: true },
+        masterProductId: { type: Schema.Types.ObjectId, ref: "MasterProduct" },
+        qualityScale: { type: Number, min: 1, max: 10, default: 5 },
         
         status: { type: String, default: 'active', index: true }, 
 
@@ -112,6 +116,7 @@ grocerySchema.post('save', function(doc) {
             rating: doc.averageRating,
             numReviews: doc.numReviews,
             productType: doc.productType,
+            qualityScale: doc.qualityScale,
             sellerId: doc.seller.toString(),
             _geoloc: { 
                 lat: doc.location.coordinates[1],

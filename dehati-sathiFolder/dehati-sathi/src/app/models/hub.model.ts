@@ -14,6 +14,8 @@ const hubSchema = new mongoose.Schema(
     // 👇 THIS FIELD IS REQUIRED FOR SETTINGS TO WORK
     autoAssignTime: { type: String, default: "" }, 
     isActive: { type: Boolean, default: true },
+    // Products hub manager has enabled from master catalog
+    enabledProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: "MasterProduct" }],
   },
   { timestamps: true }
 );

@@ -23,6 +23,8 @@ export async function POST(req: NextRequest) {
     const description = String(formData.get("description") || ""); 
     const category = String(formData.get("category") || "");
     const stock = Number(formData.get("stock") || 1);
+    const masterProductId = formData.get("masterProductId");
+    const qualityScale = parseInt((formData.get("qualityScale") as string) || "5");
     
     // Distinguish between Grocery and Book
     const productType = String(formData.get("productType") || "grocery"); 
@@ -82,6 +84,8 @@ export async function POST(req: NextRequest) {
       seller: session.user.id,
       productType, // 'grocery' or 'book'
       bookDetails, // Undefined for groceries, populated for books
+      masterProductId: masterProductId || undefined,
+      qualityScale,
       
       // 👇 Explicitly set location from Seller
       location: {

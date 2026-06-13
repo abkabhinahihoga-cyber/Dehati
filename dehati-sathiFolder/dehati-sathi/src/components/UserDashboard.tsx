@@ -5,6 +5,7 @@ import HeroSection from "./HeroSection";
 import ProductFeed from "./ProductFeed";
 import Link from 'next/link';
 import { ArrowLeft, SearchX } from 'lucide-react';
+import MandiBhavTicker from "./MandiBhavTicker";
 
 interface UserDashboardProps {
   user: any;
@@ -70,6 +71,9 @@ function UserDashboard({ user, products, searchQuery }: UserDashboardProps) {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <HeroSection />
+      
+      {/* Mandi Bhav Ticker */}
+      {user?.connectedHub && <MandiBhavTicker hubId={user.connectedHub} />}
       
       <div className="pt-6">
          <CategorySlider />
