@@ -31,6 +31,7 @@ export async function GET() {
     const products = await MasterProduct.find({
       _id: { $in: enabledProductIds },
       isActive: true,
+      isHubProduct: false, // sellers cannot list GST products
     }).sort({ category: 1, name: 1 }).lean();
 
     const mandiBhavList = await MandiBhav.find({
@@ -45,7 +46,10 @@ export async function GET() {
 
     const result = products.map((p: any) => ({
       ...p,
-      mandiBhav: mandiBhavMap[p._id.toString()] || { price: 0, minPrice: 0, maxPrice: 0 },
+      mandiBhav: mandiBhavMap[p._id.toString()] || { 
+        retailPrice: 0, retailMinPrice: 0, retailMaxPrice: 0,
+        wholesalePrice: 0, wholesaleMinPrice: 0, wholesaleMaxPrice: 0
+      },
     }));
 
     return NextResponse.json({ success: true, products: result });

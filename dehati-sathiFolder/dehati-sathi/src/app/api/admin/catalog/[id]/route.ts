@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import MasterProduct from "@/app/models/masterProduct.model";
 import { auth } from "@/auth";
+import Grocery from "@/app/models/grocery.model";
 import { v2 as cloudinary } from "cloudinary";
 
 cloudinary.config({
@@ -21,6 +22,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const { id } = await params;
     const formData = await req.formData();
+    const isHubProductStr = formData.get("isHubProduct");
+    const isHubProduct = isHubProductStr === "true";
+    
     const updates: any = {
       name: formData.get("name"),
       nameHindi: formData.get("nameHindi"),
@@ -28,7 +32,16 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       unit: formData.get("unit"),
       description: formData.get("description"),
       isActive: formData.get("isActive") !== "false",
+      isHubProduct: isHubProduct
     };
+
+    if (isHubProduct) {
+        updates.retailPrice = Number(formData.get("retailPrice")) || 0;
+        updates.wholesalePrice = Number(formData.get("wholesalePrice")) || 0;
+    } else {
+        updates.retailPrice = 0;
+        updates.wholesalePrice = 0;
+    }
 
     const imageFile = formData.get("image") as File | null;
     if (imageFile && imageFile.size > 0) {
@@ -44,6 +57,24 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const product = await MasterProduct.findByIdAndUpdate(id, updates, { new: true });
     if (!product) return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
+
+    // Sync prices to all Hub's Grocery items if it is a hub product
+    if (product.isHubProduct) {
+        await Grocery.updateMany(
+            { masterProductId: product._id },
+            { 
+                $set: {
+                    name: product.name,
+                    category: product.category,
+                    unit: product.unit,
+                    retailPrice: product.retailPrice,
+                    wholesalePrice: product.wholesalePrice,
+                    price: product.retailPrice // Fallback primary price
+                }
+            }
+        );
+    }
+
     return NextResponse.json({ success: true, product });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

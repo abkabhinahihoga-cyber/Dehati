@@ -679,6 +679,9 @@ export default function AdminDashboard() {
                     <Link href="/admin/catalog" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-gray-500 hover:bg-gray-50">
                         <Package size={20} /> Product Catalog
                     </Link>
+                    <Link href="/admin/stock-requests" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-gray-500 hover:bg-gray-50">
+                        <Truck size={20} /> Hub Stock Requests
+                    </Link>
                 </nav>
                 <div className="p-4 border-t border-gray-100">
                     <button onClick={() => signOut()} className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl font-bold transition-all"><LogOut size={20}/> Logout</button>

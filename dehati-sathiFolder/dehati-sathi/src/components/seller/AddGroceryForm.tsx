@@ -7,9 +7,12 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 interface MandiBhav {
-  price: number
-  minPrice: number
-  maxPrice: number
+  retailPrice: number
+  retailMinPrice: number
+  retailMaxPrice: number
+  wholesalePrice: number
+  wholesaleMinPrice: number
+  wholesaleMaxPrice: number
 }
 
 interface ProductOption {
@@ -58,7 +61,7 @@ function AddGroceryForm() {
   const handleSelectProduct = (product: ProductOption) => {
     setSelectedProduct(product)
     setDescription(product.description || "")
-    setRetailPrice(product.mandiBhav?.price?.toString() || "")
+    setRetailPrice(product.mandiBhav?.retailPrice?.toString() || "")
     setQualityScale(5) // default to average
     setStock("")
     setPreviews([])
@@ -165,7 +168,7 @@ function AddGroceryForm() {
                 {p.nameHindi && <div className="text-gray-500 text-xs truncate">{p.nameHindi}</div>}
                 <div className="flex justify-between items-center mt-2">
                   <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{p.category}</span>
-                  <span className="text-xs font-bold text-green-600">₹{p.mandiBhav?.price || 0}/{p.unit}</span>
+                  <span className="text-xs font-bold text-green-600">R: ₹{p.mandiBhav?.retailPrice || 0} | W: ₹{p.mandiBhav?.wholesalePrice || 0}</span>
                 </div>
               </button>
             ))}
@@ -231,22 +234,28 @@ function AddGroceryForm() {
             <div className='bg-emerald-50 p-5 rounded-xl border border-emerald-100'>
                 <h3 className='text-emerald-800 font-bold mb-4 flex items-center gap-2'><IndianRupee className='w-4 h-4'/> Pricing Details</h3>
                 
-                <div className="mb-4 bg-white p-3 rounded-xl border border-emerald-100 flex justify-between items-center">
-                  <div className="text-sm text-gray-600">Today's Mandi Bhav:</div>
-                  <div className="font-bold text-emerald-600 text-lg">₹{selectedProduct.mandiBhav?.price || 0} / {selectedProduct.unit}</div>
+                <div className="mb-4 bg-white p-3 rounded-xl border border-emerald-100 flex flex-col gap-2">
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm text-gray-600 font-bold">Mandi Retail Price:</div>
+                    <div className="font-bold text-blue-600 text-lg">₹{selectedProduct.mandiBhav?.retailPrice || 0} <span className="text-sm font-normal">/ {selectedProduct.unit}</span></div>
+                  </div>
+                  <div className="flex justify-between items-center border-t border-emerald-50 pt-2">
+                    <div className="text-sm text-gray-600 font-bold">Mandi Wholesale Price:</div>
+                    <div className="font-bold text-purple-600 text-lg">₹{selectedProduct.mandiBhav?.wholesalePrice || 0} <span className="text-sm font-normal">/ {selectedProduct.unit}</span></div>
+                  </div>
                 </div>
                 
-                <div className="text-xs text-emerald-700 mb-2">Price auto-filled from Mandi Bhav, but you can change it:</div>
+                <div className="text-xs text-emerald-700 mb-2">Your Selling Price (defaulted to Mandi Retail, but you can change it):</div>
                 <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">₹</span>
                     <input type="number" required placeholder='Selling Price' value={retailPrice} onChange={e => setRetailPrice(e.target.value)} 
                            className='w-full border-2 border-emerald-200 rounded-xl pl-8 pr-4 py-3 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none font-bold text-lg' />
                 </div>
                 
-                {(selectedProduct.mandiBhav?.minPrice > 0 || selectedProduct.mandiBhav?.maxPrice > 0) && (
-                  <div className="mt-2 text-xs text-emerald-600 bg-emerald-100/50 p-2 rounded-lg flex justify-between">
-                    <span>Hub Min: ₹{selectedProduct.mandiBhav.minPrice}</span>
-                    <span>Hub Max: ₹{selectedProduct.mandiBhav.maxPrice}</span>
+                {(selectedProduct.mandiBhav?.retailMinPrice > 0 || selectedProduct.mandiBhav?.retailMaxPrice > 0) && (
+                  <div className="mt-2 text-[10px] text-emerald-600 bg-emerald-100/50 p-2 rounded-lg flex justify-between">
+                    <span>Retail Range: ₹{selectedProduct.mandiBhav.retailMinPrice} - ₹{selectedProduct.mandiBhav.retailMaxPrice}</span>
+                    <span>Wholesale Range: ₹{selectedProduct.mandiBhav.wholesaleMinPrice} - ₹{selectedProduct.mandiBhav.wholesaleMaxPrice}</span>
                   </div>
                 )}
             </div>

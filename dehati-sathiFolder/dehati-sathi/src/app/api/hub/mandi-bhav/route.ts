@@ -17,7 +17,7 @@ export async function GET() {
     if (!hub) return NextResponse.json({ success: false, error: "No hub found" }, { status: 404 });
 
     const enabledProductIds = hub.enabledProducts || [];
-    const products = await MasterProduct.find({ _id: { $in: enabledProductIds }, isActive: true }).lean();
+    const products = await MasterProduct.find({ _id: { $in: enabledProductIds }, isActive: true, isHubProduct: false }).lean();
     const mandiBhavList = await MandiBhav.find({ hubId: hub._id }).lean();
 
     const mandiBhavMap: Record<string, any> = {};
@@ -27,7 +27,10 @@ export async function GET() {
 
     const result = products.map((p: any) => ({
       ...p,
-      mandiBhav: mandiBhavMap[p._id.toString()] || { price: 0, minPrice: 0, maxPrice: 0 },
+      mandiBhav: mandiBhavMap[p._id.toString()] || { 
+        retailPrice: 0, retailMinPrice: 0, retailMaxPrice: 0,
+        wholesalePrice: 0, wholesaleMinPrice: 0, wholesaleMaxPrice: 0
+      },
     }));
 
     return NextResponse.json({ success: true, products: result });
@@ -47,7 +50,7 @@ export async function PUT(req: NextRequest) {
     const hub = await Hub.findOne({ managerId: userId });
     if (!hub) return NextResponse.json({ success: false, error: "No hub found" }, { status: 404 });
 
-    // updates = array of { masterProductId, price, minPrice, maxPrice }
+    // updates = array of { masterProductId, retailPrice, retailMinPrice, retailMaxPrice, wholesalePrice, wholesaleMinPrice, wholesaleMaxPrice }
     const { updates } = await req.json();
 
     const ops = updates.map((u: any) => ({
@@ -55,9 +58,12 @@ export async function PUT(req: NextRequest) {
         filter: { hubId: hub._id, masterProductId: u.masterProductId },
         update: {
           $set: {
-            price: u.price,
-            minPrice: u.minPrice,
-            maxPrice: u.maxPrice,
+            retailPrice: u.retailPrice,
+            retailMinPrice: u.retailMinPrice,
+            retailMaxPrice: u.retailMaxPrice,
+            wholesalePrice: u.wholesalePrice,
+            wholesaleMinPrice: u.wholesaleMinPrice,
+            wholesaleMaxPrice: u.wholesaleMaxPrice,
             updatedBy: userId,
           },
         },

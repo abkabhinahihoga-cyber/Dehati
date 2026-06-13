@@ -8,6 +8,9 @@ export interface IMasterProduct {
   image?: string;
   description?: string;
   isActive: boolean;
+  isHubProduct: boolean;
+  retailPrice?: number;
+  wholesalePrice?: number;
   createdAt?: Date;
 }
 
@@ -20,6 +23,9 @@ const masterProductSchema = new Schema<IMasterProduct>(
     image: { type: String, default: "" },
     description: { type: String, default: "" },
     isActive: { type: Boolean, default: true, index: true },
+    isHubProduct: { type: Boolean, default: false, index: true },
+    retailPrice: { type: Number },
+    wholesalePrice: { type: Number },
   },
   { timestamps: true }
 );

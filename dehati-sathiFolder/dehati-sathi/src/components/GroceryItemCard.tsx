@@ -182,9 +182,18 @@ function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
       className={`h-full bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col overflow-hidden relative group cursor-pointer ${isBook ? 'hover:border-indigo-200' : 'hover:border-green-200'}`}
     >
       {/* Discount Badge */}
-      {discount > 0 && (
+      {discount > 0 && item.stock > 0 && (
           <div className={`absolute top-3 left-3 z-10 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-md flex items-center gap-1 ${isBook ? 'bg-indigo-600' : 'bg-green-600'}`}>
             <Zap size={10} fill='white'/> {discount}% OFF
+          </div>
+      )}
+
+      {/* Out of Stock Overlay */}
+      {item.stock !== undefined && item.stock <= 0 && (
+          <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-20 flex items-center justify-center pointer-events-none">
+              <div className="bg-red-500 text-white font-black px-4 py-1.5 rounded-lg shadow-lg rotate-12 border-2 border-white tracking-widest uppercase text-sm">
+                  Out of Stock
+              </div>
           </div>
       )}
 

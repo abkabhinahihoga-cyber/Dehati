@@ -17,7 +17,7 @@ export async function GET() {
     const hub = await Hub.findOne({ managerId: userId });
     if (!hub) return NextResponse.json({ success: false, error: "No hub found for this manager" }, { status: 404 });
 
-    const allProducts = await MasterProduct.find({ isActive: true }).sort({ category: 1, name: 1 }).lean();
+    const allProducts = await MasterProduct.find({ isActive: true, isHubProduct: false }).sort({ category: 1, name: 1 }).lean();
     const enabledIds = (hub.enabledProducts || []).map((id: any) => id.toString());
 
     // Get mandi bhav for this hub

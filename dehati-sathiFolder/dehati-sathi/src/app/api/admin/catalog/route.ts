@@ -36,6 +36,9 @@ export async function POST(req: NextRequest) {
     const category = formData.get("category") as string;
     const unit = formData.get("unit") as string;
     const description = formData.get("description") as string;
+    const isHubProduct = formData.get("isHubProduct") === "true";
+    const retailPrice = Number(formData.get("retailPrice")) || 0;
+    const wholesalePrice = Number(formData.get("wholesalePrice")) || 0;
     const imageFile = formData.get("image") as File | null;
 
     if (!name || !category || !unit) {
@@ -54,7 +57,10 @@ export async function POST(req: NextRequest) {
       imageUrl = uploadResult.secure_url;
     }
 
-    const product = await MasterProduct.create({ name, nameHindi, category, unit, description, image: imageUrl });
+    const product = await MasterProduct.create({ 
+      name, nameHindi, category, unit, description, image: imageUrl,
+      isHubProduct, retailPrice: isHubProduct ? retailPrice : undefined, wholesalePrice: isHubProduct ? wholesalePrice : undefined
+    });
     return NextResponse.json({ success: true, product }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

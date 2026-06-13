@@ -327,7 +327,11 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                     </div>
 
                     {/* ✨ CART CONTROLS */}
-                    {cartItem ? (
+                    {product.stock !== undefined && product.stock <= 0 ? (
+                        <div className="p-5 rounded-2xl border bg-red-50 border-red-200 flex items-center justify-center shadow-sm">
+                            <span className="font-bold text-red-600 text-lg flex items-center gap-2"><ShieldCheck size={20}/> Out of Stock</span>
+                        </div>
+                    ) : cartItem ? (
                         <div className={`p-5 rounded-2xl border shadow-sm transition-all ${isBook ? 'bg-indigo-50 border-indigo-200' : 'bg-green-50 border-green-200'}`}>
                             <div className="flex justify-between items-center mb-4">
                                 <div className="flex items-center gap-2">
