@@ -65,18 +65,15 @@ export default function HorizontalReelsFeed() {
                         onClick={() => router.push('/reels')}
                         className="w-32 h-56 shrink-0 rounded-xl overflow-hidden relative cursor-pointer snap-start shadow-sm border border-gray-100 group"
                     >
-                        {video.thumbnailUrl ? (
-                            <Image src={video.thumbnailUrl} alt="Reel" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                        ) : (
-                            <video 
-                                src={video.videoUrl} 
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                autoPlay 
-                                muted 
-                                loop 
-                                playsInline 
-                            />
-                        )}
+                        <video 
+                            src={video.videoUrl}
+                            poster={video.thumbnailUrl || undefined}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            autoPlay 
+                            muted 
+                            loop 
+                            playsInline 
+                        />
                         
                         {/* Overlay */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
