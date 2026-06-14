@@ -70,14 +70,6 @@ export default function NotificationBell() {
                             <div className="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
                                 <h3 className="font-bold text-gray-800">{t.title}</h3>
                                 <div className="flex items-center gap-3">
-                                    {unreadCount > 0 && (
-                                        <button 
-                                            onClick={markAllAsRead}
-                                            className="text-xs text-indigo-600 font-semibold hover:text-indigo-800"
-                                        >
-                                            Mark all read
-                                        </button>
-                                    )}
                                     <button onClick={() => setIsOpen(false)}><X className="w-4 h-4 text-gray-400 hover:text-gray-600" /></button>
                                 </div>
                             </div>
