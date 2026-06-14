@@ -7,7 +7,7 @@ import { addToCart, decreaseQuantity, increaseQuantity } from '@/redux/cartSlice
 import { RootState } from '@/redux/store'
 import { toast } from 'sonner'
 import axios from 'axios'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import GroceryItemCard from './GroceryItemCard'
 import { useSession } from 'next-auth/react' 
 
@@ -21,7 +21,34 @@ const WhatsAppIcon = ({ size = 20, className = "" }: { size?: number, className?
 function ProductView({ product, similarProducts, hubManager }: { product: any, similarProducts: any[], hubManager?: { name: string; mobile: string } | null }) {
     const dispatch = useDispatch()
     const router = useRouter()
+    const pathname = usePathname()
     const { data: session } = useSession()
+    
+    const isHindi = pathname.startsWith('/hi')
+    const t = {
+        share: isHindi ? 'शेयर करें' : 'Share',
+        copyLink: isHindi ? 'लिंक कॉपी करें' : 'Copy Link',
+        moreOptions: isHindi ? 'और विकल्प' : 'More Options',
+        reviews: isHindi ? 'समीक्षाएँ' : 'Reviews',
+        away: isHindi ? 'दूर' : 'away',
+        wholesale: isHindi ? 'थोक (3+ इकाइयां)' : 'Wholesale (3+ units)',
+        retail: isHindi ? 'खुदरा (1-2 इकाइयां)' : 'Retail (1-2 units)',
+        off: isHindi ? 'छूट' : 'OFF',
+        stock: isHindi ? 'स्टॉक' : 'Stock',
+        outOfStock: isHindi ? 'स्टॉक से बाहर' : 'Out of Stock',
+        addedToCart: isHindi ? 'कार्ट में जोड़ा गया' : 'Added to Cart',
+        proceedToCart: isHindi ? 'कार्ट पर जाएं' : 'Proceed to Cart',
+        addToCart: isHindi ? 'कार्ट में डालें' : 'Add to Cart',
+        buyNow: isHindi ? 'अभी खरीदें' : 'Buy Now',
+        orderWhatsapp: isHindi ? 'WhatsApp द्वारा ऑर्डर करें' : 'Order via WhatsApp',
+        callOrder: isHindi ? 'कॉल करके ऑर्डर करें' : 'Call to Order',
+        description: isHindi ? 'विवरण' : 'Description',
+        soldByHub: isHindi ? 'द्वारा बेचा गया (हब)' : 'Sold By (Hub)',
+        soldBySeller: isHindi ? 'द्वारा बेचा गया (विक्रेता)' : 'Sold By (Seller)',
+        similarProducts: isHindi ? 'समान उत्पाद' : 'Similar Products',
+        linkCopied: isHindi ? 'लिंक कॉपी किया गया!' : 'Link copied to clipboard!',
+        addedSuccess: isHindi ? 'कार्ट में जोड़ा गया' : 'Added to Cart',
+    }
     
     const { latitude: userLat, longitude: userLng } = useSelector((state: RootState) => state.location);
     const cartItem = useSelector((state: RootState) => state.cart.cartData.find((i) => i._id === product._id))
@@ -120,7 +147,7 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
 
     const copyToClipboard = () => {
         navigator.clipboard.writeText(getShareContent());
-        toast.success("Link copied to clipboard!");
+        toast.success(t.linkCopied);
         setShowShareMenu(false);
     };
 
@@ -143,7 +170,7 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
             price: activePrice,
             sellerType: getSellerType() 
         }))
-        toast.success("Added to Cart")
+        toast.success(t.addedSuccess)
     }
 
     const handleBuyNow = () => {
@@ -272,10 +299,10 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                                             <WhatsAppIcon className="text-green-500" /> WhatsApp
                                         </button>
                                         <button onClick={copyToClipboard} className="flex items-center gap-3 w-full px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                                            <Copy size={18} className="text-gray-500" /> Copy Link
+                                            <Copy size={18} className="text-gray-500" /> {t.copyLink}
                                         </button>
                                         <button onClick={nativeShare} className="flex items-center gap-3 w-full px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                                            <MoreHorizontal size={18} className="text-blue-500" /> More Options
+                                            <MoreHorizontal size={18} className="text-blue-500" /> {t.moreOptions}
                                         </button>
                                     </div>
                                 </div>
@@ -299,13 +326,13 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                                     <Star key={i} size={16} fill={i < Math.round(displayRating) ? "currentColor" : "none"} className={i < Math.round(displayRating) ? "" : "text-gray-300"} />
                                 ))}
                             </div>
-                            <span className="text-sm text-gray-500">({displayCount} Reviews)</span>
+                            <span className="text-sm text-gray-500">({displayCount} {t.reviews})</span>
                         </div>
 
                         {distance && (
                             <div className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-md text-xs font-bold text-gray-600">
                                 <MapPin size={14} className="text-gray-500" />
-                                <span>{distance} away</span>
+                                <span>{distance} {t.away}</span>
                             </div>
                         )}
                     </div>
@@ -314,29 +341,29 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                 <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
                     {!isBook && (
                         <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
-                            <button onClick={() => setIsWholesale(true)} className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${isWholesale ? 'bg-white shadow-sm text-green-700' : 'text-gray-500'}`}>Wholesale (3+ units)</button>
-                            <button onClick={() => setIsWholesale(false)} className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${!isWholesale ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}>Retail (1-2 units)</button>
+                            <button onClick={() => setIsWholesale(true)} className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${isWholesale ? 'bg-white shadow-sm text-green-700' : 'text-gray-500'}`}>{t.wholesale}</button>
+                            <button onClick={() => setIsWholesale(false)} className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${!isWholesale ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}>{t.retail}</button>
                         </div>
                     )}
                     
                     <div className="flex items-end gap-3 mb-6">
                         <span className={`text-4xl font-extrabold ${isBook ? 'text-indigo-700' : 'text-green-700'}`}>₹{activePrice}</span>
                         <span className="text-gray-400 line-through mb-1.5 text-lg">₹{originalPrice}</span>
-                        <span className='mb-2 text-xs font-bold text-white bg-red-500 px-2 py-0.5 rounded'>{discountPercentage}% OFF</span>
-                        {!isBook && <span className="text-sm text-gray-500 mb-1.5 ml-auto">Stock: {product.stock} {product.unit}</span>}
+                        <span className='mb-2 text-xs font-bold text-white bg-red-500 px-2 py-0.5 rounded'>{discountPercentage}% {t.off}</span>
+                        {!isBook && <span className="text-sm text-gray-500 mb-1.5 ml-auto">{t.stock}: {product.stock} {product.unit}</span>}
                     </div>
 
                     {/* ✨ CART CONTROLS */}
                     {product.stock !== undefined && product.stock <= 0 ? (
                         <div className="p-5 rounded-2xl border bg-red-50 border-red-200 flex items-center justify-center shadow-sm">
-                            <span className="font-bold text-red-600 text-lg flex items-center gap-2"><ShieldCheck size={20}/> Out of Stock</span>
+                            <span className="font-bold text-red-600 text-lg flex items-center gap-2"><ShieldCheck size={20}/> {t.outOfStock}</span>
                         </div>
                     ) : cartItem ? (
                         <div className={`p-5 rounded-2xl border shadow-sm transition-all ${isBook ? 'bg-indigo-50 border-indigo-200' : 'bg-green-50 border-green-200'}`}>
                             <div className="flex justify-between items-center mb-4">
                                 <div className="flex items-center gap-2">
                                     <Check size={18} className={isBook ? 'text-indigo-600' : 'text-green-600'} />
-                                    <span className={`font-bold ${isBook ? 'text-indigo-800' : 'text-green-800'}`}>Added to Cart</span>
+                                    <span className={`font-bold ${isBook ? 'text-indigo-800' : 'text-green-800'}`}>{t.addedToCart}</span>
                                 </div>
                                 <div className="flex items-center bg-white rounded-lg shadow-sm border border-gray-100 p-1">
                                     <button onClick={() => dispatch(decreaseQuantity(product._id))} className="p-2 hover:bg-gray-100 rounded-md transition-colors"><Minus size={16}/></button>
@@ -344,17 +371,17 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                                     <button onClick={() => dispatch(increaseQuantity(product._id))} className="p-2 hover:bg-gray-100 rounded-md transition-colors"><Plus size={16}/></button>
                                 </div>
                             </div>
-                            <button onClick={() => router.push('/user/cart')} className={`w-full py-3 rounded-xl font-bold text-white shadow-md flex items-center justify-center gap-2 transition-transform active:scale-[0.98] ${isBook ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-green-600 hover:bg-green-700'}`}>
-                                Proceed to Cart <ArrowRight size={18} />
+                            <button onClick={() => router.push(isHindi ? '/hi/user/cart' : '/en/user/cart')} className={`w-full py-3 rounded-xl font-bold text-white shadow-md flex items-center justify-center gap-2 transition-transform active:scale-[0.98] ${isBook ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-green-600 hover:bg-green-700'}`}>
+                                {t.proceedToCart} <ArrowRight size={18} />
                             </button>
                         </div>
                     ) : (
                         <div className="flex gap-3">
                             <button onClick={handleAddToCart} className={`flex-1 font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 ${isBook ? 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200' : 'bg-green-100 text-green-800 hover:bg-green-200'}`}>
-                                <ShoppingCart size={20} /> Add to Cart
+                                <ShoppingCart size={20} /> {t.addToCart}
                             </button>
                             <button onClick={handleBuyNow} className={`flex-1 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 ${isBook ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200' : 'bg-green-600 hover:bg-green-700 shadow-green-200'}`}>
-                                <Zap size={20} /> Buy Now
+                                <Zap size={20} /> {t.buyNow}
                             </button>
                         </div>
                     )}
@@ -362,17 +389,17 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                     {/* 📞 DIRECT ORDER BUTTONS */}
                     <div className="flex flex-col sm:flex-row gap-3 mt-4">
                         <button onClick={handleWhatsAppOrder} className="flex-1 font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 bg-[#25D366] text-white hover:bg-[#128C7E] shadow-sm">
-                            <WhatsAppIcon size={20} className="text-white" /> Order via WhatsApp
+                            <WhatsAppIcon size={20} className="text-white" /> {t.orderWhatsapp}
                         </button>
                         <button onClick={handlePhoneOrder} className="flex-1 font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 bg-blue-100 text-blue-800 hover:bg-blue-200 shadow-sm">
-                            <Phone size={20} /> Call to Order
+                            <Phone size={20} /> {t.callOrder}
                         </button>
                     </div>
                 </div>
 
                 <div className="space-y-4">
                     <div className="bg-gray-50 p-5 rounded-xl">
-                        <h3 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><Book size={18}/> Description</h3>
+                        <h3 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><Book size={18}/> {t.description}</h3>
                         <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">{product.description || "No description provided."}</p>
                     </div>
                     
@@ -380,13 +407,13 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                         <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center"><ShieldCheck size={20}/></div>
                         {isHubProduct ? (
                             <div>
-                                <p className="text-xs text-gray-500 font-bold uppercase">Sold By (Hub)</p>
+                                <p className="text-xs text-gray-500 font-bold uppercase">{t.soldByHub}</p>
                                 <p className="font-semibold text-gray-900">Dehati Hub</p>
                                 <p className="text-xs text-gray-500">Hub Manager: {hubManager?.name || product.seller?.name || "Hub Manager"}</p>
                             </div>
                         ) : (
                             <div>
-                                <p className="text-xs text-gray-500 font-bold uppercase">Sold By (Seller)</p>
+                                <p className="text-xs text-gray-500 font-bold uppercase">{t.soldBySeller}</p>
                                 <p className="font-semibold text-gray-900">{product.seller?.sellerDetails?.shopName || "Local Shop"}</p>
                                 <p className="text-xs text-gray-500">Hub Contact: {hubManager?.name || product.seller?.name || "Verified Seller"}</p>
                             </div>
@@ -513,7 +540,7 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
             </div>
 
             <div className="lg:col-span-12 mt-8">
-                <h2 className="text-xl font-bold text-gray-800 mb-6">Similar Products</h2>
+                <h2 className="text-xl font-bold text-gray-800 mb-6">{t.similarProducts}</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                     {similarProducts.map((item: any) => (
                         <GroceryItemCard key={item._id} item={item} />

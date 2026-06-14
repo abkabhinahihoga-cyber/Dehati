@@ -58,7 +58,7 @@ export default function BottomNav({ user: propUser }: { user: any }) {
                 {/* Central Add Button */}
                 <div className="w-1/5 flex justify-center -mt-6">
                     <Link 
-                        href={reduxUser?.user?.role === 'seller' || session?.user?.role === 'seller' || propUser?.role === 'seller' ? "/seller/dashboard" : "/become-seller"} 
+                        href={reduxUser?.user?.role === 'seller' || session?.user?.role === 'seller' || propUser?.role === 'seller' ? "/seller/add-grocery" : "/apply/seller"} 
                         className="bg-green-600 w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-green-200 border-4 border-white text-white hover:bg-green-700 transition-colors"
                     >
                         <Plus size={28} strokeWidth={2.5} />

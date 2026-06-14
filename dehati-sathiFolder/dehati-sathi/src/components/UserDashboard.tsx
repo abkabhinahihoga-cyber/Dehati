@@ -5,6 +5,7 @@ import HeroSection from "./HeroSection";
 import ProductFeed from "./ProductFeed";
 import Link from 'next/link';
 import { ArrowLeft, SearchX } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 import MandiBhavTicker from "./MandiBhavTicker";
 import HorizontalReelsFeed from "./HorizontalReelsFeed";
 
@@ -15,6 +16,17 @@ interface UserDashboardProps {
 }
 
 function UserDashboard({ user, products, searchQuery }: UserDashboardProps) {
+  const pathname = usePathname();
+  const isHindi = pathname.startsWith('/hi');
+
+  const t = {
+    backToHome: isHindi ? 'होम पर वापस जाएं' : 'Back to Home',
+    resultsFor: isHindi ? 'के लिए परिणाम' : 'Results for',
+    foundProducts: isHindi ? (len: number) => `आपकी खोज से मेल खाने वाले ${len} उत्पाद मिले` : (len: number) => `Found ${len} products matching your search`,
+    noProductsFound: isHindi ? 'कोई उत्पाद नहीं मिला' : 'No products found',
+    noProductsDesc: isHindi ? (query: string) => `हमें "${query}" से मेल खाने वाला कुछ नहीं मिला। किसी अन्य कीवर्ड या श्रेणी की खोज करने का प्रयास करें।` : (query: string) => `We couldn't find anything matching "${query}". Try searching for a different keyword or category.`,
+    browseAll: isHindi ? 'सभी उत्पाद ब्राउज़ करें' : 'Browse All Products',
+  };
 
   // --- 1. SEARCH MODE ---
   if (searchQuery) {
@@ -25,19 +37,19 @@ function UserDashboard({ user, products, searchQuery }: UserDashboardProps) {
           {/* Header: Back Button & Title */}
           <div className="flex flex-col gap-4 mb-6">
             <Link 
-              href="/" 
+              href={isHindi ? "/hi" : "/en"} 
               className="inline-flex items-center gap-2 text-gray-500 hover:text-green-600 w-fit transition-colors font-medium"
             >
               <ArrowLeft size={18} />
-              Back to Home
+              {t.backToHome}
             </Link>
             
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-                Results for <span className="text-green-600">"{searchQuery}"</span>
+                {t.resultsFor} <span className="text-green-600">"{searchQuery}"</span>
               </h1>
               <p className="text-gray-500 text-sm mt-1">
-                Found {products.length} products matching your search
+                {t.foundProducts(products.length)}
               </p>
             </div>
           </div>
@@ -48,12 +60,12 @@ function UserDashboard({ user, products, searchQuery }: UserDashboardProps) {
               <div className="bg-gray-100 p-6 rounded-full mb-4">
                 <SearchX className="w-12 h-12 text-gray-400" />
               </div>
-              <h3 className="text-lg font-bold text-gray-700">No products found</h3>
+              <h3 className="text-lg font-bold text-gray-700">{t.noProductsFound}</h3>
               <p className="text-gray-500 max-w-sm mt-2">
-                We couldn't find anything matching "{searchQuery}". Try searching for a different keyword or category.
+                {t.noProductsDesc(searchQuery)}
               </p>
-              <Link href="/" className="mt-6 px-6 py-2.5 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition">
-                Browse All Products
+              <Link href={isHindi ? "/hi" : "/en"} className="mt-6 px-6 py-2.5 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition">
+                {t.browseAll}
               </Link>
             </div>
           ) : (

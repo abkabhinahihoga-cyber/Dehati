@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from "framer-motion"
 import { ArrowLeft, MapPin, User, Phone, Home, Navigation, LocateFixed, Loader2, CreditCard, Truck, Map, Store, Info, ExternalLink } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useSelector } from 'react-redux' 
 import { RootState } from '@/redux/store'
 import axios from 'axios'
@@ -20,6 +20,45 @@ const CheckoutMap = dynamic(() => import('@/components/CheckoutMap'), {
 
 function Checkout() {
     const router = useRouter()
+    const pathname = usePathname()
+    const isHindi = pathname.startsWith('/hi')
+
+    const t = {
+        back: isHindi ? 'वापस' : 'Back',
+        checkout: isHindi ? 'चेकआउट' : 'Checkout',
+        confirmPickup: isHindi ? 'पिकअप की पुष्टि करें' : 'Confirm Pickup',
+        deliveryAddress: isHindi ? 'डिलीवरी पता' : 'Delivery Address',
+        hubLocationDetails: isHindi ? 'हब स्थान विवरण' : 'Hub Location Details',
+        sellerLocationDetails: isHindi ? 'विक्रेता स्थान विवरण' : 'Seller Location Details',
+        fullName: isHindi ? 'पूरा नाम' : 'Full Name',
+        mobileNumber: isHindi ? 'मोबाइल नंबर' : 'Mobile Number',
+        villageStreet: isHindi ? 'गांव / गली' : 'Village / Street',
+        searchLocation: isHindi ? 'मानचित्र विकल्प खोजें...' : 'Search map location...',
+        search: isHindi ? 'खोजें' : 'Search',
+        fullAddress: isHindi ? 'पूरा पता (स्वचालित रूप से भरा गया)' : 'Full Address (Auto-filled)',
+        pickupLocation: isHindi ? 'पिकअप स्थान' : 'Pickup Location',
+        visitAddress: isHindi ? 'कृपया अपना ऑर्डर लेने के लिए नीचे दिए गए पते पर जाएं।' : 'Please visit the address below to collect your order.',
+        fetchingLocation: isHindi ? 'स्थान लोड हो रहा है...' : 'Fetching location...',
+        getDirections: isHindi ? 'गूगल मैप्स पर दिशा पाएं' : 'Get Directions on Google Maps',
+        loading: isHindi ? 'लोड हो रहा है...' : 'Loading...',
+        opensNewTab: isHindi ? 'नए टैब में खुलता है' : 'Opens in a new tab',
+        paymentMethod: isHindi ? 'भुगतान का तरीका' : 'Payment Method',
+        payCashAtHub: isHindi ? 'हब पर नकद भुगतान करें' : 'Pay Cash at Hub',
+        payCashToSeller: isHindi ? 'विक्रेता को नकद भुगतान करें' : 'Pay Cash to Seller',
+        cashOnDelivery: isHindi ? 'डिलीवरी पर नकद भुगतान' : 'Cash on Delivery',
+        subtotal: isHindi ? 'उपकुल' : 'SubTotal',
+        deliveryFee: isHindi ? 'डिलीवरी शुल्क' : 'Delivery Fee',
+        platformFee: isHindi ? 'प्लेटफॉर्म शुल्क' : 'Platform Fee',
+        finalTotal: isHindi ? 'अंतिम कुल' : 'Final Total',
+        walletBalance: isHindi ? 'वॉलेट बैलेंस' : 'Wallet Balance',
+        walletUse: isHindi ? 'आप इस ऑर्डर पर अधिकतम ₹' : 'You can use up to ₹',
+        walletUse2: isHindi ? ' उपयोग कर सकते हैं।' : ' on this order.',
+        applyDiscount: isHindi ? 'छूट लगाएं' : 'Apply',
+        discount: isHindi ? 'छूट' : 'Discount',
+        confirmOrder: isHindi ? 'ऑर्डर पक्का करें' : 'Confirm Order',
+        pleaseLogin: isHindi ? 'कृपया सभी डिलीवरी विवरण भरें।' : 'Please fill in all delivery details.',
+        loadingMap: isHindi ? 'मानचित्र लोड हो रहा है...' : 'Loading Map...',
+    }
     
     const { userData } = useSelector((state: RootState) => state.user)
     const { subTotal, deliveryFee, platformFee, finalTotal, cartData, deliveryType } = useSelector((state: RootState) => state.cart)
@@ -231,7 +270,7 @@ function Checkout() {
                 className='absolute left-0 top-2 flex items-center gap-2 text-green-700 hover:text-green-800 font-semibold'
                 onClick={() => router.push("/user/cart")}>
                 <ArrowLeft size={16} />
-                <span>Back</span>
+                <span>{t.back}</span>
             </motion.button>
 
             <motion.h1
@@ -239,7 +278,7 @@ function Checkout() {
                 animate={{ opacity: 1, y: 0 }}
                 className='text-3xl md:text-4xl font-bold text-green-700 text-center mb-10'
             >
-                {deliveryType === 'home-delivery' ? "Checkout" : "Confirm Pickup"}
+                {deliveryType === 'home-delivery' ? t.checkout : t.confirmPickup}
             </motion.h1>
 
             <div className='grid md:grid-cols-2 gap-8'>
@@ -260,20 +299,20 @@ function Checkout() {
                         <div className='space-y-4'>
                             <div className='relative'>
                                 <User className="absolute left-3 top-3 text-green-600" size={18} />
-                                <input type="text" name="fullName" value={address.fullName} onChange={handleChange} placeholder="Full Name" className='pl-10 w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500' />
+                                <input type="text" name="fullName" value={address.fullName} onChange={handleChange} placeholder={t.fullName} className='pl-10 w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500' />
                             </div>
                             <div className='relative'>
                                 <Phone className="absolute left-3 top-3 text-green-600" size={18} />
-                                <input type="text" name="mobile" value={address.mobile} onChange={handleChange} placeholder="Mobile Number" className='pl-10 w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500' />
+                                <input type="text" name="mobile" value={address.mobile} onChange={handleChange} placeholder={t.mobileNumber} className='pl-10 w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500' />
                             </div>
                             <div className='relative'>
                                 <Home className="absolute left-3 top-3 text-green-600" size={18} />
-                                <input type="text" name="village" value={address.village} onChange={handleChange} placeholder="Village / Street" className='pl-10 w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500' />
+                                <input type="text" name="village" value={address.village} onChange={handleChange} placeholder={t.villageStreet} className='pl-10 w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500' />
                             </div>
                             
                             <div className='flex gap-2 mt-3'>
-                                <input type="text" placeholder='Search map location...' className='flex-1 border rounded-lg p-3 text-sm focus:ring-2 focus:ring-green-500 outline-none' value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-                                <button className='bg-green-600 text-white px-5 rounded-lg hover:bg-green-700 transition-all font-medium' onClick={handleSearchQuery}>{searchLoading ? <Loader2 size={16} className='animate-spin' /> : "Search"}</button>
+                                <input type="text" placeholder={t.searchLocation} className='flex-1 border rounded-lg p-3 text-sm focus:ring-2 focus:ring-green-500 outline-none' value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                                <button className='bg-green-600 text-white px-5 rounded-lg hover:bg-green-700 transition-all font-medium' onClick={handleSearchQuery}>{searchLoading ? <Loader2 size={16} className='animate-spin' /> : t.search}</button>
                             </div>
                             
                             {/* Map for Home Delivery */}
@@ -290,7 +329,7 @@ function Checkout() {
                             
                             <div className='relative'>
                                 <Map className="absolute left-3 top-3 text-green-600" size={18} />
-                                <textarea name="fullAddress" value={address.fullAddress} onChange={handleChange} rows={2} placeholder="Full Address (Auto-filled)" className='pl-10 w-full border border-gray-300 rounded-lg p-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500 resize-none' />
+                                <textarea name="fullAddress" value={address.fullAddress} onChange={handleChange} rows={2} placeholder={t.fullAddress} className='pl-10 w-full border border-gray-300 rounded-lg p-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500 resize-none' />
                             </div>
                         </div>
                     ) : (
@@ -300,12 +339,12 @@ function Checkout() {
                                 <div className='flex items-start gap-3 mb-3'>
                                     <Info size={24} className="text-blue-600 mt-0.5 shrink-0"/>
                                     <div>
-                                        <p className="font-bold text-lg">Pickup Location</p>
-                                        <p className="text-sm text-blue-700 mt-1">Please visit the address below to collect your order.</p>
+                                        <p className="font-bold text-lg">{t.pickupLocation}</p>
+                                        <p className="text-sm text-blue-700 mt-1">{t.visitAddress}</p>
                                     </div>
                                 </div>
                                 <div className="ml-9 p-3 bg-white/60 rounded-lg border border-blue-100">
-                                    <p className="font-semibold text-gray-800">{pickupLocation?.address || "Fetching location..."}</p>
+                                    <p className="font-semibold text-gray-800">{pickupLocation?.address || t.fetchingLocation}</p>
                                 </div>
                             </div>
 
@@ -317,11 +356,11 @@ function Checkout() {
                                 className={`flex items-center justify-center gap-3 w-full py-4 rounded-xl font-bold text-white shadow-lg shadow-blue-200 transition-all active:scale-95 ${loadingPickup ? 'bg-gray-300 cursor-wait' : 'bg-blue-600 hover:bg-blue-700'}`}
                             >
                                 {loadingPickup ? <Loader2 className="animate-spin"/> : <Navigation size={20}/>}
-                                {loadingPickup ? "Loading..." : "Get Directions on Google Maps"}
+                                {loadingPickup ? t.loading : t.getDirections}
                             </a>
                             
                             <p className="text-xs text-gray-400 text-center flex items-center justify-center gap-1">
-                                <ExternalLink size={12}/> Opens in a new tab
+                                <ExternalLink size={12}/> {t.opensNewTab}
                             </p>
                         </div>
                     )}
@@ -333,7 +372,7 @@ function Checkout() {
                     animate={{ opacity: 1, x: 0 }}
                     className='bg-white rounded-2xl shadow-lg p-6 border border-gray-100 h-fit'
                 >
-                    <h2 className='text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2'><CreditCard className='text-green-600' />Payment Method</h2>
+                    <h2 className='text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2'><CreditCard className='text-green-600' />{t.paymentMethod}</h2>
                     
                     <div className='space-y-3 mb-6'>
 
@@ -345,17 +384,17 @@ function Checkout() {
                     </div>
 
                     <div className='border-t pt-4 text-gray-700 space-y-2 text-sm sm:text-base'>
-                        <div className='flex justify-between'><span className='font-semibold'>SubTotal</span><span className='font-semibold text-green-600'>₹{subTotal}</span></div>
+                        <div className='flex justify-between'><span className='font-semibold'>{t.subtotal}</span><span className='font-semibold text-green-600'>₹{subTotal}</span></div>
                         <div className='flex justify-between'>
-                            <span className='font-semibold'>Delivery Fee</span>
+                            <span className='font-semibold'>{t.deliveryFee}</span>
                             <span className={`${deliveryFee === 0 ? 'text-gray-400 line-through' : 'text-green-600 font-semibold'}`}>₹{deliveryFee}</span>
                         </div>
                         <div className='flex justify-between'>
-                            <span className='font-semibold'>Platform Fee</span>
+                            <span className='font-semibold'>{t.platformFee}</span>
                             <span className={`${platformFee === 0 ? 'text-gray-400 line-through' : 'text-green-600 font-semibold'}`}>₹{platformFee}</span>
                         </div>
                         <div className='flex justify-between font-bold text-lg border-t pt-3'>
-                            <span className='font-semibold'>Final Total</span>
+                            <span className='font-semibold'>{t.finalTotal}</span>
                             <span className='font-semibold text-green-600'>₹{useWallet ? Math.max(0, finalTotal - maxWalletDiscount) : finalTotal}</span>
                         </div>
                     </div>
@@ -365,11 +404,11 @@ function Checkout() {
                         <div className="mt-6 bg-green-50 rounded-xl p-4 border border-green-200">
                             <div className="flex justify-between items-center mb-2">
                                 <span className="font-semibold text-green-800 flex items-center gap-2">
-                                    <Store size={18} /> Wallet Balance
+                                    <Store size={18} /> {t.walletBalance}
                                 </span>
                                 <span className="font-bold text-green-700">₹{walletBalance}</span>
                             </div>
-                            <p className="text-xs text-green-600 mb-3">You can use up to ₹{Math.min(5, walletBalance)} on this order.</p>
+                            <p className="text-xs text-green-600 mb-3">{t.walletUse}{Math.min(5, walletBalance)}{t.walletUse2}</p>
                             <label className="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-green-100 shadow-sm w-fit">
                                 <input 
                                     type="checkbox" 
@@ -377,7 +416,7 @@ function Checkout() {
                                     checked={useWallet} 
                                     onChange={(e) => setUseWallet(e.target.checked)}
                                 />
-                                <span className="text-sm font-medium text-gray-700">Apply ₹{maxWalletDiscount} Discount</span>
+                                <span className="text-sm font-medium text-gray-700">{t.applyDiscount} ₹{maxWalletDiscount} {t.discount}</span>
                             </label>
                         </div>
                     )}
@@ -388,7 +427,7 @@ function Checkout() {
                         className='w-full mt-6 bg-green-600 text-white py-3 rounded-full hover:bg-green-700 transition-all font-semibold disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center'
                         onClick={handlePlaceOrder}
                     >
-                        {orderLoading ? <Loader2 className="animate-spin" /> : "Confirm Order"}
+                        {orderLoading ? <Loader2 className="animate-spin" /> : t.confirmOrder}
                     </motion.button>
                 </motion.div>
             </div>

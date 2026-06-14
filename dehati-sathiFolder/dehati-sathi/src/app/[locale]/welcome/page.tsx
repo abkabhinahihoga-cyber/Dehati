@@ -48,6 +48,40 @@ function WelcomePage() {
     const [resolvingLocation, setResolvingLocation] = useState(false)
     const [searchText, setSearchText] = useState("")
 
+    // --- TRANSLATIONS (based on selected language) ---
+    const isHindi = language === 'hi'
+    const tr = {
+        getStarted: isHindi ? 'शुरू करें' : 'Get Started',
+        tagline: isHindi ? 'भारतीय गांवों को वैश्विक बाजारों से जोड़ना। आइए अपनी प्रोफाइल सेटअप करें।' : 'Connecting Indian Villages to Global Markets. Let’s set up your profile.',
+        selectLanguage: isHindi ? 'भाषा चुनें' : 'Select Language',
+        selectLanguageHint: isHindi ? 'Choose your preferred language' : 'पसंदीदा भाषा चुनें',
+        continue: isHindi ? 'आगे बढ़ें' : 'Continue',
+        mobileTitle: isHindi ? 'मोबाइल नंबर' : 'Mobile Number',
+        mobileDesc: isHindi ? 'ऑर्डर डिलीवरी समन्वय के लिए हमें यह जानकारी चाहिए।' : 'We need this for order delivery coordination.',
+        mobilePlaceholder: isHindi ? '10 अंक नंबर दर्ज करें' : 'Enter 10 digit number',
+        referralPlaceholder: isHindi ? 'रेफरल कोड (वैकल्पिक)' : 'Referral Code (Optional)',
+        verifyAndContinue: isHindi ? 'सत्यापित करें और जारी रखें' : 'Verify & Continue',
+        pinLocation: isHindi ? 'स्थान तय करें' : 'Pin Location',
+        searchVillage: isHindi ? 'गांव, शहर खोजें...' : 'Search village, city...',
+        useCurrentLocation: isHindi ? 'वर्तमान स्थान उपयोग करें' : 'Use Current Location',
+        autoDetect: isHindi ? 'GPS से स्वचालित पता लगाएं' : 'Auto-detect via GPS',
+        detecting: isHindi ? 'खोज रहा है...' : 'Detecting...',
+        addressDetails: isHindi ? 'पता विवरण' : 'Address Details',
+        confirmDetails: isHindi ? 'नीचे दिए गए विवरण की पुष्टि करें' : 'Please confirm the details below',
+        detectedAddress: isHindi ? 'पता मिला' : 'Detected Address',
+        fetchingAddress: isHindi ? 'पता खोजा जा रहा है...' : 'Fetching address...',
+        villageStreet: isHindi ? 'गांव / गली' : 'Village / Street',
+        cityDistrict: isHindi ? 'शहर / जिला' : 'City / District',
+        state: isHindi ? 'राज्य' : 'State',
+        pincode: isHindi ? 'पिनकोड' : 'Pincode',
+        confirmAndFinish: isHindi ? 'पुष्टि करें और समाप्त करें' : 'Confirm & Finish',
+        connecting: isHindi ? 'जोड़ा जा रहा है...' : 'Connecting...',
+        locationNotFound: isHindi ? 'स्थान नहीं मिला।' : 'Location not found.',
+        pleaseSelectLocation: isHindi ? 'कृपया स्थान चुनें।' : 'Please select a location',
+        locationDenied: isHindi ? 'स्थान अनुमति नहीं दी।' : 'Location access denied.',
+        somethingWrong: isHindi ? 'कुछ गलत हो गया।' : 'Something went wrong.',
+    }
+
     // --- NAVIGATION LOGIC ---
 
     const handleNext = () => setStep(prev => prev + 1)
@@ -110,7 +144,7 @@ function WelcomePage() {
                 setMapPos([lat, lon]); 
                 reverseGeocode(lat, lon);
             } else {
-                alert("Location not found.");
+                alert(tr.locationNotFound);
             }
         } catch (e) { console.error(e); }
         finally { setResolvingLocation(false); }
@@ -126,7 +160,7 @@ function WelcomePage() {
                 const addr = await reverseGeocode(latitude, longitude);
                 setResolvingLocation(false);
             },
-            () => { alert("Location access denied."); setResolvingLocation(false); },
+            () => { alert(tr.locationDenied); setResolvingLocation(false); },
             { enableHighAccuracy: true }
         );
     }
@@ -152,7 +186,7 @@ function WelcomePage() {
     }
 
     const finishOnboarding = async () => {
-        if(!fullAddress) return alert("Please select a location");
+        if(!fullAddress) return alert(tr.pleaseSelectLocation);
         setLoading(true)
         try {
             const res = await axios.post('/api/user/complete-profile', {
@@ -177,7 +211,7 @@ function WelcomePage() {
                 router.push('/') 
             }
         } catch (error) {
-            alert("Something went wrong.")
+            alert(tr.somethingWrong)
         } finally {
             setLoading(false)
         }
@@ -215,7 +249,7 @@ function WelcomePage() {
                         </motion.div>
                         <h1 className='text-3xl md:text-5xl font-black text-green-800 tracking-tight mb-3'>Dehati Sathi</h1>
                         <p className='text-gray-500 text-lg font-medium max-w-md leading-relaxed'>
-                            Connecting Indian Villages to Global Markets. <br/> Let's set up your profile.
+                            {tr.tagline}
                         </p>
                         
                         <motion.button 
@@ -224,7 +258,7 @@ function WelcomePage() {
                             onClick={handleNext} 
                             className='mt-12 bg-green-600 hover:bg-green-700 text-white px-10 py-3 rounded-full font-bold shadow-lg shadow-green-200 flex items-center gap-2 transition-all'
                         >
-                            Get Started <ArrowRight className='w-5 h-5'/>
+                            {tr.getStarted} <ArrowRight className='w-5 h-5'/>
                         </motion.button>
                     </motion.div>
                 )}
@@ -241,8 +275,8 @@ function WelcomePage() {
                         <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto">
                             <div className="text-center mb-10">
                                 <Globe className='w-12 h-12 text-green-600 mx-auto mb-4'/>
-                                <h2 className='text-2xl font-bold text-gray-800'>Select Language</h2>
-                                <p className="text-gray-500">भाषा चुनें</p>
+                                <h2 className='text-2xl font-bold text-gray-800'>{tr.selectLanguage}</h2>
+                                <p className="text-gray-500">{tr.selectLanguageHint}</p>
                             </div>
                             
                             <div className='grid grid-cols-2 gap-4 mb-10 w-full'>
@@ -261,7 +295,7 @@ function WelcomePage() {
                                 onClick={handleLanguageNext} 
                                 className='bg-green-600 hover:bg-green-700 text-white px-10 py-3 rounded-full font-bold shadow-lg shadow-green-200 transition-all flex items-center gap-2'
                             >
-                                Continue <ArrowRight size={18}/>
+                                {tr.continue} <ArrowRight size={18}/>
                             </motion.button>
                         </div>
                     </motion.div>
@@ -279,14 +313,14 @@ function WelcomePage() {
 
                         <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto text-center">
                             <Phone className='w-12 h-12 text-blue-600 mx-auto mb-4'/>
-                            <h2 className='text-2xl font-bold text-gray-800 mb-2'>Mobile Number</h2>
-                            <p className='text-gray-500 mb-8'>We need this for order delivery coordination.</p>
+                            <h2 className='text-2xl font-bold text-gray-800 mb-2'>{tr.mobileTitle}</h2>
+                            <p className='text-gray-500 mb-8'>{tr.mobileDesc}</p>
                             
                             <div className="relative mb-6 w-full max-w-xs">
                                 <span className="absolute left-4 top-4 text-gray-400 font-bold text-lg">+91</span>
                                 <input 
                                     type="tel" 
-                                    placeholder="Enter 10 digit number" 
+                                    placeholder={tr.mobilePlaceholder}
                                     className="w-full pl-14 pr-4 py-4 rounded-xl border-2 border-gray-200 text-lg font-bold text-gray-800 focus:border-green-500 focus:ring-4 focus:ring-green-50 outline-none transition-all placeholder:font-normal" 
                                     value={mobile} 
                                     onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))} 
@@ -296,7 +330,7 @@ function WelcomePage() {
                             <div className="relative mb-8 w-full max-w-xs">
                                 <input 
                                     type="text" 
-                                    placeholder="Referral Code (Optional)" 
+                                    placeholder={tr.referralPlaceholder}
                                     className="w-full px-4 py-4 rounded-xl border-2 border-gray-200 font-bold text-gray-800 focus:border-green-500 focus:ring-4 focus:ring-green-50 outline-none transition-all placeholder:font-normal uppercase" 
                                     value={referralInput} 
                                     onChange={(e) => setReferralInput(e.target.value.toUpperCase())} 
@@ -310,7 +344,7 @@ function WelcomePage() {
                                 disabled={mobile.length < 10} 
                                 className='bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:text-gray-400 text-white px-10 py-3 rounded-full font-bold shadow-lg shadow-green-200 transition-all flex items-center gap-2'
                             >
-                                Verify & Continue <ArrowRight size={18}/>
+                                {tr.verifyAndContinue} <ArrowRight size={18}/>
                             </motion.button>
                         </div>
                     </motion.div>
@@ -329,7 +363,7 @@ function WelcomePage() {
                             <button onClick={handleBack} className="p-2 hover:bg-gray-100 rounded-full text-gray-600 transition-colors">
                                 <ArrowLeft size={24}/>
                             </button>
-                            <h3 className="font-bold text-gray-800 text-lg">Pin Location</h3>
+                            <h3 className="font-bold text-gray-800 text-lg">{tr.pinLocation}</h3>
                             <div className="w-8"></div>
                         </div>
 
@@ -344,7 +378,7 @@ function WelcomePage() {
                                     onChange={(e) => setSearchText(e.target.value)}
                                     onKeyDown={handleSearchKeyDown}
                                     type="text" 
-                                    placeholder="Search village, city..." 
+                                    placeholder={tr.searchVillage} 
                                     className="flex-1 pl-3 pr-2 py-4 text-sm font-bold text-gray-800 outline-none bg-transparent placeholder:text-gray-400" 
                                 />
                                 <button 
@@ -365,10 +399,10 @@ function WelcomePage() {
                                     {resolvingLocation ? <Loader2 size={22} className="animate-spin" /> : <Navigation size={22} fill="currentColor" />}
                                 </div>
                                 <div className="text-left">
-                                    <h4 className="font-bold text-green-800 text-sm">Use Current Location</h4>
-                                    <p className="text-xs text-green-600 mt-0.5">Auto-detect via GPS</p>
+                                    <h4 className="font-bold text-green-800 text-sm">{tr.useCurrentLocation}</h4>
+                                    <p className="text-xs text-green-600 mt-0.5">{tr.autoDetect}</p>
                                 </div>
-                                {resolvingLocation && <span className="ml-auto text-xs text-green-600 font-semibold animate-pulse">Detecting...</span>}
+                                {resolvingLocation && <span className="ml-auto text-xs text-green-600 font-semibold animate-pulse">{tr.detecting}</span>}
                             </button>
 
                             {/* 2. Map Container */}
@@ -383,25 +417,25 @@ function WelcomePage() {
                             {/* 3. Form Fields */}
                             <div className="space-y-5">
                                 <div className="mb-2">
-                                    <h3 className="text-xl font-black text-gray-800">Address Details</h3>
-                                    <p className="text-sm text-gray-500 font-medium">Please confirm the details below</p>
+                                    <h3 className="text-xl font-black text-gray-800">{tr.addressDetails}</h3>
+                                    <p className="text-sm text-gray-500 font-medium">{tr.confirmDetails}</p>
                                 </div>
 
                                 <div className={`p-4 rounded-xl bg-blue-50 border border-blue-100 flex items-start gap-4`}>
                                     <Globe size={20} className="text-blue-600 mt-0.5 shrink-0"/>
                                     <div className="flex-1">
-                                        <label className="text-[10px] font-bold text-blue-500 uppercase tracking-wider block mb-1">Detected Address</label>
-                                        <textarea rows={2} value={fullAddress} onChange={e => setFullAddress(e.target.value)} className="w-full bg-transparent text-sm font-semibold text-blue-900 outline-none resize-none placeholder:text-blue-300" placeholder="Fetching address..."/>
+                                        <label className="text-[10px] font-bold text-blue-500 uppercase tracking-wider block mb-1">{tr.detectedAddress}</label>
+                                        <textarea rows={2} value={fullAddress} onChange={e => setFullAddress(e.target.value)} className="w-full bg-transparent text-sm font-semibold text-blue-900 outline-none resize-none placeholder:text-blue-300" placeholder={tr.fetchingAddress}/>
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
-                                    <InputField icon={Milestone} label="Village / Street" value={manualFields.village} field="village" onChange={(v: string) => setManualFields(p => ({...p, village: v}))} />
-                                    <InputField icon={Building2} label="City / District" value={manualFields.city} field="city" onChange={(v: string) => setManualFields(p => ({...p, city: v}))} />
+                                    <InputField icon={Milestone} label={tr.villageStreet} value={manualFields.village} field="village" onChange={(v: string) => setManualFields(p => ({...p, village: v}))} />
+                                    <InputField icon={Building2} label={tr.cityDistrict} value={manualFields.city} field="city" onChange={(v: string) => setManualFields(p => ({...p, city: v}))} />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <InputField icon={Flag} label="State" value={manualFields.state} field="state" onChange={(v: string) => setManualFields(p => ({...p, state: v}))} />
-                                    <InputField icon={MapPin} label="Pincode" value={manualFields.pincode} field="pincode" onChange={(v: string) => setManualFields(p => ({...p, pincode: v}))} />
+                                    <InputField icon={Flag} label={tr.state} value={manualFields.state} field="state" onChange={(v: string) => setManualFields(p => ({...p, state: v}))} />
+                                    <InputField icon={MapPin} label={tr.pincode} value={manualFields.pincode} field="pincode" onChange={(v: string) => setManualFields(p => ({...p, pincode: v}))} />
                                 </div>
                             </div>
                         </div>
@@ -416,7 +450,7 @@ function WelcomePage() {
                                 className='w-full py-3.5 rounded-full text-white font-bold text-lg shadow-lg shadow-green-200 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-green-500 disabled:from-gray-300 disabled:to-gray-400 disabled:shadow-none disabled:cursor-not-allowed'
                             >
                                 {loading ? <Loader2 className="animate-spin" size={20}/> : <Check size={20} strokeWidth={3} />}
-                                {loading ? "Connecting..." : "Confirm & Finish"}
+                                {loading ? tr.connecting : tr.confirmAndFinish}
                             </motion.button>
                         </div>
                     </motion.div>

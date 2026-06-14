@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 interface Props {
-    params: Promise<{ id: string }>
+    params: Promise<{ id: string, locale: string }>
 }
 
 async function ProductDetails(props: Props) {
@@ -66,11 +66,16 @@ async function ProductDetails(props: Props) {
 
     const similarProducts = JSON.parse(JSON.stringify(similarRaw));
 
+    const isHindi = params.locale === 'hi';
+    const t = {
+        backToShop: isHindi ? 'दुकान पर वापस जाएं' : 'Back to Shop'
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             <div className="bg-white shadow-sm p-4 sticky top-0 z-50">
-                <Link href="/" className="flex items-center gap-2 text-gray-600 font-medium max-w-6xl mx-auto">
-                    <ArrowLeft size={20} /> Back to Shop
+                <Link href={isHindi ? "/hi" : "/en"} className="flex items-center gap-2 text-gray-600 font-medium max-w-6xl mx-auto">
+                    <ArrowLeft size={20} /> {t.backToShop}
                 </Link>
             </div>
 

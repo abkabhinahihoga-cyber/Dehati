@@ -22,12 +22,15 @@ export default function HubPOSPage() {
   const [deliveryType, setDeliveryType] = useState('hub-pickup')
   const [processing, setProcessing] = useState(false)
   const [cartExpanded, setCartExpanded] = useState(false)
+  const [productTab, setProductTab] = useState<'grocery' | 'book'>('grocery')
 
   const t = {
     selectCustomer: isHindi ? 'ग्राहक चुनें' : 'Select Customer',
     change: isHindi ? 'बदलें' : 'Change',
     searchCustomer: isHindi ? 'नाम या मोबाइल नंबर से खोजें...' : 'Search by name or mobile...',
     noCustomers: isHindi ? 'कोई ग्राहक नहीं मिला' : 'No customers found',
+    dehatiSathi: isHindi ? 'देहाती साथी (किराना)' : 'Dehati Sathi (Grocery)',
+    studyZone: isHindi ? 'स्टडी ज़ोन (पुस्तकें)' : 'Study Zone (Books)',
     catalog: isHindi ? 'कैटलॉग' : 'Catalog',
     searchProducts: isHindi ? 'उत्पाद खोजें...' : 'Search products...',
     noProducts: isHindi ? 'कोई उत्पाद नहीं मिला' : 'No products found',
@@ -80,10 +83,14 @@ export default function HubPOSPage() {
     u.mobile.includes(searchQuery)
   )
 
-  const filteredProducts = products.filter(p =>
-    p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-    (p.seller?.name && p.seller.name.toLowerCase().includes(productSearch.toLowerCase()))
-  )
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+      (p.seller?.name && p.seller.name.toLowerCase().includes(productSearch.toLowerCase()))
+    const matchesTab = productTab === 'grocery' 
+      ? p.productType !== 'book'
+      : p.productType === 'book'
+    return matchesSearch && matchesTab
+  })
 
   const addToCart = (product: any) => {
     if (product.stock <= 0) return toast.error(t.outOfStock)
@@ -222,6 +229,30 @@ export default function HubPOSPage() {
                 className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm"
               />
             </div>
+          </div>
+
+          {/* Product Category Tabs */}
+          <div className="flex gap-2 mb-4 shrink-0">
+            <button
+              onClick={() => setProductTab('grocery')}
+              className={`flex-1 py-2 rounded-xl font-bold text-sm border transition-all ${
+                productTab === 'grocery' 
+                  ? 'bg-green-600 text-white border-green-600 shadow-sm' 
+                  : 'bg-white text-gray-600 border-gray-200 hover:bg-green-50'
+              }`}
+            >
+              🌿 {t.dehatiSathi}
+            </button>
+            <button
+              onClick={() => setProductTab('book')}
+              className={`flex-1 py-2 rounded-xl font-bold text-sm border transition-all ${
+                productTab === 'book' 
+                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' 
+                  : 'bg-white text-gray-600 border-gray-200 hover:bg-indigo-50'
+              }`}
+            >
+              📚 {t.studyZone}
+            </button>
           </div>
           <div className="overflow-y-auto grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 pr-1 max-h-[500px] lg:max-h-[600px]">
             {filteredProducts.length === 0 ? (

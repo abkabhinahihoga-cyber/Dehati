@@ -42,6 +42,9 @@ function AddGroceryForm() {
   const [qualityScale, setQualityScale] = useState(5)
   const [previews, setPreviews] = useState<string[]>([])
   const [imageFiles, setImageFiles] = useState<File[]>([])
+  const [videoFile, setVideoFile] = useState<File | null>(null)
+  const [videoPreview, setVideoPreview] = useState<string | null>(null)
+  const [videoDuration, setVideoDuration] = useState<number>(0)
 
   const t = {
     selectProduct: isHindi ? 'बेचने के लिए उत्पाद चुनें' : 'Select Product to Sell',
@@ -66,6 +69,11 @@ function AddGroceryForm() {
     unit: isHindi ? 'इकाई' : 'Unit',
     retailRange: isHindi ? 'खुदरा सीमा' : 'Retail Range',
     wholesaleRange: isHindi ? 'थोक सीमा' : 'Wholesale Range',
+    videoTitle: isHindi ? 'उत्पाद का लाइव वीडियो (15 सेकंड, वैकल्पिक)' : 'Live Product Video (15 sec, Optional)',
+    videoHint: isHindi ? 'अपने उत्पाद का एक छोटा वीडियो अपलोड करें - इससे बिक्री बढ़ती है!' : 'Upload a short video of your product - boosts sales!',
+    videoDurationError: isHindi ? 'वीडियो 15 सेकंड से कम होना चाहिए।' : 'Video must be 15 seconds or less.',
+    removeVideo: isHindi ? 'वीडियो हटाएं' : 'Remove Video',
+    addVideo: isHindi ? 'वीडियो जोड़ें' : 'Add Video',
   }
 
   useEffect(() => {
@@ -101,6 +109,33 @@ function AddGroceryForm() {
     setPreviews(prev => [...prev, ...files.map(f => URL.createObjectURL(f))])
   }
 
+  const handleVideoChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const url = URL.createObjectURL(file)
+    // Check video duration
+    const video = document.createElement('video')
+    video.preload = 'metadata'
+    video.src = url
+    video.onloadedmetadata = () => {
+      if (video.duration > 15) {
+        toast.error(t.videoDurationError || 'Video must be 15 seconds or less.')
+        URL.revokeObjectURL(url)
+        return
+      }
+      setVideoFile(file)
+      setVideoPreview(url)
+      setVideoDuration(Math.round(video.duration))
+    }
+  }
+
+  const removeVideo = () => {
+    if (videoPreview) URL.revokeObjectURL(videoPreview)
+    setVideoFile(null)
+    setVideoPreview(null)
+    setVideoDuration(0)
+  }
+
   const removeImage = (index: number) => {
     URL.revokeObjectURL(previews[index])
     setImageFiles(prev => prev.filter((_, i) => i !== index))
@@ -127,6 +162,7 @@ function AddGroceryForm() {
       formData.append('qualityScale', qualityScale.toString())
       formData.append('productType', 'grocery')
       imageFiles.forEach(file => formData.append('images', file))
+      if (videoFile) formData.append('video', videoFile)
 
       await axios.post('/api/seller/add-product', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -390,6 +426,36 @@ function AddGroceryForm() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Optional Video Upload */}
+        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-orange-600 text-lg">🎥</span>
+            <label className="block text-gray-700 font-semibold text-sm">{t.videoTitle}</label>
+          </div>
+          <p className="text-xs text-orange-700 mb-3">{t.videoHint}</p>
+          {videoPreview ? (
+            <div className="relative">
+              <video src={videoPreview} controls className="w-full rounded-lg border border-orange-200" style={{maxHeight: '160px'}} />
+              <div className="flex justify-between items-center mt-2">
+                <span className="text-xs text-gray-500">{videoDuration}s</span>
+                <button
+                  type="button"
+                  onClick={removeVideo}
+                  className="flex items-center gap-1 text-red-500 text-xs font-semibold hover:underline"
+                >
+                  <X className="w-3 h-3" /> {t.removeVideo}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <label className="cursor-pointer flex items-center gap-2 justify-center w-full h-14 bg-white border-2 border-dashed border-orange-300 rounded-xl hover:bg-orange-50 transition-all text-orange-600">
+              <Upload className="w-5 h-5" />
+              <span className="text-sm font-medium">{t.addVideo}</span>
+              <input type="file" accept="video/*" hidden onChange={handleVideoChange} />
+            </label>
+          )}
         </div>
 
         {/* Submit Button */}

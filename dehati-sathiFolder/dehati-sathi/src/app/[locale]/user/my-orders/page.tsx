@@ -3,13 +3,21 @@ import { IOrder } from '@/app/models/order.model'
 import axios from 'axios'
 import { ArrowLeft, Package, PackageSearch } from 'lucide-react'
 import { div } from 'motion/react-client'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import {motion} from "motion/react"
 import React, { useEffect, useState } from 'react'
 import UserOrderCard from '@/components/UserOrderCard'
 
 function MyOrder() {
     const router=useRouter()
+    const pathname = usePathname()
+    const isHindi = pathname.startsWith('/hi')
+    const t = {
+        loading: isHindi ? 'आपके ऑर्डर लोड हो रहे हैं...' : 'Loading Your Orders...',
+        title: isHindi ? 'मेरे ऑर्डर' : 'My Orders',
+        noOrders: isHindi ? 'कोई ऑर्डर नहीं मिला' : 'No Orders Found',
+        startShopping: isHindi ? 'यहाँ अपने ऑर्डर देखने के लिए खरीदारी शुरू करें।' : 'Start Shopping to view your orders here.',
+    }
     const [orders,setOrders]=useState<IOrder[]>()
     const [loading,setLoading]=useState(true)
     useEffect(()=>{
@@ -27,7 +35,7 @@ function MyOrder() {
 
 
     if(loading){
-        return <div className='flex items-center justify-center min-h-[50vh] text-gray-600'>Loading Your Orders...</div>
+        return <div className='flex items-center justify-center min-h-[50vh] text-gray-600'>{t.loading}</div>
     }
   return (
     <div className='bg-linear-to-b from-white to-gray-100 min-h-screen w-full'>
@@ -38,15 +46,15 @@ function MyOrder() {
     <ArrowLeft size={24} className='text-green-700'/>
     </button>
     <h1 className='text-xl font-bold text-gray-800'>
-        My Orders
+        {t.title}
     </h1>
     </div>
     </div>
     {orders?.length==0 ?(
         <div className='pt-20 flex flex-col items-center text-center'>
             <PackageSearch size={70} className='text-green-600 mb-4'/>
-            <h2 className='text-xl font-semibold text-gray-700'>No Orders Found</h2>
-            <p className='text-gray-500 text-sm mt-1'>Start Shopping to view your orders here.</p>
+            <h2 className='text-xl font-semibold text-gray-700'>{t.noOrders}</h2>
+            <p className='text-gray-500 text-sm mt-1'>{t.startShopping}</p>
         </div>
     ):<div className='mt-4 space-y-6'>
         {orders?.map((order,index)=>(
