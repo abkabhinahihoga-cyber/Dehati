@@ -70,12 +70,12 @@ function Nav({ user }: { user: INavUser }) {
                 if(res.data.success) setConnections(res.data.connections);
             }).catch(() => {});
             
-            // Force Hub Selection if missing
-            if(!user.connectedHub) {
+            // Force Hub Selection if missing (except for admin)
+            if(!user.connectedHub && user.role !== 'admin') {
                 setIsHubModalOpen(true);
             }
         }
-    }, [user._id, user.connectedHub]);
+    }, [user._id, user.connectedHub, user.role]);
 
     const authRoutes = ['/login', '/signup', '/register', '/welcome', '/forgot-password', '/onboarding', '/landing'];
     if (authRoutes.includes(pathname)) return null;
@@ -283,7 +283,7 @@ function Nav({ user }: { user: INavUser }) {
             {/* âœ… FIXED: Sidebar Portal is always rendered */}
             {renderSidebar()}
             <LocationModal isOpen={isLocationModalOpen} onClose={() => setIsLocationModalOpen(false)} />
-            <HubSelectorModal isOpen={isHubModalOpen} onClose={() => setIsHubModalOpen(false)} forceSelection={!user.connectedHub} />
+            <HubSelectorModal isOpen={isHubModalOpen} onClose={() => setIsHubModalOpen(false)} forceSelection={!user.connectedHub && user.role !== 'admin'} />
 
             {/* âœ… ONLY render visible Top Bar on Home Page */}
             {isHomePage && (
