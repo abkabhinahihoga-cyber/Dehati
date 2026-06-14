@@ -140,23 +140,17 @@ function Nav({ user }: { user: INavUser }) {
                                     {isGrocery ? <Store className='text-green-500' /> : <BookOpen className='text-blue-500' />} {t('home')}
                                 </Link>
                                 
-                                {/* ðŸ‘‡ NEW: Connections Link & Horizontal List */}
-                                <Link href="/user/connections" onClick={close} className='flex items-center justify-between gap-4 p-3 mx-2 rounded-lg text-gray-700 hover:bg-gray-50 font-medium'>
-                                    <div className="flex items-center gap-4"><Store className='text-blue-500' /> {t('following')}</div>
-                                    {connections.length > 0 && <span className="bg-blue-100 text-blue-600 text-[10px] font-bold px-2 py-0.5 rounded-full">{connections.length}</span>}
-                                </Link>
-
-                                {connections.length > 0 && (
-                                    <div className="pl-4 pr-2 pb-2 mb-2 overflow-x-auto scrollbar-hide flex gap-3 border-b border-gray-50">
-                                        {connections.slice(0, 6).map((shop: any) => (
-                                            <div key={shop._id} onClick={() => { router.push(`/shop/${shop._id}`); close(); }} className="flex flex-col items-center gap-1 min-w-[50px] cursor-pointer">
-                                                <div className="w-10 h-10 rounded-full border border-gray-200 relative overflow-hidden">
-                                                    <Image src={shop.image || "/avatar.png"} fill alt={shop.name} className="object-cover" />
-                                                </div>
-                                                <span className="text-[9px] text-gray-500 truncate w-full text-center">{shop.name?.split(' ')[0]}</span>
-                                            </div>
-                                        ))}
-                                    </div>
+                                {/* --- SELLER / BECOME SELLER OPTIONS MOVED UP --- */}
+                                {(user.role === 'seller' || user.sellerStatus === 'approved') && (
+                                     <Link href="/seller/dashboard" onClick={close} className='flex items-center gap-4 p-3 mx-2 rounded-lg text-gray-700 hover:bg-gray-50 font-medium'>
+                                        <LayoutDashboard className='text-green-600' /> {t('sellerDashboard')}
+                                     </Link>
+                                )}
+                                
+                                {user.role === 'user' && user.sellerStatus !== 'approved' && (
+                                    <Link href="/apply/seller" onClick={close} className='flex items-center gap-4 p-3 mx-2 rounded-lg text-gray-700 hover:bg-gray-50 font-medium'>
+                                        <Store className='text-orange-500' /> {t('becomeSeller')}
+                                    </Link>
                                 )}
 
                                 <Link href="/reels" onClick={close} className='flex items-center gap-4 p-3 mx-2 rounded-lg text-gray-700 hover:bg-gray-50 font-medium'>
@@ -169,17 +163,7 @@ function Nav({ user }: { user: INavUser }) {
                                     <UserCircle className='text-gray-400' /> {t('myAccount')}
                                 </Link>
 
-                                {(user.role === 'seller' || user.sellerStatus === 'approved') && (
-                                     <Link href="/seller/dashboard" onClick={close} className='flex items-center gap-4 p-3 mx-2 rounded-lg text-gray-700 hover:bg-gray-50 font-medium'>
-                                        <LayoutDashboard className='text-gray-400' /> {t('sellerDashboard')}
-                                     </Link>
-                                )}
-                                
-                                {user.role === 'user' && user.sellerStatus !== 'approved' && (
-                                    <Link href="/apply/seller" onClick={close} className='flex items-center gap-4 p-3 mx-2 rounded-lg text-gray-700 hover:bg-gray-50 font-medium'>
-                                        <Store className='text-gray-400' /> {t('becomeSeller')}
-                                    </Link>
-                                )}
+
 
                                 {(user.role === 'admin') && (
                                     <Link href="/admin/dashboard" onClick={close} className='flex items-center gap-4 p-3 mx-2 rounded-lg text-gray-700 hover:bg-gray-50 font-medium'>
@@ -240,16 +224,24 @@ function Nav({ user }: { user: INavUser }) {
                                     <AnimatePresence>
                                         {supportOpen && (
                                             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className='overflow-hidden bg-gray-50 mx-4 rounded-lg'>
-                                                <div className='p-4 space-y-3'>
-                                                    <a href="mailto:dehatisathi@gmail.com" className='flex items-center gap-3 text-sm text-gray-700 hover:text-green-600'>
-                                                        <Mail className='w-4 h-4 text-gray-400' /> dehatisathi@gmail.com
+                                                <div className='p-3 space-y-2'>
+                                                    <a href="mailto:dehatisathi@gmail.com" className='flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm text-sm text-gray-700 hover:text-green-600 border border-gray-100 transition-colors'>
+                                                        <div className="p-2 bg-orange-50 rounded-full"><Mail className='w-4 h-4 text-orange-500' /></div>
+                                                        <span className="font-medium">dehatisathi@gmail.com</span>
                                                     </a>
-                                                    <a href="https://wa.me/917565089255" target="_blank" rel="noopener noreferrer" className='flex items-center gap-3 text-sm text-gray-700 hover:text-green-600'>
-                                                        <PhoneCall className='w-4 h-4 text-gray-400' /> +91 7565089255
+                                                    <a href="https://wa.me/917565089255" target="_blank" rel="noopener noreferrer" className='flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm text-sm text-gray-700 hover:text-green-600 border border-gray-100 transition-colors'>
+                                                        <div className="p-2 bg-green-50 rounded-full"><PhoneCall className='w-4 h-4 text-green-500' /></div>
+                                                        <span className="font-medium">+91 7565089255</span>
                                                     </a>
-                                                    <div className='pt-2 mt-2 border-t border-gray-200 text-xs text-gray-500'>
-                                                        <span className="font-bold text-gray-600">Founder:</span> Vaibhav Patel
-                                                        <p className="italic text-[10px] mt-0.5">A Mechanical Engineering Student</p>
+                                                    <div className='mt-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg flex items-center gap-3'>
+                                                        <div className="w-10 h-10 rounded-full bg-blue-100 border-2 border-white shadow-sm flex items-center justify-center shrink-0">
+                                                            <User className="w-5 h-5 text-blue-600" />
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-xs text-blue-500 font-bold uppercase tracking-wider">Founder</div>
+                                                            <div className="text-sm font-black text-gray-800">Vaibhav Patel</div>
+                                                            <p className="text-[10px] text-gray-500 mt-0.5 leading-tight">Mechanical Engineering Student</p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </motion.div>

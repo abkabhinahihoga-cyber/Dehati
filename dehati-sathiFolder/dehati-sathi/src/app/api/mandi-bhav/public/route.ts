@@ -9,11 +9,18 @@ export async function GET(req: NextRequest) {
   try {
     await connectDb();
     const { searchParams } = new URL(req.url);
-    const hubId = searchParams.get("hubId");
+    let hubId = searchParams.get("hubId");
 
     if (!hubId) return NextResponse.json({ success: false, error: "hubId required" }, { status: 400 });
 
-    const hub = await Hub.findById(hubId).lean() as any;
+    let hub;
+    if (hubId === 'public') {
+        hub = await Hub.findOne().lean() as any;
+        if (hub) hubId = hub._id.toString();
+    } else {
+        hub = await Hub.findById(hubId).lean() as any;
+    }
+
     if (!hub) return NextResponse.json({ success: false, error: "Hub not found" }, { status: 404 });
 
     const enabledProductIds = hub.enabledProducts || [];

@@ -3,7 +3,7 @@ import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { motion } from "framer-motion"
 import Image from 'next/image';
 import { Star, Zap, MapPin, Heart, Clock, Share2, Copy, MoreHorizontal } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { toast } from 'sonner'; // Ensure toast is imported
@@ -22,6 +22,8 @@ interface GroceryItemCardProps {
 
 function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const isHindi = pathname.startsWith('/hi');
   const { latitude: userLat, longitude: userLng } = useSelector((state: RootState) => state.location);
   
   const isBook = item.productType === 'book';
@@ -184,7 +186,7 @@ function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
       {/* Discount Badge */}
       {discount > 0 && item.stock > 0 && (
           <div className={`absolute top-3 left-3 z-10 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-md flex items-center gap-1 ${isBook ? 'bg-indigo-600' : 'bg-green-600'}`}>
-            <Zap size={10} fill='white'/> {discount}% OFF
+            <Zap size={10} fill='white'/> {discount}% {isHindi ? 'छूट' : 'OFF'}
           </div>
       )}
 
@@ -192,7 +194,7 @@ function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
       {item.stock !== undefined && item.stock <= 0 && (
           <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-20 flex items-center justify-center pointer-events-none">
               <div className="bg-red-500 text-white font-black px-4 py-1.5 rounded-lg shadow-lg rotate-12 border-2 border-white tracking-widest uppercase text-sm">
-                  Out of Stock
+                  {isHindi ? 'स्टॉक खत्म' : 'Out of Stock'}
               </div>
           </div>
       )}
@@ -227,7 +229,7 @@ function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
                     item.qualityScale <= 8 ? 'bg-emerald-100 text-emerald-700' :
                     'bg-green-100 text-green-700'
                   }`}>
-                    Quality: {item.qualityScale}/10
+                    {isHindi ? 'क्वालिटी: ' : 'Quality: '}{item.qualityScale}/10
                   </span>
                 </div>
               )}
@@ -246,7 +248,7 @@ function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
             {distance ? (
                 <div className="flex items-center gap-1 text-[10px] font-medium text-gray-400">
                     <MapPin size={10} />
-                    <span>{distance} away</span>
+                    <span>{distance} {isHindi ? 'दूर' : 'away'}</span>
                 </div>
             ) : <div></div>}
             
@@ -267,10 +269,10 @@ function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
                                 <WhatsAppIcon className="text-green-500" size={16} /> WhatsApp
                             </button>
                             <button onClick={copyToClipboard} className="flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 rounded-md transition-colors text-left">
-                                <Copy size={16} className="text-gray-500" /> Copy Link
+                                <Copy size={16} className="text-gray-500" /> {isHindi ? 'लिंक कॉपी करें' : 'Copy Link'}
                             </button>
                             <button onClick={nativeShare} className="flex items-center gap-2 w-full px-3 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 rounded-md transition-colors text-left">
-                                <MoreHorizontal size={16} className="text-blue-500" /> More
+                                <MoreHorizontal size={16} className="text-blue-500" /> {isHindi ? 'और विकल्प' : 'More'}
                             </button>
                         </div>
                     </div>
@@ -284,7 +286,7 @@ function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
                 <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-red-50 border border-red-100">
                     <Clock className="w-3 h-3 text-red-500 animate-pulse" />
                     <span className="text-[10px] font-bold text-red-600 tracking-wide font-mono">
-                        Ends in {formatTime(timeLeft)}
+                        {isHindi ? 'में समाप्त: ' : 'Ends in '}{formatTime(timeLeft)}
                     </span>
                 </div>
             </div>
@@ -294,15 +296,15 @@ function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
         <h3 className={`font-bold text-gray-800 line-clamp-2 text-sm md:text-base mb-1 transition-colors ${isBook ? 'group-hover:text-indigo-700' : 'group-hover:text-green-700'}`}>{item.name}</h3>
 
         {isBook && item.bookDetails?.author ? (
-            <p className='text-xs text-gray-500 mb-3 line-clamp-1'>by {item.bookDetails.author}</p>
+            <p className='text-xs text-gray-500 mb-3 line-clamp-1'>{isHindi ? 'द्वारा ' : 'by '}{item.bookDetails.author}</p>
         ) : (
             !distance && <div className='mb-2'></div>
         )}
         
         {!isBook ? (
             <div className='flex bg-gray-100 p-1 rounded-lg mb-3 mt-auto'>
-                <button onClick={(e) => handleToggle(e, true)} className={`flex-1 text-[10px] font-bold py-1.5 rounded-md transition-all ${isWholesale ? 'bg-white text-green-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>Wholesale (3+)</button>
-                <button onClick={(e) => handleToggle(e, false)} className={`flex-1 text-[10px] font-bold py-1.5 rounded-md transition-all ${!isWholesale ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>Retail (1-2)</button>
+                <button onClick={(e) => handleToggle(e, true)} className={`flex-1 text-[10px] font-bold py-1.5 rounded-md transition-all ${isWholesale ? 'bg-white text-green-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>{isHindi ? 'थोक (3+)' : 'Wholesale (3+)'}</button>
+                <button onClick={(e) => handleToggle(e, false)} className={`flex-1 text-[10px] font-bold py-1.5 rounded-md transition-all ${!isWholesale ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>{isHindi ? 'फुटकर (1-2)' : 'Retail (1-2)'}</button>
             </div>
         ) : (
             <div className="mt-auto h-2"></div>
@@ -311,7 +313,7 @@ function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
         <div className='flex items-end gap-2 pt-2 border-t border-gray-50 mt-auto'>
           <span className={`text-lg md:text-xl font-extrabold ${isBook ? 'text-indigo-700' : 'text-green-700'}`}>₹{activePrice}</span>
           <span className='text-xs text-gray-400 line-through mb-1'>₹{originalPrice}</span>
-          {!isBook && <span className='text-xs text-gray-500 mb-1 ml-auto'>per {item.unit}</span>}
+          {!isBook && <span className='text-xs text-gray-500 mb-1 ml-auto'>{isHindi ? 'प्रति ' : 'per '}{item.unit}</span>}
         </div>
       </div>
     </motion.div>

@@ -86,7 +86,7 @@ function UserDashboard({ user, products, searchQuery }: UserDashboardProps) {
       <HeroSection />
       
       {/* Mandi Bhav Ticker */}
-      {user?.connectedHub && <MandiBhavTicker hubId={user.connectedHub} />}
+      <MandiBhavTicker hubId={user?.connectedHub || 'public'} />
       
       <div className="pt-6">
          <CategorySlider />
