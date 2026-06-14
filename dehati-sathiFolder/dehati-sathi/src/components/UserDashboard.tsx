@@ -6,6 +6,7 @@ import ProductFeed from "./ProductFeed";
 import Link from 'next/link';
 import { ArrowLeft, SearchX } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import MandiBhavTicker from "./MandiBhavTicker";
 import HorizontalReelsFeed from "./HorizontalReelsFeed";
 
@@ -16,8 +17,8 @@ interface UserDashboardProps {
 }
 
 function UserDashboard({ user, products, searchQuery }: UserDashboardProps) {
-  const pathname = usePathname();
-  const isHindi = pathname.startsWith('/hi');
+  const locale = useLocale();
+  const isHindi = locale === 'hi';
 
   const t = {
     backToHome: isHindi ? 'होम पर वापस जाएं' : 'Back to Home',

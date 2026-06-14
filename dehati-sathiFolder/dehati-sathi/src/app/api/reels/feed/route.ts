@@ -50,13 +50,24 @@ export async function GET(req: NextRequest) {
         }
 
         // Fetch Videos
-        const videos = await Video.find(videoQuery)
+        let videos = await Video.find(videoQuery)
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
             .populate('seller', 'name image sellerDetails followersCount') 
             .populate('product', 'name price retailPrice images') // 👈 This will now work
             .lean();
+
+        // FALLBACK: If location-based query returned 0 videos, fetch global videos
+        if (videos.length === 0 && Object.keys(videoQuery).length > 0) {
+            videos = await Video.find({})
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .populate('seller', 'name image sellerDetails followersCount')
+                .populate('product', 'name price retailPrice images')
+                .lean();
+        }
 
         // Add User Context (Liked/Connected)
         const session = await auth();

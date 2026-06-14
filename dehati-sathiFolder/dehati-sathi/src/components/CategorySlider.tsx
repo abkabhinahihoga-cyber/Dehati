@@ -15,32 +15,32 @@ import { GROCERY_CATEGORIES, BOOK_CATEGORIES } from '@/lib/constants'
 // --- 1. ICON MAPPING ---
 const CATEGORY_CONFIG: any = {
     // Grocery
-    "Fresh Fruits": { icon: Apple, color: "bg-red-100" },
-    "Fresh Vegetables": { icon: Salad, color: "bg-green-100" },
-    "Live Plants": { icon: Flower, color: "bg-emerald-100" },
-    "Rice, Atta & Dals": { icon: Wheat, color: "bg-orange-100" },
-    "Dairy & Breakfast": { icon: Milk, color: "bg-blue-50" },
-    "Spices & Masalas": { icon: Search, color: "bg-yellow-100" },
-    "HandCrafted": { icon: Hand, color: "bg-rose-100" },
-    "Household Essentials": { icon: Home, color: "bg-lime-100" },
-    "Snacks & Packaged Food": { icon: Box, color: "bg-amber-100" },
-    "Personal Care": { icon: Sparkles, color: "bg-purple-100" },
-    "Cold Drinks & Juices": { icon: Coffee, color: "bg-teal-100" },
-    "Chocolates & Ice Cream": { icon: IceCream, color: "bg-pink-100" },
+    "Fresh Fruits": { emoji: "🍎", color: "bg-red-100" },
+    "Fresh Vegetables": { emoji: "🥬", color: "bg-green-100" },
+    "Live Plants": { emoji: "🪴", color: "bg-emerald-100" },
+    "Rice, Atta & Dals": { emoji: "🌾", color: "bg-orange-100" },
+    "Dairy & Breakfast": { emoji: "🥛", color: "bg-blue-50" },
+    "Spices & Masalas": { emoji: "🌶️", color: "bg-yellow-100" },
+    "HandCrafted": { emoji: "🏺", color: "bg-rose-100" },
+    "Household Essentials": { emoji: "🧹", color: "bg-lime-100" },
+    "Snacks & Packaged Food": { emoji: "🍿", color: "bg-amber-100" },
+    "Personal Care": { emoji: "🧴", color: "bg-purple-100" },
+    "Cold Drinks & Juices": { emoji: "🥤", color: "bg-teal-100" },
+    "Chocolates & Ice Cream": { emoji: "🍦", color: "bg-pink-100" },
     
     // Student
-    "LKG & UKG": { icon: Shapes, color: "bg-pink-100" },
-    "Class 1 - 5": { icon: Backpack, color: "bg-blue-100" },
-    "Class 6 - 8": { icon: BookOpen, color: "bg-indigo-100" },
-    "Class 9 & 11": { icon: NotebookPen, color: "bg-violet-100" },
-    "Class 10 & 12 (Board)": { icon: Library, color: "bg-purple-100" },
-    "Graduation (B.Tech/B.Sc/BA)": { icon: GraduationCap, color: "bg-yellow-100" },
-    "Textbooks": { icon: Book, color: "bg-teal-100" },
-    "Notes & Study Material": { icon: Scroll, color: "bg-amber-100" },
-    "Entrance Exam (JEE/NEET)": { icon: Zap, color: "bg-red-100" },
-    "Novels & Fiction": { icon: BookOpen, color: "bg-pink-100" },
-    "Stationary": { icon: Box, color: "bg-gray-200" },
-    "Others": { icon: Box, color: "bg-gray-100" }
+    "LKG & UKG": { emoji: "🧸", color: "bg-pink-100" },
+    "Class 1 - 5": { emoji: "🎒", color: "bg-blue-100" },
+    "Class 6 - 8": { emoji: "📓", color: "bg-indigo-100" },
+    "Class 9 & 11": { emoji: "📐", color: "bg-violet-100" },
+    "Class 10 & 12 (Board)": { emoji: "🎓", color: "bg-purple-100" },
+    "Graduation (B.Tech/B.Sc/BA)": { emoji: "🏫", color: "bg-yellow-100" },
+    "Textbooks": { emoji: "📚", color: "bg-teal-100" },
+    "Notes & Study Material": { emoji: "📝", color: "bg-amber-100" },
+    "Entrance Exam (JEE/NEET)": { emoji: "🎯", color: "bg-red-100" },
+    "Novels & Fiction": { emoji: "📖", color: "bg-pink-100" },
+    "Stationary": { emoji: "🖊️", color: "bg-gray-200" },
+    "Others": { emoji: "📦", color: "bg-gray-100" }
 };
 
 function CategorySlider() {
@@ -140,7 +140,11 @@ function CategorySlider() {
                                 }`}
                         >
                             <div className='flex flex-col items-center justify-center p-4 text-center'>
-                                <Icon className={`w-10 h-10 mb-3 ${isActive ? 'scale-110' : ''} ${mode === 'grocery' ? 'text-green-700' : 'text-indigo-700'}`} />
+                                {cat.emoji ? (
+                                    <span className={`text-4xl md:text-5xl mb-3 ${isActive ? 'scale-110' : ''} transition-transform`}>{cat.emoji}</span>
+                                ) : Icon ? (
+                                    <Icon className={`w-10 h-10 mb-3 ${isActive ? 'scale-110' : ''} ${mode === 'grocery' ? 'text-green-700' : 'text-indigo-700'}`} />
+                                ) : null}
                                 <p className={`text-sm font-bold leading-tight ${isActive ? 'text-black' : 'text-gray-700'}`}>
                                     {cat.name}
                                 </p>

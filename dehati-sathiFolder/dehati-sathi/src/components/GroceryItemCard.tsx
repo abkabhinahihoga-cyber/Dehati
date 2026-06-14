@@ -4,6 +4,7 @@ import { motion } from "framer-motion"
 import Image from 'next/image';
 import { Star, Zap, MapPin, Heart, Clock, Share2, Copy, MoreHorizontal } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { toast } from 'sonner'; // Ensure toast is imported
@@ -22,8 +23,8 @@ interface GroceryItemCardProps {
 
 function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
   const router = useRouter();
-  const pathname = usePathname();
-  const isHindi = pathname.startsWith('/hi');
+  const locale = useLocale();
+  const isHindi = locale === 'hi';
   const { latitude: userLat, longitude: userLng } = useSelector((state: RootState) => state.location);
   
   const isBook = item.productType === 'book';

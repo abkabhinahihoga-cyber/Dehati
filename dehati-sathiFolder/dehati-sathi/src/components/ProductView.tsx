@@ -11,6 +11,8 @@ import { useRouter, usePathname } from 'next/navigation'
 import GroceryItemCard from './GroceryItemCard'
 import { useSession } from 'next-auth/react' 
 
+import { useLocale } from 'next-intl'
+
 // 🔥 CUSTOM WHATSAPP ICON (Official Brand SVG)
 const WhatsAppIcon = ({ size = 20, className = "" }: { size?: number, className?: string }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className} xmlns="http://www.w3.org/2000/svg">
@@ -21,10 +23,10 @@ const WhatsAppIcon = ({ size = 20, className = "" }: { size?: number, className?
 function ProductView({ product, similarProducts, hubManager }: { product: any, similarProducts: any[], hubManager?: { name: string; mobile: string } | null }) {
     const dispatch = useDispatch()
     const router = useRouter()
-    const pathname = usePathname()
+    const locale = useLocale()
     const { data: session } = useSession()
     
-    const isHindi = pathname.startsWith('/hi')
+    const isHindi = locale === 'hi'
     const t = {
         share: isHindi ? 'शेयर करें' : 'Share',
         copyLink: isHindi ? 'लिंक कॉपी करें' : 'Copy Link',
@@ -48,6 +50,21 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
         similarProducts: isHindi ? 'समान उत्पाद' : 'Similar Products',
         linkCopied: isHindi ? 'लिंक कॉपी किया गया!' : 'Link copied to clipboard!',
         addedSuccess: isHindi ? 'कार्ट में जोड़ा गया' : 'Added to Cart',
+        customerReviews: isHindi ? 'ग्राहक समीक्षाएँ' : 'Customer Reviews',
+        rateThisProduct: isHindi ? 'इस उत्पाद को रेट करें' : 'Rate this product',
+        writeReview: isHindi ? 'अपनी समीक्षा लिखें...' : 'Write your review...',
+        postReview: isHindi ? 'समीक्षा पोस्ट करें' : 'Post Review',
+        posting: isHindi ? 'पोस्ट किया जा रहा है...' : 'Posting...',
+        noReviewsYet: isHindi ? 'अभी तक कोई समीक्षा नहीं।' : 'No reviews yet.',
+        justNow: isHindi ? 'अभी-अभी' : 'Just now',
+        walletBalance: isHindi ? 'वॉलेट बैलेंस' : 'Wallet Balance',
+        discountApplied: isHindi ? 'चेकआउट पर छूट लागू की जाएगी' : 'discount will be applied at checkout',
+        applyDiscount: isHindi ? 'चेकआउट पर छूट लागू करें' : 'Apply off at checkout',
+        apply: isHindi ? 'लागू करें' : 'Apply',
+        applied: isHindi ? '✓ लागू किया गया' : '✓ Applied',
+        referEarnTitle: isHindi ? 'रेफर किए गए प्रत्येक मित्र के लिए ₹10 कमाएं! 🎉' : 'Earn ₹10 for every friend referred! 🎉',
+        referEarnDesc: isHindi ? 'अपना कोड शेयर करें। उन्हें ₹20 मिलते हैं। आपको ₹10 मिलते हैं।' : 'Share your code. They get ₹20. You get ₹10.',
+        referNow: isHindi ? 'अभी रेफर करें' : 'Refer Now',
     }
     
     const { latitude: userLat, longitude: userLng } = useSelector((state: RootState) => state.location);
@@ -432,14 +449,14 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                             <Gift className="w-6 h-6 text-white" />
                         </div>
                         <div className="flex-1">
-                            <p className="text-white font-bold text-sm">रेफर किए गए प्रत्येक मित्र के लिए ₹10 कमाएं! 🎉</p>
-                            <p className="text-white/80 text-xs mt-0.5">अपना कोड शेयर करें। उन्हें ₹20 मिलते हैं। आपको ₹10 मिलते हैं।</p>
+                            <p className="text-white font-bold text-sm">{t.referEarnTitle}</p>
+                            <p className="text-white/80 text-xs mt-0.5">{t.referEarnDesc}</p>
                         </div>
                         <button
                             onClick={() => router.push('/refer-earn')}
                             className="bg-white text-green-700 font-bold text-xs px-3 py-2 rounded-xl shrink-0 hover:bg-green-50 transition-all active:scale-95 shadow-sm"
                         >
-                            Refer Now
+                            {t.referNow}
                         </button>
                     </div>
                 </div>
@@ -453,9 +470,9 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                                     <Wallet className="w-5 h-5 text-green-600" />
                                 </div>
                                 <div>
-                                    <p className="font-bold text-gray-800 text-sm">Wallet Balance: ₹{walletBalance}</p>
+                                    <p className="font-bold text-gray-800 text-sm">{t.walletBalance}: ₹{walletBalance}</p>
                                     <p className="text-gray-500 text-xs">
-                                        {walletApplied ? `₹${walletDiscount} discount will be applied at checkout` : `Apply ₹${walletDiscount} off at checkout`}
+                                        {walletApplied ? `₹${walletDiscount} ${t.discountApplied}` : `${isHindi ? `चेकआउट पर ₹${walletDiscount} की छूट लागू करें` : `Apply ₹${walletDiscount} off at checkout`}`}
                                     </p>
                                 </div>
                             </div>
@@ -469,7 +486,7 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                             }}
                                 className={`font-bold text-xs px-4 py-2 rounded-xl transition-all ${ walletApplied ? 'bg-green-600 text-white' : 'bg-green-100 text-green-700 hover:bg-green-200' }`}
                             >
-                                {walletApplied ? '✓ Applied' : 'Apply'}
+                                {walletApplied ? t.applied : t.apply}
                             </button>
                         </div>
                         {walletApplied && (
@@ -484,15 +501,15 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
 
                 {/* Reviews Section */}
                 <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">Customer Reviews</h3>
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">{t.customerReviews}</h3>
                     <div className="bg-white border border-gray-200 p-5 rounded-xl mb-8 shadow-sm">
-                        <p className="text-sm font-bold text-gray-700 mb-3">Rate this product</p>
+                        <p className="text-sm font-bold text-gray-700 mb-3">{t.rateThisProduct}</p>
                         <div className="flex gap-1 mb-4">
                             {[1,2,3,4,5].map((star) => (
                                 <Star key={star} size={28} className={`cursor-pointer ${star <= reviewRating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} onClick={() => setReviewRating(star)} />
                             ))}
                         </div>
-                        <textarea className="w-full p-3 border border-gray-200 rounded-xl text-sm mb-3 outline-none focus:ring-2 focus:ring-green-500" placeholder="Write your review..." rows={3} value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} />
+                        <textarea className="w-full p-3 border border-gray-200 rounded-xl text-sm mb-3 outline-none focus:ring-2 focus:ring-green-500" placeholder={t.writeReview} rows={3} value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} />
                         <div className='flex gap-2 mb-4 overflow-x-auto'>
                             <label className='w-16 h-16 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-green-500 text-gray-400 hover:text-green-600'>
                                 <Upload size={20} />
@@ -503,12 +520,12 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                             ))}
                         </div>
                         <button onClick={submitReview} disabled={submitting} className="bg-black hover:bg-gray-800 text-white px-6 py-2.5 rounded-lg text-sm font-bold disabled:opacity-50">
-                            {submitting ? "Posting..." : "Post Review"}
+                            {submitting ? t.posting : t.postReview}
                         </button>
                     </div>
 
                     <div className="space-y-6">
-                        {reviewsList.length === 0 && <p className="text-gray-500 italic">No reviews yet.</p>}
+                        {reviewsList.length === 0 && <p className="text-gray-500 italic">{t.noReviewsYet}</p>}
                         {reviewsList.slice().reverse().map((rev: any, index: number) => (
                             <div key={index} className="border-b border-gray-100 pb-6">
                                 <div className="flex items-center justify-between mb-2">
@@ -522,7 +539,7 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                                         </div>
                                     </div>
                                     <span className="text-xs text-gray-400" suppressHydrationWarning>
-                                        {rev.createdAt ? new Date(rev.createdAt).toLocaleDateString() : "Just now"}
+                                        {rev.createdAt ? new Date(rev.createdAt).toLocaleDateString() : t.justNow}
                                     </span>
                                 </div>
                                 <p className="text-gray-600 text-sm mb-3">{rev.comment}</p>

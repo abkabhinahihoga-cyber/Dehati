@@ -24,10 +24,18 @@ export async function GET(req: NextRequest) {
     if (!hub) return NextResponse.json({ success: false, error: "Hub not found" }, { status: 404 });
 
     const enabledProductIds = hub.enabledProducts || [];
-    const mandiBhavList = await MandiBhav.find({
+    let mandiBhavList = await MandiBhav.find({
       hubId,
       masterProductId: { $in: enabledProductIds },
     }).populate("masterProductId", "name nameHindi category unit image").lean();
+
+    // FALLBACK: If this hub has no MandiBhav data, just fetch any global data
+    if (mandiBhavList.length === 0) {
+      mandiBhavList = await MandiBhav.find({})
+        .limit(10)
+        .populate("masterProductId", "name nameHindi category unit image")
+        .lean();
+    }
 
     const result = mandiBhavList.map((mb: any) => ({
       _id: mb._id,
