@@ -2,7 +2,7 @@
 import { 
     LogOut, ShoppingCartIcon, User, X, UserCircle, Store, BookOpen, Briefcase, 
     Bike, Laptop, Share2, ChevronDown, MapPin, Home, LayoutDashboard, 
-    ShieldCheck, Tractor, ShoppingBag, Truck, PlayCircle, Wallet, Globe 
+    ShieldCheck, Tractor, ShoppingBag, Truck, PlayCircle, Wallet, Globe, HelpCircle, Mail, PhoneCall
 } from 'lucide-react'
 import { Link, useRouter, usePathname } from '@/i18n/routing'
 import React, { useEffect, useState } from 'react'
@@ -42,7 +42,8 @@ function Nav({ user }: { user: INavUser }) {
     // ðŸ‘‡ FIX: Destructure toggle from context
     const { isOpen, close, toggle } = useSidebar(); 
     
-    const [jobsOpen, setJobsOpen] = useState(true) 
+    const [jobsOpen, setJobsOpen] = useState(true)
+    const [supportOpen, setSupportOpen] = useState(false)
     const [mounted, setMounted] = useState(false)
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
     const [isHubModalOpen, setIsHubModalOpen] = useState(false);
@@ -228,6 +229,33 @@ function Nav({ user }: { user: INavUser }) {
                                 <Link href="/refer-earn" onClick={close} className='flex items-center gap-4 p-3 mx-2 rounded-lg text-gray-700 hover:bg-gray-50 font-medium'>
                                     <Share2 className='text-green-600' /> {t('referAndEarn')}
                                 </Link>
+
+                                <div className='pt-2 pb-2'>
+                                    <button onClick={() => setSupportOpen(!supportOpen)} className='w-full flex items-center justify-between p-3 mx-2 pr-6 rounded-lg text-gray-700 hover:bg-gray-50 font-medium'>
+                                        <div className='flex items-center gap-4'>
+                                            <HelpCircle className='text-orange-400' /> {t('helpSupport') || 'Help & Support'}
+                                        </div>
+                                        <ChevronDown className={`w-4 h-4 transition ${supportOpen ? 'rotate-180' : ''}`} />
+                                    </button>
+                                    <AnimatePresence>
+                                        {supportOpen && (
+                                            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className='overflow-hidden bg-gray-50 mx-4 rounded-lg'>
+                                                <div className='p-4 space-y-3'>
+                                                    <a href="mailto:dehatisathi@gmail.com" className='flex items-center gap-3 text-sm text-gray-700 hover:text-green-600'>
+                                                        <Mail className='w-4 h-4 text-gray-400' /> dehatisathi@gmail.com
+                                                    </a>
+                                                    <a href="https://wa.me/917565089255" target="_blank" rel="noopener noreferrer" className='flex items-center gap-3 text-sm text-gray-700 hover:text-green-600'>
+                                                        <PhoneCall className='w-4 h-4 text-gray-400' /> +91 7565089255
+                                                    </a>
+                                                    <div className='pt-2 mt-2 border-t border-gray-200 text-xs text-gray-500'>
+                                                        <span className="font-bold text-gray-600">Founder:</span> Vaibhav Patel
+                                                        <p className="italic text-[10px] mt-0.5">A Mechanical Engineering Student</p>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
                             </div>
                             <div className='p-4 border-t border-gray-100'>
                                 <button onClick={() => signOut({ callbackUrl: "/login" })} className='w-full flex items-center justify-center gap-2 text-red-600 bg-red-50 font-bold text-sm p-3 rounded-xl hover:bg-red-100 transition-all'>

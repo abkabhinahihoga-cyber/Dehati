@@ -393,8 +393,8 @@ export default function HubPOSPage() {
 
           <button 
             onClick={handleCheckout}
-            disabled={processing || cart.length === 0 || !selectedUser}
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 lg:py-3 rounded-xl font-bold text-sm lg:text-lg shadow-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+            disabled={processing}
+            className={`w-full py-2 lg:py-3 rounded-xl font-bold text-sm lg:text-lg shadow-lg flex items-center justify-center gap-2 transition-all ${(!selectedUser || cart.length === 0) ? 'bg-gray-400 text-white' : 'bg-green-600 hover:bg-green-700 text-white'} disabled:opacity-50`}
           >
             {processing ? <Loader2 className="w-4 h-4 lg:w-5 lg:h-5 animate-spin" /> : <CheckCircle2 className="w-4 h-4 lg:w-5 lg:h-5" />}
             {processing ? t.processing : t.completeSale}

@@ -84,7 +84,6 @@ export async function GET() {
   }
 }
 
-// POST: Settle payment for a seller (deduct 4% tax, record payout, send notification)
 export async function POST(req: NextRequest) {
   try {
     await connectDb();
@@ -93,10 +92,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const { sellerId, amount, netPayable, taxAmount } = await req.json();
+    const { sellerId, amount, netPayable, taxAmount, code } = await req.json();
 
-    if (!sellerId || !amount) {
-      return NextResponse.json({ error: "Invalid data" }, { status: 400 });
+    if (!sellerId || !amount || !code) {
+      return NextResponse.json({ error: "Invalid data or missing OTP code" }, { status: 400 });
     }
 
     const hub = await Hub.findOne({ managerId: session.user.id }).lean() as any;
@@ -106,8 +105,16 @@ export async function POST(req: NextRequest) {
     const seller = await User.findOne({ _id: sellerId, connectedHub: hub._id, role: "seller" });
     if (!seller) return NextResponse.json({ error: "Seller not found or not linked to this hub" }, { status: 404 });
 
-    // Generate unique settlement code
-    const code = generateSettlementCode();
+    // Find the matching notification with the OTP code
+    const notification = await Notification.findOne({
+      recipient: seller._id,
+      type: "system",
+      relatedId: code
+    });
+
+    if (!notification) {
+      return NextResponse.json({ error: "Invalid OTP code. Please check again." }, { status: 400 });
+    }
 
     // Record payout in seller's history
     seller.payoutHistory.push({
@@ -119,22 +126,24 @@ export async function POST(req: NextRequest) {
     seller.totalEarnings = (seller.totalEarnings || 0) + (netPayable || amount);
     await seller.save();
 
-    // Send notification to seller with settlement code
+    // Invalidate the code so it cannot be used again
+    notification.relatedId = code + "_used";
+    await notification.save();
+
+    // Send confirmation notification to seller
     await Notification.create({
       recipient: seller._id,
       sender: session.user.id,
       type: "system",
-      message: `💰 भुगतान प्राप्त! आपका भुगतान ₹${netPayable || amount} प्रोसेस हो गया है। (4% सरकारी कर काटने के बाद)\n\nSettlement Code: ${code}\n\nकृपया हब पर यह कोड दिखाएं।`,
-      relatedId: code,
+      message: `✅ Payment of ₹${netPayable || amount} has been successfully settled by the hub!`,
     });
 
     return NextResponse.json({
       success: true,
-      code,
-      message: `Payment of ₹${netPayable || amount} settled for ${seller.name}. Settlement code: ${code}`,
+      message: `Payment of ₹${netPayable || amount} settled for ${seller.name}.`,
     });
   } catch (error: any) {
-    console.error("Settlement POST error:", error);
+    console.error("Settlement Verify error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

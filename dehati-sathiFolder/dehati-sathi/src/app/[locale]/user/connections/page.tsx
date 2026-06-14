@@ -1,16 +1,30 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { ArrowLeft, Store, MapPin, Search } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { ArrowLeft, Store, MapPin, ExternalLink } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import axios from 'axios'
 
 export default function ConnectionsPage() {
     const router = useRouter();
+    const pathname = usePathname();
+    const isHindi = pathname.startsWith('/hi');
     const [connections, setConnections] = useState<any[]>([]);
     const [hubSellers, setHubSellers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'following' | 'discover'>('discover');
+
+    const t = {
+        title: isHindi ? 'दुकानें और विक्रेता' : 'Shops & Sellers',
+        hubSellers: isHindi ? 'हब विक्रेता' : 'Hub Sellers',
+        following: isHindi ? 'फॉलो कर रहे हैं' : 'Following',
+        loading: isHindi ? 'दुकानें लोड हो रही हैं...' : 'Loading shops...',
+        noShops: isHindi ? 'कोई दुकान नहीं मिली।' : 'No shops found.',
+        exploreReels: isHindi ? 'रील्स एक्सप्लोर करें' : 'Explore Reels',
+        localSeller: isHindi ? 'स्थानीय विक्रेता' : 'Local Seller',
+        visit: isHindi ? 'दुकान देखें' : 'Visit Shop',
+        unfollow: isHindi ? 'फॉलोइंग' : 'Following'
+    }
 
     useEffect(() => {
         const fetchConnections = async () => {
@@ -33,35 +47,44 @@ export default function ConnectionsPage() {
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
-            <div className="bg-white p-4 flex flex-col border-b sticky top-0 z-10 shadow-sm gap-4">
-                <div className="flex items-center gap-4">
-                    <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-full"><ArrowLeft size={20} /></button>
-                    <h1 className="text-lg font-bold text-gray-800">Shops & Sellers</h1>
+            <div className="bg-white px-4 pt-4 flex flex-col border-b sticky top-0 z-10 shadow-sm gap-2">
+                <div className="flex items-center gap-4 py-2">
+                    <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                        <ArrowLeft size={22} className="text-gray-700" />
+                    </button>
+                    <h1 className="text-xl font-black text-gray-800 tracking-tight">{t.title}</h1>
                 </div>
-                <div className="flex gap-4 border-b">
+                <div className="flex gap-6 mt-2">
                     <button 
-                        className={`pb-2 font-semibold text-sm ${activeTab === 'discover' ? 'text-green-700 border-b-2 border-green-600' : 'text-gray-500'}`}
+                        className={`pb-3 font-bold text-sm transition-all relative ${activeTab === 'discover' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
                         onClick={() => setActiveTab('discover')}
                     >
-                        Hub Sellers
+                        {t.hubSellers}
+                        {activeTab === 'discover' && <div className="absolute bottom-0 left-0 w-full h-1 bg-indigo-600 rounded-t-full" />}
                     </button>
                     <button 
-                        className={`pb-2 font-semibold text-sm ${activeTab === 'following' ? 'text-green-700 border-b-2 border-green-600' : 'text-gray-500'}`}
+                        className={`pb-3 font-bold text-sm transition-all relative ${activeTab === 'following' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
                         onClick={() => setActiveTab('following')}
                     >
-                        Following ({connections.length})
+                        {t.following} ({connections.length})
+                        {activeTab === 'following' && <div className="absolute bottom-0 left-0 w-full h-1 bg-indigo-600 rounded-t-full" />}
                     </button>
                 </div>
             </div>
 
-            <div className="p-4 grid grid-cols-1 gap-3">
+            <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 max-w-7xl mx-auto mt-2">
                 {loading ? (
-                    <div className="text-center py-20 text-gray-400 text-sm animate-pulse">Loading shops...</div>
+                    <div className="col-span-full text-center py-20 text-gray-400 text-sm font-semibold animate-pulse flex flex-col items-center gap-2">
+                        <Store className="w-8 h-8 opacity-50" />
+                        {t.loading}
+                    </div>
                 ) : displayList.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-                        <Store size={48} className="mb-3 opacity-20" />
-                        <p className="text-sm">No shops found.</p>
-                        <button onClick={() => router.push('/reels')} className="mt-4 text-green-600 font-bold text-xs bg-green-50 px-4 py-2 rounded-full">Explore Reels</button>
+                    <div className="col-span-full flex flex-col items-center justify-center py-24 text-gray-400 bg-white rounded-3xl border border-dashed border-gray-200">
+                        <Store size={56} className="mb-4 opacity-20 text-indigo-600" />
+                        <p className="text-base font-medium text-gray-500">{t.noShops}</p>
+                        <button onClick={() => router.push('/reels')} className="mt-6 text-indigo-600 font-bold text-sm bg-indigo-50 hover:bg-indigo-100 transition-colors px-6 py-2.5 rounded-full shadow-sm">
+                            {t.exploreReels}
+                        </button>
                     </div>
                 ) : (
                     displayList.map((shop) => {
@@ -70,22 +93,28 @@ export default function ConnectionsPage() {
                             <div 
                                 key={shop._id} 
                                 onClick={() => router.push(`/shop/${shop._id}`)}
-                                className="bg-white p-3 rounded-2xl flex items-center gap-3 border border-gray-100 shadow-sm active:scale-95 transition-transform cursor-pointer"
+                                className="bg-white p-4 rounded-3xl flex items-center gap-4 border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-100 active:scale-[0.98] transition-all cursor-pointer group"
                             >
-                                <div className="w-12 h-12 rounded-full border-2 border-green-100 p-0.5 relative shrink-0">
-                                    <div className="relative w-full h-full rounded-full overflow-hidden bg-gray-100">
+                                <div className="w-14 h-14 rounded-full border-2 border-indigo-50 p-0.5 relative shrink-0 group-hover:border-indigo-200 transition-colors">
+                                    <div className="relative w-full h-full rounded-full overflow-hidden bg-gray-50">
                                         <Image src={shop.image || "/avatar.png"} fill alt="shop" className="object-cover" />
                                     </div>
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="font-bold text-gray-800 text-sm truncate">{shop.sellerDetails?.shopName || shop.name}</h3>
-                                    <div className="flex items-center gap-1 text-gray-400 text-[10px]">
-                                        <MapPin size={10} />
-                                        <span className="truncate">{shop.location?.address || "Local Seller"}</span>
+                                    <h3 className="font-bold text-gray-800 text-base truncate group-hover:text-indigo-700 transition-colors">
+                                        {shop.sellerDetails?.shopName || shop.name}
+                                    </h3>
+                                    <div className="flex items-center gap-1 text-gray-400 text-xs mt-0.5">
+                                        <MapPin size={12} className="shrink-0" />
+                                        <span className="truncate">{shop.location?.address || t.localSeller}</span>
                                     </div>
                                 </div>
-                                <button className={`text-[10px] font-bold px-3 py-1.5 rounded-full border ${isFollowing ? 'text-gray-500 bg-gray-50 border-gray-200' : 'text-green-700 bg-green-50 border-green-100'}`}>
-                                    {isFollowing ? 'Following' : 'Visit'}
+                                <button className={`text-[10px] sm:text-xs font-bold px-4 py-2 rounded-full border flex items-center gap-1 transition-colors ${
+                                    isFollowing 
+                                    ? 'text-gray-500 bg-gray-50 border-gray-200 hover:bg-gray-100' 
+                                    : 'text-indigo-700 bg-indigo-50 border-indigo-100 hover:bg-indigo-100 shadow-sm'
+                                }`}>
+                                    {isFollowing ? t.unfollow : <><ExternalLink size={12} /> {t.visit}</>}
                                 </button>
                             </div>
                         )

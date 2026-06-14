@@ -23,6 +23,8 @@ export default function HubSettlementPage() {
   const [loading, setLoading] = useState(true)
   const [settling, setSettling] = useState<string | null>(null)
   const [lastCode, setLastCode] = useState<{ code: string; seller: string } | null>(null)
+  const [waitingCodeFor, setWaitingCodeFor] = useState<string | null>(null)
+  const [otpCode, setOtpCode] = useState('')
 
   const t = {
     title: isHindi ? 'विक्रेता भुगतान निपटान' : 'Seller Payment Settlement',
@@ -42,6 +44,10 @@ export default function HubSettlementPage() {
     copied: isHindi ? 'कॉपी हो गया!' : 'Copied!',
     notificationSent: isHindi ? 'विक्रेता को नोटिफिकेशन भेज दी गई है।' : 'Notification sent to seller in-app.',
     refresh: isHindi ? 'रिफ्रेश करें' : 'Refresh',
+    initiateSettle: isHindi ? 'भुगतान शुरू करें' : 'Initiate Settle',
+    enterCode: isHindi ? 'विक्रेता से प्राप्त OTP दर्ज करें' : 'Enter OTP from Seller',
+    verifySettle: isHindi ? 'सत्यापित करें और भुगतान करें' : 'Verify & Settle',
+    cancel: isHindi ? 'रद्द करें' : 'Cancel',
   }
 
   useEffect(() => {
@@ -60,15 +66,40 @@ export default function HubSettlementPage() {
     }
   }
 
-  const handleSettle = async (seller: SellerSettlement) => {
+  const handleInitiate = async (seller: SellerSettlement) => {
     if (seller.netPayable <= 0) {
       return toast.error(isHindi ? 'बकाया राशि शून्य है।' : 'No pending amount to settle.')
     }
     if (!confirm(
       isHindi
-        ? `${seller.name} को ₹${seller.netPayable} (4% कर काटकर) भुगतान करें?`
-        : `Settle ₹${seller.netPayable} (after 4% tax) to ${seller.name}?`
+        ? `${seller.name} का ₹${seller.netPayable} भुगतान शुरू करें?`
+        : `Initiate ₹${seller.netPayable} settlement for ${seller.name}?`
     )) return
+
+    setSettling(seller._id)
+    try {
+      const { data } = await axios.post('/api/hub/settle-payment/initiate', {
+        sellerId: seller._id,
+        amount: seller.pendingEarnings,
+        netPayable: seller.netPayable,
+        taxAmount: seller.taxAmount,
+      })
+      if (data.success) {
+        toast.success(isHindi ? 'OTP विक्रेता को भेज दिया गया है।' : 'OTP sent to seller via notification.')
+        setWaitingCodeFor(seller._id)
+        setOtpCode('')
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to initiate')
+    } finally {
+      setSettling(null)
+    }
+  }
+
+  const handleVerify = async (seller: SellerSettlement) => {
+    if (!otpCode || otpCode.length < 4) {
+      return toast.error(isHindi ? 'कृपया सही OTP दर्ज करें' : 'Please enter a valid OTP')
+    }
 
     setSettling(seller._id)
     try {
@@ -77,10 +108,12 @@ export default function HubSettlementPage() {
         amount: seller.pendingEarnings,
         netPayable: seller.netPayable,
         taxAmount: seller.taxAmount,
+        code: otpCode.toUpperCase()
       })
       if (data.success) {
-        setLastCode({ code: data.code, seller: seller.name })
         toast.success(isHindi ? 'भुगतान सफलतापूर्वक हो गया!' : 'Payment settled successfully!')
+        setWaitingCodeFor(null)
+        setOtpCode('')
         fetchData()
       }
     } catch (err: any) {
@@ -209,18 +242,47 @@ export default function HubSettlementPage() {
                 </div>
 
                 {/* Settle Button */}
-                <div className="flex items-center w-full md:w-auto mt-2 md:mt-0">
+                <div className="flex flex-col items-end w-full md:w-auto mt-2 md:mt-0 gap-2">
                   {seller.netPayable > 0 ? (
-                    <button
-                      onClick={() => handleSettle(seller)}
-                      disabled={settling === seller._id}
-                      className="w-full md:w-auto flex items-center justify-center gap-2 px-5 py-3 md:py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-sm transition-all disabled:opacity-60 whitespace-nowrap"
-                    >
-                      {settling === seller._id
-                        ? <><Loader2 className="w-4 h-4 animate-spin" /> {t.settling}</>
-                        : <><IndianRupee className="w-4 h-4" /> {t.settle}</>
-                      }
-                    </button>
+                    waitingCodeFor === seller._id ? (
+                      <div className="flex flex-col gap-2 w-full md:w-auto">
+                        <input
+                          type="text"
+                          placeholder={t.enterCode}
+                          value={otpCode}
+                          onChange={(e) => setOtpCode(e.target.value)}
+                          className="px-3 py-2 border border-gray-300 rounded-xl text-center font-bold tracking-widest uppercase focus:ring-2 focus:ring-indigo-500 outline-none w-full md:w-48"
+                          maxLength={6}
+                        />
+                        <div className="flex gap-2 w-full">
+                          <button
+                            onClick={() => setWaitingCodeFor(null)}
+                            className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-xl transition-all"
+                          >
+                            {t.cancel}
+                          </button>
+                          <button
+                            onClick={() => handleVerify(seller)}
+                            disabled={settling === seller._id}
+                            className="flex-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-sm transition-all disabled:opacity-60 flex justify-center items-center gap-1 whitespace-nowrap"
+                          >
+                            {settling === seller._id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                            {t.verifySettle}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleInitiate(seller)}
+                        disabled={settling === seller._id}
+                        className="w-full md:w-auto flex items-center justify-center gap-2 px-5 py-3 md:py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-sm transition-all disabled:opacity-60 whitespace-nowrap"
+                      >
+                        {settling === seller._id
+                          ? <><Loader2 className="w-4 h-4 animate-spin" /> {t.settling}</>
+                          : <><IndianRupee className="w-4 h-4" /> {t.initiateSettle}</>
+                        }
+                      </button>
+                    )
                   ) : (
                     <span className="hidden md:flex items-center gap-1 px-4 py-2 bg-gray-100 text-gray-500 font-semibold rounded-xl text-sm">
                       <CheckCircle2 className="w-4 h-4 text-green-500" /> {t.noPending}

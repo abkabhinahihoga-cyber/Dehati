@@ -4,13 +4,20 @@ import { Bell, Check, X } from 'lucide-react'
 import axios from 'axios'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 export default function NotificationBell() {
+    const pathname = usePathname();
+    const isHindi = pathname.startsWith('/hi');
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [notifications, setNotifications] = useState<any[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
+
+    const t = {
+        title: isHindi ? 'सूचनाएं' : 'Notifications',
+        empty: isHindi ? 'कोई नई सूचना नहीं।' : 'No new notifications.'
+    }
 
     // Poll for notifications every 30 seconds
     useEffect(() => {
@@ -58,16 +65,28 @@ export default function NotificationBell() {
                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
-                            className="absolute right-0 top-14 w-80 md:w-96 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden"
+                            className="fixed right-4 left-4 top-16 md:absolute md:left-auto md:right-0 md:top-14 w-auto md:w-96 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden"
                         >
                             <div className="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
-                                <h3 className="font-bold text-gray-800">Notifications</h3>
-                                <button onClick={() => setIsOpen(false)}><X className="w-4 h-4 text-gray-400" /></button>
+                                <h3 className="font-bold text-gray-800">{t.title}</h3>
+                                <div className="flex items-center gap-3">
+                                    {unreadCount > 0 && (
+                                        <button 
+                                            onClick={markAllAsRead}
+                                            className="text-xs text-indigo-600 font-semibold hover:text-indigo-800"
+                                        >
+                                            Mark all read
+                                        </button>
+                                    )}
+                                    <button onClick={() => setIsOpen(false)}><X className="w-4 h-4 text-gray-400 hover:text-gray-600" /></button>
+                                </div>
                             </div>
 
-                            <div className="max-h-[400px] overflow-y-auto">
+                            <div className="max-h-80 overflow-y-auto">
                                 {notifications.length === 0 ? (
-                                    <div className="p-10 text-center text-gray-400 text-sm">No new notifications.</div>
+                                    <div className="p-6 text-center text-gray-500 text-sm">
+                                        {t.empty}
+                                    </div>
                                 ) : (
                                     notifications.map((n) => (
                                         <div 
