@@ -1,8 +1,13 @@
 // 1. SELLER CATEGORIES (Farmers/Villagers - Non-GST/Raw Items)
 export const SELLER_GROCERY_CATEGORIES = [
     "Fresh Vegetables",
+    "Vegetables",
     "Fresh Fruits",
+    "Fruits",
     "Rice, Atta & Dals", 
+    "Dal",
+    "Rice",
+    "Wheat & Atta",
     "Live Plants",
     "HandCrafted",
     "Others"

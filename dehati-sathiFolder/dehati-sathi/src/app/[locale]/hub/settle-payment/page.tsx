@@ -168,44 +168,53 @@ export default function HubSettlementPage() {
         <div className="space-y-4">
           {sellers.map(seller => (
             <div key={seller._id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
-              <div className="flex items-start justify-between gap-4 flex-wrap">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 {/* Seller Info */}
-                <div>
-                  <div className="font-bold text-gray-800 text-lg">{seller.name}</div>
-                  <div className="text-sm text-gray-500">{seller.mobile}</div>
+                <div className="flex justify-between items-center w-full md:w-auto">
+                  <div>
+                    <div className="font-bold text-gray-800 text-lg">{seller.name}</div>
+                    <div className="text-sm text-gray-500">{seller.mobile}</div>
+                  </div>
+                  <div className="md:hidden">
+                    {seller.netPayable <= 0 && (
+                      <span className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-gray-500 font-semibold rounded-lg text-xs">
+                        <CheckCircle2 className="w-4 h-4 text-green-500" /> {t.noPending}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Earnings Summary Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 flex-1 min-w-0">
-                  <div className="bg-blue-50 p-3 rounded-xl text-center">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 w-full md:flex-1">
+                  <div className="bg-blue-50 p-2 md:p-3 rounded-xl text-center">
                     <div className="text-[10px] text-blue-600 font-bold uppercase">{t.gross}</div>
-                    <div className="text-blue-800 font-black text-sm mt-1">₹{seller.grossEarnings}</div>
+                    <div className="text-blue-800 font-black text-sm mt-0.5">₹{seller.grossEarnings}</div>
                   </div>
-                  <div className="bg-gray-50 p-3 rounded-xl text-center">
+                  <div className="bg-gray-50 p-2 md:p-3 rounded-xl text-center">
                     <div className="text-[10px] text-gray-500 font-bold uppercase">{t.paid}</div>
-                    <div className="text-gray-700 font-black text-sm mt-1">₹{seller.totalPaid}</div>
+                    <div className="text-gray-700 font-black text-sm mt-0.5">₹{seller.totalPaid}</div>
                   </div>
-                  <div className="bg-orange-50 p-3 rounded-xl text-center">
+                  <div className="bg-orange-50 p-2 md:p-3 rounded-xl text-center">
                     <div className="text-[10px] text-orange-600 font-bold uppercase">{t.pending}</div>
-                    <div className="text-orange-700 font-black text-sm mt-1">₹{seller.pendingEarnings}</div>
+                    <div className="text-orange-700 font-black text-sm mt-0.5">₹{seller.pendingEarnings}</div>
                   </div>
-                  <div className="bg-red-50 p-3 rounded-xl text-center">
+                  <div className="bg-red-50 p-2 md:p-3 rounded-xl text-center">
                     <div className="text-[10px] text-red-500 font-bold uppercase">{t.tax}</div>
-                    <div className="text-red-600 font-black text-sm mt-1">-₹{seller.taxAmount}</div>
+                    <div className="text-red-600 font-black text-sm mt-0.5">-₹{seller.taxAmount}</div>
                   </div>
-                  <div className="bg-green-50 p-3 rounded-xl text-center col-span-2 md:col-span-1">
+                  <div className="bg-green-50 p-2 md:p-3 rounded-xl text-center col-span-2 sm:col-span-1 md:col-span-1">
                     <div className="text-[10px] text-green-600 font-bold uppercase">{t.net}</div>
-                    <div className="text-green-700 font-black text-base mt-1">₹{seller.netPayable}</div>
+                    <div className="text-green-700 font-black text-base mt-0.5">₹{seller.netPayable}</div>
                   </div>
                 </div>
 
                 {/* Settle Button */}
-                <div className="flex items-center">
+                <div className="flex items-center w-full md:w-auto mt-2 md:mt-0">
                   {seller.netPayable > 0 ? (
                     <button
                       onClick={() => handleSettle(seller)}
                       disabled={settling === seller._id}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-sm transition-all disabled:opacity-60 whitespace-nowrap"
+                      className="w-full md:w-auto flex items-center justify-center gap-2 px-5 py-3 md:py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-sm transition-all disabled:opacity-60 whitespace-nowrap"
                     >
                       {settling === seller._id
                         ? <><Loader2 className="w-4 h-4 animate-spin" /> {t.settling}</>
@@ -213,7 +222,7 @@ export default function HubSettlementPage() {
                       }
                     </button>
                   ) : (
-                    <span className="flex items-center gap-1 px-4 py-2 bg-gray-100 text-gray-500 font-semibold rounded-xl text-sm">
+                    <span className="hidden md:flex items-center gap-1 px-4 py-2 bg-gray-100 text-gray-500 font-semibold rounded-xl text-sm">
                       <CheckCircle2 className="w-4 h-4 text-green-500" /> {t.noPending}
                     </span>
                   )}

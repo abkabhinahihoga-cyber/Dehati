@@ -6,6 +6,7 @@ import ProductFeed from "./ProductFeed";
 import Link from 'next/link';
 import { ArrowLeft, SearchX } from 'lucide-react';
 import MandiBhavTicker from "./MandiBhavTicker";
+import HorizontalReelsFeed from "./HorizontalReelsFeed";
 
 interface UserDashboardProps {
   user: any;
@@ -78,6 +79,9 @@ function UserDashboard({ user, products, searchQuery }: UserDashboardProps) {
       <div className="pt-6">
          <CategorySlider />
       </div>
+
+      {/* Horizontal Reels Feed */}
+      <HorizontalReelsFeed />
       
       {/* Default Feed (Self-fetching based on Geolocation) */}
       <ProductFeed isSearch={false} />

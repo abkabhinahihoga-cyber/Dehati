@@ -21,6 +21,7 @@ export default function HubPOSPage() {
   const [paymentMode, setPaymentMode] = useState('cod')
   const [deliveryType, setDeliveryType] = useState('hub-pickup')
   const [processing, setProcessing] = useState(false)
+  const [cartExpanded, setCartExpanded] = useState(false)
 
   const t = {
     selectCustomer: isHindi ? 'ग्राहक चुनें' : 'Select Customer',
@@ -266,20 +267,28 @@ export default function HubPOSPage() {
       </div>
 
       {/* Right Column - Cart & Checkout */}
-      {/* On mobile, make it fixed at the top if there's no customer or sticky at the bottom */}
-      <div className="w-full lg:w-96 bg-white lg:rounded-2xl lg:border border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] lg:shadow-sm flex flex-col shrink-0 fixed bottom-0 left-0 right-0 z-10 lg:static lg:z-auto max-h-[50vh] lg:max-h-none overflow-hidden">
+      <div className={`w-full lg:w-96 bg-white lg:rounded-2xl lg:border border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] lg:shadow-sm flex flex-col shrink-0 fixed bottom-0 left-0 right-0 z-10 lg:static lg:z-auto transition-all ${cartExpanded ? 'max-h-[80vh]' : 'max-h-[50px] lg:max-h-none'} overflow-hidden`}>
         
-        {/* Toggle Cart view on Mobile (if needed, but simple scroll is fine) */}
-        <div className="p-3 lg:p-4 bg-indigo-50 border-b border-indigo-100 flex items-center justify-between lg:justify-start gap-2 cursor-pointer lg:cursor-default shadow-sm lg:shadow-none">
+        {/* Toggle Cart view on Mobile */}
+        <div 
+          onClick={() => setCartExpanded(!cartExpanded)}
+          className="p-3 lg:p-4 bg-indigo-50 border-b border-indigo-100 flex items-center justify-between lg:justify-start gap-2 cursor-pointer lg:cursor-default shadow-sm lg:shadow-none"
+        >
           <div className="flex items-center gap-2">
              <ShoppingCart className="w-5 h-5 text-indigo-700" />
              <h2 className="text-base lg:text-lg font-bold text-indigo-900">{t.currentOrder} <span className="lg:hidden text-indigo-600 ml-1">({cart.length})</span></h2>
           </div>
-          <div className="lg:hidden font-bold text-indigo-700">₹{totalAmount}</div>
+          <div className="flex items-center gap-2">
+            <div className="lg:hidden font-bold text-indigo-700">₹{totalAmount}</div>
+            <div className="lg:hidden text-indigo-500 text-xs">
+              {cartExpanded ? '▼' : '▲'}
+            </div>
+          </div>
         </div>
 
-        {/* Cart Items - Hidden on mobile if empty, scrollable if items exist */}
-        <div className={`${cart.length > 0 ? 'flex-1 overflow-y-auto min-h-[100px]' : 'hidden lg:block'} max-h-[150px] lg:max-h-none p-3 lg:p-4 space-y-3`}>
+        <div className={`flex flex-col flex-1 overflow-hidden lg:flex ${cartExpanded ? 'flex' : 'hidden'}`}>
+          {/* Cart Items */}
+          <div className={`${cart.length > 0 ? 'flex-1 overflow-y-auto min-h-[100px]' : 'hidden lg:block'} max-h-[30vh] lg:max-h-none p-3 lg:p-4 space-y-3`}>
           {cart.length === 0 ? (
             <div className="text-center text-gray-400 py-10 flex flex-col items-center gap-2">
               <ShoppingCart className="w-10 h-10 opacity-20" />
@@ -359,6 +368,7 @@ export default function HubPOSPage() {
             {processing ? <Loader2 className="w-4 h-4 lg:w-5 lg:h-5 animate-spin" /> : <CheckCircle2 className="w-4 h-4 lg:w-5 lg:h-5" />}
             {processing ? t.processing : t.completeSale}
           </button>
+        </div>
         </div>
 
       </div>

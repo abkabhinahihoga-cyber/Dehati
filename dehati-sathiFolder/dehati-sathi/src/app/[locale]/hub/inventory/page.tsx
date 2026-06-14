@@ -37,7 +37,6 @@ export default function HubInventoryPage() {
   const pathname = usePathname()
   const isHindi = pathname.startsWith('/hi')
 
-  const [products, setProducts] = useState<Product[]>([])
   const [gstProducts, setGstProducts] = useState<any[]>([])
   const [requests, setRequests] = useState<StockRequest[]>([])
   const [loading, setLoading] = useState(true)
@@ -84,14 +83,9 @@ export default function HubInventoryPage() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const [requestsRes, posInventoryRes] = await Promise.all([
-        axios.get('/api/hub/stock-requests'),
-        axios.get('/api/hub/pos/inventory') // This returns all products including seller ones
-      ])
-      
+      const requestsRes = await axios.get('/api/hub/stock-requests')
       setGstProducts(requestsRes.data.gstProducts || [])
       setRequests(requestsRes.data.requests || [])
-      setProducts(posInventoryRes.data.products || [])
     } catch {
       toast.error(t.failLoad)
     } finally {
@@ -158,11 +152,11 @@ export default function HubInventoryPage() {
         {/* Local Stock Summary Grid */}
         <div className="bg-white rounded-3xl border border-blue-100 shadow-sm p-4 md:p-6">
           <h2 className="font-bold text-gray-800 text-lg mb-4">{t.stockDetails}</h2>
-          {products.length === 0 ? (
+          {gstProducts.length === 0 ? (
             <p className="text-sm text-gray-500">{t.noProducts}</p>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
-              {products.map(p => {
+              {gstProducts.map(p => {
                 const imgStr = p.images?.[0] || p.image || ''
                 return (
                   <div key={p._id} className="border border-gray-200 hover:border-blue-300 rounded-2xl p-3 bg-gray-50 hover:bg-white transition-colors flex flex-col justify-between shadow-sm">
