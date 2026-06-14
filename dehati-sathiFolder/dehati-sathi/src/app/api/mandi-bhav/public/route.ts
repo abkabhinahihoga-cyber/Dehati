@@ -25,9 +25,11 @@ export async function GET(req: NextRequest) {
     const result = mandiBhavList.map((mb: any) => ({
       _id: mb._id,
       product: mb.masterProductId,
-      price: mb.price,
-      minPrice: mb.minPrice,
-      maxPrice: mb.maxPrice,
+      price: mb.retailPrice || 0, // retailPrice serves as current display price
+      retailPrice: mb.retailPrice || 0,
+      wholesalePrice: mb.wholesalePrice || 0,
+      minPrice: mb.retailMinPrice || 0,
+      maxPrice: mb.retailMaxPrice || 0,
       updatedAt: mb.updatedAt,
     }));
 

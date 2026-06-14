@@ -6,6 +6,8 @@ import { TrendingUp, AlertCircle } from 'lucide-react'
 interface MandiBhav {
   _id: string
   price: number
+  retailPrice?: number
+  wholesalePrice?: number
   product: {
     name: string
     nameHindi: string
@@ -51,9 +53,13 @@ export default function MandiBhavTicker({ hubId }: { hubId: string }) {
             <div key={item._id} className="flex items-center gap-2 whitespace-nowrap text-sm">
               <span className="font-semibold text-gray-800">{item.product.name}</span>
               <span className="text-gray-400 text-xs">({item.product.nameHindi})</span>
-              <span className="font-bold text-green-700 bg-white px-2 py-0.5 rounded-md border border-green-200 shadow-sm">
-                ₹{item.price} <span className="text-xs font-medium text-gray-500">/ {item.product.unit}</span>
+              <span className="font-bold text-blue-700 bg-white px-2 py-0.5 rounded-md border border-blue-200 shadow-sm text-xs">
+                R: ₹{item.retailPrice || item.price}
               </span>
+              <span className="font-bold text-purple-700 bg-white px-2 py-0.5 rounded-md border border-purple-200 shadow-sm text-xs">
+                W: ₹{item.wholesalePrice || 0}
+              </span>
+              <span className="text-xs font-medium text-gray-500">/ {item.product.unit}</span>
             </div>
           ))}
         </div>

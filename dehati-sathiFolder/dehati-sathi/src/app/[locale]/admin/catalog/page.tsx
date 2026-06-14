@@ -6,8 +6,9 @@ import { PlusCircle, Pencil, Trash2, Loader2, Upload, X, CheckCircle, BookOpen, 
 import { toast } from 'sonner'
 
 const CATEGORIES = [
-  "Vegetables", "Fruits", "Grains & Pulses", "Dairy", "Spices", "Oils & Ghee",
-  "Dry Fruits", "Herbs", "Flowers", "Packaged Goods", "Other"
+  "Fresh Vegetables", "Fresh Fruits", "Rice, Atta & Dals", "Live Plants", "HandCrafted",
+  "Dairy & Breakfast", "Spices & Masalas", "Snacks & Packaged Food", "Household Essentials",
+  "Personal Care", "Cold Drinks & Juices", "Chocolates & Ice Cream", "Others"
 ]
 const UNITS = ["kg", "g", "quintal", "liter", "ml", "piece", "dozen", "bundle"]
 

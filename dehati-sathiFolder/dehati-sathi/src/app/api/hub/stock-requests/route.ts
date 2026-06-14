@@ -19,10 +19,26 @@ export async function GET() {
 
     // Get ALL active GST products — they are globally managed by Admin and visible to all hubs
     // NOTE: enabledProducts is only for RAW/Mandi Bhav products, NOT for GST hub products
-    const gstProducts = await MasterProduct.find({
+    const gstProductsList = await MasterProduct.find({
       isActive: true,
       isHubProduct: true,
     }).lean();
+
+    // Fetch local hub stock for these products
+    const localGroceries = await Grocery.find({
+      masterProductId: { $in: gstProductsList.map((p: any) => p._id) },
+      seller: userId
+    }).select("masterProductId stock").lean();
+
+    const stockMap: Record<string, number> = {};
+    localGroceries.forEach((g: any) => {
+      stockMap[g.masterProductId.toString()] = g.stock || 0;
+    });
+
+    const gstProducts = gstProductsList.map((p: any) => ({
+      ...p,
+      stock: stockMap[p._id.toString()] || 0
+    }));
 
     // Get all stock requests for this hub
     const requests = await StockRequest.find({ hubId: hub._id })

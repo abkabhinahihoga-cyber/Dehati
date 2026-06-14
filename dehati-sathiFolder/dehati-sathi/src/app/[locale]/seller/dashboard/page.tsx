@@ -6,7 +6,7 @@ import {
     Upload, Clock, Users, X, Edit3, Check, MessageCircle, Send, FilePenLine
 } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import axios from 'axios'
 import Image from 'next/image'
 import { toast } from 'sonner'
@@ -63,6 +63,9 @@ interface Conversation {
 
 function SellerDashboard() {
     const router = useRouter();
+    const pathname = usePathname();
+    const isHindi = pathname.startsWith('/hi');
+
     // Start with 'inventory' or 'messages' depending on priority
     const [activeTab, setActiveTab] = useState<'inventory' | 'orders' | 'channel' | 'messages'>('inventory')
     const [loading, setLoading] = useState(true)
@@ -91,6 +94,56 @@ function SellerDashboard() {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [timeLeft, setTimeLeft] = useState<string | null>(null);
     const uploadStartTime = useRef<number>(0);
+
+    const t = {
+        back: isHindi ? 'होम पर वापस जाएं' : 'Back to Home',
+        title: isHindi ? 'विक्रेता डैशबोर्ड' : 'Seller Dashboard',
+        subtitle: isHindi ? 'अपनी दुकान, ऑर्डर, संदेश और चैनल प्रबंधित करें।' : 'Manage your shop, orders, messages, and channel.',
+        addReel: isHindi ? 'रील जोड़ें' : 'Add Reel',
+        addProduct: isHindi ? 'उत्पाद जोड़ें' : 'Add Product',
+        revenue: isHindi ? 'कुल आय' : 'Total Revenue',
+        pendingOrders: isHindi ? 'लंबित ऑर्डर' : 'Pending Orders',
+        followers: isHindi ? 'फॉलोअर्स' : 'Followers',
+        activeChats: isHindi ? 'सक्रिय चैट' : 'Active Chats',
+        tabInventory: isHindi ? 'मेरी इन्वेंटरी' : 'My Inventory',
+        tabOrders: isHindi ? 'ग्राहक ऑर्डर' : 'Customer Orders',
+        tabMessages: isHindi ? 'संदेश' : 'Messages',
+        tabChannel: isHindi ? 'चैनल और समुदाय' : 'Channel & Community',
+        product: isHindi ? 'उत्पाद' : 'Product',
+        prices: isHindi ? 'मूल्य (W/R)' : 'Prices (W/R)',
+        stock: isHindi ? 'स्टॉक' : 'Stock',
+        actions: isHindi ? 'कार्रवाई' : 'Actions',
+        noOrders: isHindi ? 'कोई ऑर्डर नहीं मिला।' : 'No orders found.',
+        orderId: isHindi ? 'ऑर्डर ID' : 'Order ID',
+        customer: isHindi ? 'ग्राहक' : 'Customer',
+        items: isHindi ? 'सामान' : 'Items',
+        earnings: isHindi ? 'कमाई' : 'Earnings',
+        status: isHindi ? 'स्थिति' : 'Status',
+        noMessages: isHindi ? 'अभी तक कोई संदेश नहीं।' : 'No messages yet.',
+        reply: isHindi ? 'उत्तर दें' : 'Reply',
+        recentFollowers: isHindi ? 'हाल ही के फॉलोअर्स' : 'Recent Followers',
+        noFollowersYet: isHindi ? 'अभी तक कोई फॉलोअर्स नहीं।' : 'No followers yet.',
+        yourReels: isHindi ? 'आपकी रील्स' : 'Your Reels',
+        noReels: isHindi ? 'अभी तक कोई रील अपलोड नहीं की गई' : 'No Reels Uploaded Yet',
+        boostEngagement: isHindi ? 'छोटे वीडियो के साथ जुड़ाव बढ़ाएं!' : 'Boost engagement with short videos!',
+        uploadReel: isHindi ? 'रील अपलोड करें' : 'Upload Reel',
+        uploadNewReel: isHindi ? 'नई रील अपलोड करें' : 'Upload New Reel',
+        clickSelectVideo: isHindi ? 'वीडियो चुनने के लिए क्लिक करें' : 'Click to select video',
+        caption: isHindi ? 'कैप्शन लिखें...' : 'Write a caption...',
+        linkProduct: isHindi ? '-- उत्पाद लिंक करें (वैकल्पिक) --' : '-- Link Product (Optional) --',
+        uploading: isHindi ? 'अपलोड हो रहा है...' : 'Uploading...',
+        publishReel: isHindi ? 'रील प्रकाशित करें' : 'Publish Reel',
+        deleteProduct: isHindi ? 'क्या आप इस उत्पाद को हटाना चाहते हैं?' : 'Delete this product?',
+        productDeleted: isHindi ? 'उत्पाद हटा दिया गया' : 'Product deleted',
+        failedDelete: isHindi ? 'हटाने में विफल' : 'Failed to delete',
+        updatedSuccess: isHindi ? 'सफलतापूर्वक अपडेट किया गया' : 'Updated successfully',
+        updateFailed: isHindi ? 'अपडेट करने में विफल' : 'Failed to update',
+        statusUpdated: isHindi ? 'स्थिति अपडेट की गई' : 'Order marked as',
+        loadFailed: isHindi ? 'डेटा लोड करने में विफल' : 'Failed to load dashboard data',
+        deleteReelPrompt: isHindi ? 'क्या आप इस रील को हटाना चाहते हैं?' : 'Delete this reel?',
+        reelDeleted: isHindi ? 'रील हटा दी गई' : 'Reel deleted',
+        reelUploadSuccess: isHindi ? 'रील सफलतापूर्वक अपलोड हुई!' : 'Reel uploaded successfully!',
+    }
 
     // --- INITIAL FETCH ---
     useEffect(() => {
@@ -130,7 +183,7 @@ function SellerDashboard() {
 
         } catch (error) {
             console.error("Failed to load data")
-            toast.error("Failed to load dashboard data")
+            toast.error(t.loadFailed)
         } finally {
             setLoading(false)
         }
@@ -144,13 +197,13 @@ function SellerDashboard() {
             
             const res = await axios.put('/api/seller/orders', { orderId, status: newStatus })
             if(res.data.success) {
-                toast.success(`Order marked as ${newStatus}`)
+                toast.success(`${t.statusUpdated} ${newStatus}`)
                 // Refresh stats to keep "Pending" count accurate
                 const resOrd = await axios.get('/api/seller/orders')
                 if(resOrd.data.success) setStats(resOrd.data.stats)
             }
         } catch (error) {
-            toast.error("Failed to update status")
+            toast.error(t.updateFailed)
             fetchAllData() // Revert on error
         }
     }
@@ -190,23 +243,23 @@ function SellerDashboard() {
             await axios.put(`/api/seller/product/${editingId}`, formData)
             
             setProducts(prev => prev.map(p => p._id === editingId ? { ...p, ...editValues } as Product : p))
-            toast.success("Updated successfully")
+            toast.success(t.updatedSuccess)
             setEditingId(null)
         } catch (error) {
-            toast.error("Failed to update")
+            toast.error(t.updateFailed)
         } finally {
             setSaving(false)
         }
     }
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Delete this product?")) return;
+        if (!confirm(t.deleteProduct)) return;
         try {
             await axios.delete(`/api/seller/product/${id}`);
             setProducts(prev => prev.filter(p => p._id !== id));
-            toast.success("Product deleted");
+            toast.success(t.productDeleted);
         } catch (error) {
-            toast.error("Failed to delete");
+            toast.error(t.failedDelete);
         }
     }
 
@@ -278,7 +331,7 @@ function SellerDashboard() {
             });
 
             if (metaRes.data.success) {
-                toast.success("Reel uploaded successfully!");
+                toast.success(t.reelUploadSuccess);
                 setReels([metaRes.data.reel, ...reels]);
                 setShowUploadModal(false);
                 setVideoFile(null);
@@ -297,11 +350,11 @@ function SellerDashboard() {
     };
 
     const handleDeleteReel = async (id: string) => {
-        if(!confirm("Delete this reel?")) return;
+        if(!confirm(t.deleteReelPrompt)) return;
         try {
             await axios.delete(`/api/seller/reels/${id}`); 
             setReels(prev => prev.filter(r => r._id !== id));
-            toast.success("Reel deleted");
+            toast.success(t.reelDeleted);
         } catch(e) { toast.error("Failed to delete reel") }
     }
 
@@ -311,16 +364,16 @@ function SellerDashboard() {
                 {/* --- HEADER --- */}
                 <div className='mb-6'>
                     <Link href="/" className='inline-flex items-center gap-2 text-gray-500 hover:text-green-700 font-medium transition-colors'>
-                        <ArrowLeft className='w-5 h-5' /> Back to Home
+                        <ArrowLeft className='w-5 h-5' /> {t.back}
                     </Link>
                 </div>
 
                 <div className='flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4'>
                     <div>
                         <h1 className='text-3xl font-bold text-gray-800 flex items-center gap-3'>
-                            <Store className='text-green-600 w-8 h-8' /> Seller Dashboard
+                            <Store className='text-green-600 w-8 h-8' /> {t.title}
                         </h1>
-                        <p className='text-gray-500 mt-1'>Manage your shop, orders, messages, and channel.</p>
+                        <p className='text-gray-500 mt-1'>{t.subtitle}</p>
                     </div>
                     
                     <div className="flex gap-2">
@@ -329,21 +382,21 @@ function SellerDashboard() {
                             className='bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-purple-200 transition-all flex items-center gap-2'
                         >
                             <Video className='w-5 h-5 text-white' /> 
-                            <span className="text-white">Add Reel</span>
+                            <span className="text-white">{t.addReel}</span>
                         </button>
                         
                         <Link href="/seller/add-grocery" className='bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-green-200 transition-all flex items-center gap-2'>
-                            <Plus className='w-5 h-5' /> Add Product
+                            <Plus className='w-5 h-5' /> {t.addProduct}
                         </Link>
                     </div>
                 </div>
 
                 {/* --- STATS CARDS --- */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    <StatCard icon={<DollarSign/>} label="Total Revenue" value={`₹${stats.revenue}`} color="bg-green-100 text-green-700" />
-                    <StatCard icon={<ListChecks/>} label="Pending Orders" value={stats.pending} color="bg-orange-100 text-orange-700" />
-                    <StatCard icon={<Users/>} label="Followers" value={followers.length} color="bg-blue-100 text-blue-700" />
-                    <StatCard icon={<MessageCircle/>} label="Active Chats" value={conversations.length} color="bg-indigo-100 text-indigo-700" />
+                    <StatCard icon={<DollarSign/>} label={t.revenue} value={`₹${stats.revenue}`} color="bg-green-100 text-green-700" />
+                    <StatCard icon={<ListChecks/>} label={t.pendingOrders} value={stats.pending} color="bg-orange-100 text-orange-700" />
+                    <StatCard icon={<Users/>} label={t.followers} value={followers.length} color="bg-blue-100 text-blue-700" />
+                    <StatCard icon={<MessageCircle/>} label={t.activeChats} value={conversations.length} color="bg-indigo-100 text-indigo-700" />
                 </div>
 
                 {/* --- TABS --- */}
@@ -354,7 +407,7 @@ function SellerDashboard() {
                             onClick={() => setActiveTab(tab as any)}
                             className={`pb-3 px-4 font-semibold text-sm transition-all whitespace-nowrap capitalize ${activeTab === tab ? 'text-green-700 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-800'}`}
                         >
-                            {tab === 'channel' ? 'Channel & Community' : tab === 'orders' ? 'Customer Orders' : tab === 'messages' ? 'Messages' : 'My Inventory'}
+                            {tab === 'channel' ? t.tabChannel : tab === 'orders' ? t.tabOrders : tab === 'messages' ? t.tabMessages : t.tabInventory}
                         </button>
                     ))}
                 </div>
@@ -369,10 +422,10 @@ function SellerDashboard() {
                             <table className='w-full text-left'>
                                 <thead className='bg-gray-50 text-gray-500 text-xs uppercase font-bold tracking-wider'>
                                     <tr>
-                                        <th className='p-4'>Product</th>
-                                        <th className='p-4'>Prices (W/R)</th>
-                                        <th className='p-4'>Stock</th>
-                                        <th className='p-4 text-right'>Actions</th>
+                                        <th className='p-4'>{t.product}</th>
+                                        <th className='p-4'>{t.prices}</th>
+                                        <th className='p-4'>{t.stock}</th>
+                                        <th className='p-4 text-right'>{t.actions}</th>
                                     </tr>
                                 </thead>
                                 <tbody className='divide-y divide-gray-100'>
@@ -433,16 +486,16 @@ function SellerDashboard() {
                         /* ================== ORDERS TAB ================== */
                         <div className='overflow-x-auto'>
                             {orders.length === 0 ? (
-                                <div className='p-20 text-center text-gray-500'>No orders found.</div>
+                                <div className='p-20 text-center text-gray-500'>{t.noOrders}</div>
                             ) : (
                                 <table className='w-full text-left'>
                                     <thead className='bg-gray-50 text-gray-500 text-xs uppercase font-bold tracking-wider'>
                                         <tr>
-                                            <th className='p-4'>Order ID</th>
-                                            <th className='p-4'>Customer</th>
-                                            <th className='p-4'>Items</th>
-                                            <th className='p-4'>Earnings</th>
-                                            <th className='p-4'>Status</th>
+                                            <th className='p-4'>{t.orderId}</th>
+                                            <th className='p-4'>{t.customer}</th>
+                                            <th className='p-4'>{t.items}</th>
+                                            <th className='p-4'>{t.earnings}</th>
+                                            <th className='p-4'>{t.status}</th>
                                         </tr>
                                     </thead>
                                     <tbody className='divide-y divide-gray-100'>
@@ -497,7 +550,7 @@ function SellerDashboard() {
                             {conversations.length === 0 ? (
                                 <div className="text-center py-20 text-gray-400">
                                     <MessageCircle size={48} className="mx-auto mb-3 opacity-20" />
-                                    <p>No messages yet.</p>
+                                    <p>{t.noMessages}</p>
                                 </div>
                             ) : (
                                 <div className="divide-y divide-gray-50">
@@ -515,7 +568,7 @@ function SellerDashboard() {
                                             <div className="flex flex-col items-end gap-2">
                                                 <span className="text-[10px] text-gray-400 font-medium">{new Date(conv.lastMessageAt).toLocaleDateString()}</span>
                                                 <button className="px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full text-xs font-bold flex items-center gap-2 group-hover:bg-indigo-100 transition-colors">
-                                                    Reply <Send size={12} />
+                                                    {t.reply} <Send size={12} />
                                                 </button>
                                             </div>
                                         </div>
@@ -529,9 +582,9 @@ function SellerDashboard() {
                             
                             {/* Followers Section */}
                             <div className="mb-8">
-                                <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><Users className="w-5 h-5 text-blue-600" /> Recent Followers</h3>
+                                <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><Users className="w-5 h-5 text-blue-600" /> {t.recentFollowers}</h3>
                                 {followers.length === 0 ? (
-                                    <p className="text-gray-400 text-sm">No followers yet.</p>
+                                    <p className="text-gray-400 text-sm">{t.noFollowersYet}</p>
                                 ) : (
                                     <div className="flex gap-4 overflow-x-auto pb-2">
                                         {followers.map(f => (
@@ -549,15 +602,15 @@ function SellerDashboard() {
                             <hr className="border-gray-100 my-6" />
 
                             <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2"><Video className="w-5 h-5 text-pink-600" /> Your Reels</h3>
+                                <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2"><Video className="w-5 h-5 text-pink-600" /> {t.yourReels}</h3>
                             </div>
 
                             {reels.length === 0 ? (
                                 <div className="text-center py-10 bg-gray-50 rounded-xl border-dashed border-2 border-gray-200">
                                     <Video className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                                    <h3 className="text-md font-bold text-gray-800">No Reels Uploaded Yet</h3>
-                                    <p className="text-gray-500 mb-4 text-sm">Boost engagement with short videos!</p>
-                                    <button onClick={() => setShowUploadModal(true)} className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-purple-700">Upload Reel</button>
+                                    <h3 className="text-md font-bold text-gray-800">{t.noReels}</h3>
+                                    <p className="text-gray-500 mb-4 text-sm">{t.boostEngagement}</p>
+                                    <button onClick={() => setShowUploadModal(true)} className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-purple-700">{t.uploadReel}</button>
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -588,7 +641,7 @@ function SellerDashboard() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
                         <div className="p-4 border-b border-gray-100 flex justify-between items-center">
-                            <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2"><Video className="text-purple-600"/> Upload New Reel</h3>
+                            <h3 className="font-bold text-lg text-gray-800 flex items-center gap-2"><Video className="text-purple-600"/> {t.uploadNewReel}</h3>
                             {!uploadingReel && <button onClick={() => setShowUploadModal(false)} className="text-gray-400 hover:text-gray-600"><X /></button>}
                         </div>
                         
@@ -605,7 +658,7 @@ function SellerDashboard() {
                                     ) : (
                                         <div className="flex flex-col items-center text-gray-400">
                                             <Upload className="w-8 h-8 mb-2" />
-                                            <p className="font-bold text-sm">Click to select video</p>
+                                            <p className="font-bold text-sm">{t.clickSelectVideo}</p>
                                         </div>
                                     )}
                                 </div>
@@ -613,9 +666,9 @@ function SellerDashboard() {
 
                             {!uploadingReel && (
                                 <>
-                                    <textarea className="w-full p-3 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-purple-500" rows={2} placeholder="Write a caption..." value={reelDesc} onChange={(e) => setReelDesc(e.target.value)} />
+                                    <textarea className="w-full p-3 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-purple-500" rows={2} placeholder={t.caption} value={reelDesc} onChange={(e) => setReelDesc(e.target.value)} />
                                     <select className="w-full p-3 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-purple-500 bg-white" value={selectedProductId} onChange={(e) => setSelectedProductId(e.target.value)}>
-                                        <option value="">-- Link Product (Optional) --</option>
+                                        <option value="">{t.linkProduct}</option>
                                         {products.map(p => (<option key={p._id} value={p._id}>{p.name} (₹{p.retailPrice})</option>))}
                                     </select>
                                 </>
@@ -624,7 +677,7 @@ function SellerDashboard() {
                             {uploadingReel && (
                                 <div className="py-4 space-y-3">
                                     <div className="flex justify-between text-xs font-bold text-gray-600">
-                                        <span>Uploading...</span>
+                                        <span>{t.uploading}</span>
                                         <span>{uploadProgress}%</span>
                                     </div>
                                     <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
@@ -639,7 +692,7 @@ function SellerDashboard() {
 
                             {!uploadingReel && (
                                 <button onClick={handleReelUpload} disabled={!videoFile} className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl shadow-lg disabled:opacity-50 flex justify-center items-center gap-2">
-                                    <Upload className="w-5 h-5" /> Publish Reel
+                                    <Upload className="w-5 h-5" /> {t.publishReel}
                                 </button>
                             )}
                         </div>
