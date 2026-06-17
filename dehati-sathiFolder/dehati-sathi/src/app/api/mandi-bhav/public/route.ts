@@ -42,7 +42,11 @@ export async function GET(req: NextRequest) {
       product: mb.masterProductId,
       price: mb.retailPrice || 0, // retailPrice serves as current display price
       retailPrice: mb.retailPrice || 0,
+      retailMinPrice: mb.retailMinPrice || 0,
+      retailMaxPrice: mb.retailMaxPrice || 0,
       wholesalePrice: mb.wholesalePrice || 0,
+      wholesaleMinPrice: mb.wholesaleMinPrice || 0,
+      wholesaleMaxPrice: mb.wholesaleMaxPrice || 0,
       minPrice: mb.retailMinPrice || 0,
       maxPrice: mb.retailMaxPrice || 0,
       updatedAt: mb.updatedAt,

@@ -84,12 +84,29 @@ export async function PUT(req: NextRequest) {
 
         const { userId, action } = body;
         let updateData = {};
-        if (action === "approve") updateData = { sellerStatus: "approved" };
+        if (action === "approve") updateData = { role: "seller", sellerStatus: "approved" };
         if (action === "reject") updateData = { sellerStatus: "rejected" };
         if (action === "block") updateData = { isBlocked: true };
         if (action === "unblock") updateData = { isBlocked: false };
 
         const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
+
+        // Send notification to the user on approval or rejection
+        if (action === "approve" || action === "reject") {
+            try {
+                const { createNotification } = await import("@/lib/notify");
+                await createNotification({
+                    recipientId: userId,
+                    type: "system",
+                    message: action === "approve" 
+                        ? "Your seller application has been approved by Dehati Admin! You are now a Seller." 
+                        : "Your seller application was rejected by Dehati Admin."
+                });
+            } catch (notifErr) {
+                console.error("Failed to notify user of seller decision:", notifErr);
+            }
+        }
+
         return NextResponse.json({ success: true, message: `Action ${action} successful`, user: updatedUser });
     } catch (error: any) {
         console.error("Dashboard PUT Error:", error);

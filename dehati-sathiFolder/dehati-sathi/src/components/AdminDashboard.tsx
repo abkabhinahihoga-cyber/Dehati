@@ -42,7 +42,8 @@ export default function AdminDashboard() {
     const [selectedOrder, setSelectedOrder] = useState<any | null>(null)
 
     // User Filter State
-    const [userFilter, setUserFilter] = useState<'all' | 'user' | 'seller' | 'deliveryBoy' | 'hub' | 'admin'>('all')
+    const [userFilter, setUserFilter] = useState<'all' | 'user' | 'seller' | 'deliveryBoy' | 'hub' | 'admin' | 'pending'>('pending')
+    const [sellerActionLoading, setSellerActionLoading] = useState<string | null>(null)
 
     // Create Hub Form State
     const [showHubForm, setShowHubForm] = useState(false)
@@ -97,11 +98,22 @@ export default function AdminDashboard() {
 
     // --- ACTIONS ---
     const handleUserAction = async (userId: string, action: string) => {
-        if(!confirm(`Are you sure you want to ${action} this user?`)) return;
+        const toastId = toast.loading(action === 'approve' ? 'Approving seller...' : action === 'reject' ? 'Rejecting application...' : 'Processing...')
+        setSellerActionLoading(userId + action)
         try {
             await axios.put('/api/admin/dashboard', { userId, action })
-            fetchDashboardData() 
-        } catch (error) { alert("Action Failed") }
+            toast.success(
+                action === 'approve' ? '✅ Seller approved & notified!' :
+                action === 'reject' ? 'Application rejected & user notified.' :
+                `Action "${action}" applied.`,
+                { id: toastId }
+            )
+            fetchDashboardData()
+        } catch (error) {
+            toast.error('Action failed. Please try again.', { id: toastId })
+        } finally {
+            setSellerActionLoading(null)
+        }
     }
 
     const handleDeliveryAction = async (id: string, action: 'approve' | 'reject') => {
@@ -335,13 +347,37 @@ export default function AdminDashboard() {
         </div>
     )
 
-    const renderOverview = () => (
+    const renderOverview = () => {
+        const pendingSellers = users.filter((u: any) => u.sellerStatus === 'pending')
+        return (
         <>
-            {/* Alert Card for Pending Requests */}
+            {/* Pending Seller Applications Alert */}
+            {pendingSellers.length > 0 && (
+                <div
+                    onClick={() => { setActiveTab('users'); setUserFilter('pending'); }}
+                    className="mb-4 bg-amber-50 border border-amber-200 rounded-2xl p-5 shadow-sm relative overflow-hidden cursor-pointer group hover:shadow-md transition-all"
+                >
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2.5 bg-amber-100 rounded-xl"><Store className="text-amber-600" size={20}/></div>
+                            <div>
+                                <p className="text-xs font-bold text-amber-600 uppercase tracking-wide">Seller Applications</p>
+                                <h3 className="text-xl font-black text-amber-900">{pendingSellers.length} Pending Review</h3>
+                                <p className="text-amber-700 text-xs mt-0.5">Sellers waiting for approval or rejection.</p>
+                            </div>
+                        </div>
+                        <div className="bg-amber-600 text-white px-4 py-2 rounded-xl font-bold text-sm group-hover:scale-105 transition-transform shrink-0">
+                            Review Now →
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delivery Approvals Alert */}
             {deliveryRequests.length > 0 && (
                 <div 
                     onClick={() => setActiveTab('delivery')}
-                    className="mb-8 bg-indigo-900 rounded-2xl p-6 shadow-xl relative overflow-hidden cursor-pointer group"
+                    className="mb-6 bg-indigo-900 rounded-2xl p-6 shadow-xl relative overflow-hidden cursor-pointer group"
                 >
                     <div className="absolute top-0 right-0 p-4 opacity-10"><Bike size={100} className="text-white"/></div>
                     <div className="relative z-10 flex items-center justify-between">
@@ -366,7 +402,8 @@ export default function AdminDashboard() {
                 <StatCard icon={<MapPin className="text-orange-600"/>} label="Total Hubs" value={stats.totalHubs} color="bg-orange-50"/>
             </div>
         </>
-    )
+    )}
+
 
     const renderDeliveryRequests = () => (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -604,50 +641,145 @@ export default function AdminDashboard() {
     )
 
     const renderUsers = () => {
-        const filteredUsers = getFilteredUsers();
+        const pendingSellers = users.filter((u: any) => u.sellerStatus === 'pending')
+        const filteredUsers = userFilter === 'pending'
+            ? pendingSellers
+            : userFilter === 'all'
+            ? users
+            : users.filter((u: any) => u.role === userFilter)
         
         return (
-             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <h3 className="font-bold text-gray-800 text-lg">Global User Management</h3>
-                    <div className="flex flex-wrap gap-2">
-                        {[{ id: 'all', label: 'All' }, { id: 'seller', label: 'Sellers' }, { id: 'user', label: 'Users' }, { id: 'deliveryBoy', label: 'Delivery' }, { id: 'hub', label: 'Hubs' }].map(f => (
-                            <button key={f.id} onClick={() => setUserFilter(f.id as any)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${userFilter === f.id ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>
-                                {f.label}
-                            </button>
-                        ))}
+            <div className="space-y-6">
+                {/* Pending Seller Applications — dedicated card */}
+                {userFilter === 'pending' && (
+                    <div className="bg-white rounded-2xl border border-amber-200 shadow-sm overflow-hidden">
+                        <div className="p-5 border-b border-amber-100 bg-amber-50 flex items-center gap-3">
+                            <Store className="text-amber-600" size={20}/>
+                            <div>
+                                <h3 className="font-black text-amber-900 text-lg">Pending Seller Applications</h3>
+                                <p className="text-amber-700 text-xs">{pendingSellers.length} application{pendingSellers.length !== 1 ? 's' : ''} awaiting review</p>
+                            </div>
+                        </div>
+
+                        {pendingSellers.length === 0 ? (
+                            <div className="p-12 text-center">
+                                <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-3"/>
+                                <p className="text-gray-600 font-bold">All Caught Up!</p>
+                                <p className="text-gray-400 text-sm">No pending seller applications.</p>
+                            </div>
+                        ) : (
+                            <div className="divide-y divide-amber-50">
+                                {pendingSellers.map((user: any) => {
+                                    const isApproving = sellerActionLoading === user._id + 'approve'
+                                    const isRejecting = sellerActionLoading === user._id + 'reject'
+                                    return (
+                                        <div key={user._id} className="p-5 hover:bg-amber-50/50 transition-colors">
+                                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                                <div className="flex items-start gap-4">
+                                                    <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+                                                        <Store className="text-amber-600" size={20}/>
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-bold text-gray-800">{user.name}</div>
+                                                        <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5"><Phone size={11}/> {user.mobile}</div>
+                                                        {user.sellerDetails?.shopName && (
+                                                            <div className="mt-2 text-xs bg-white border border-amber-100 rounded-lg px-3 py-2 space-y-0.5">
+                                                                <div className="font-bold text-gray-700">🏪 {user.sellerDetails.shopName}</div>
+                                                                {user.sellerDetails.shopAddress && <div className="text-gray-500 line-clamp-1">{user.sellerDetails.shopAddress}</div>}
+                                                                {user.sellerDetails.gstin && <div className="text-gray-400">GSTIN: {user.sellerDetails.gstin}</div>}
+                                                            </div>
+                                                        )}
+                                                        <div className="text-[10px] text-gray-400 mt-1">Hub: {hubs.find((h: any) => h._id === user.connectedHub)?.name || 'Unassigned'}</div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-2 md:flex-col shrink-0">
+                                                    <button
+                                                        onClick={() => handleUserAction(user._id, 'approve')}
+                                                        disabled={!!sellerActionLoading}
+                                                        className="flex-1 md:flex-none flex items-center justify-center gap-1.5 px-5 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white rounded-xl text-xs font-bold transition-all shadow-sm min-w-[110px]"
+                                                    >
+                                                        {isApproving ? <Loader2 size={14} className="animate-spin"/> : <CheckCircle size={14}/>}
+                                                        Approve
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleUserAction(user._id, 'reject')}
+                                                        disabled={!!sellerActionLoading}
+                                                        className="flex-1 md:flex-none flex items-center justify-center gap-1.5 px-5 py-2.5 bg-white border border-red-200 hover:bg-red-50 disabled:opacity-60 text-red-600 rounded-xl text-xs font-bold transition-all min-w-[110px]"
+                                                    >
+                                                        {isRejecting ? <Loader2 size={14} className="animate-spin"/> : <XCircle size={14}/>}
+                                                        Reject
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        )}
                     </div>
-                </div>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-gray-50 text-gray-500 font-bold border-b">
-                            <tr><th className="p-4 whitespace-nowrap">User</th><th className="p-4 whitespace-nowrap">Role</th><th className="p-4 whitespace-nowrap">Hub</th><th className="p-4 whitespace-nowrap">Actions</th></tr>
-                        </thead>
-                        <tbody className="divide-y">
-                            {filteredUsers.map((user) => (
-                                <tr key={user._id} className="hover:bg-gray-50">
-                                    <td className="p-4">
-                                        <div className="font-bold text-gray-800">{user.name}</div>
-                                        <div className="text-xs text-gray-500">{user.mobile}</div>
-                                    </td>
-                                    <td className="p-4 uppercase text-xs font-bold text-gray-500">{user.role}</td>
-                                    <td className="p-4 text-xs text-gray-500">{hubs.find(h => h._id === user.connectedHub)?.name || '-'}</td>
-                                    <td className="p-4 flex gap-2">
-                                        {user.sellerStatus === 'pending' && (
-                                            <>
-                                                <button onClick={() => handleUserAction(user._id, 'approve')} className="p-1.5 bg-green-100 text-green-600 rounded hover:bg-green-200" title="Approve"><CheckCircle size={16}/></button>
-                                                <button onClick={() => handleUserAction(user._id, 'reject')} className="p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200" title="Reject"><XCircle size={16}/></button>
-                                            </>
-                                        )}
-                                        <button onClick={() => handleUserAction(user._id, user.isBlocked ? 'unblock' : 'block')} className={`p-1.5 rounded ${user.isBlocked ? 'bg-gray-100 text-gray-600' : 'bg-red-50 text-red-500'}`}>
-                                            {user.isBlocked ? <Shield size={16}/> : <Ban size={16}/>}
-                                        </button>
-                                    </td>
-                                </tr>
+                )}
+
+                {/* All Users Table */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <h3 className="font-bold text-gray-800 text-lg">Global User Management</h3>
+                        <div className="flex flex-wrap gap-2">
+                            {[
+                                { id: 'pending', label: '⏳ Pending', count: pendingSellers.length },
+                                { id: 'all', label: 'All' },
+                                { id: 'seller', label: 'Sellers' },
+                                { id: 'user', label: 'Users' },
+                                { id: 'deliveryBoy', label: 'Delivery' },
+                                { id: 'hub', label: 'Hubs' },
+                            ].map(f => (
+                                <button key={f.id} onClick={() => setUserFilter(f.id as any)} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${userFilter === f.id ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}>
+                                    {f.label}
+                                    {f.count !== undefined && f.count > 0 && (
+                                        <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${userFilter === f.id ? 'bg-white text-indigo-600' : 'bg-red-500 text-white'}`}>{f.count}</span>
+                                    )}
+                                </button>
                             ))}
-                            {filteredUsers.length === 0 && <tr><td colSpan={4} className="p-8 text-center text-gray-400">No users found for filter: {userFilter}</td></tr>}
-                        </tbody>
-                    </table>
+                        </div>
+                    </div>
+                    {userFilter !== 'pending' && (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm">
+                                <thead className="bg-gray-50 text-gray-500 font-bold border-b">
+                                    <tr><th className="p-4 whitespace-nowrap">User</th><th className="p-4 whitespace-nowrap">Role</th><th className="p-4 whitespace-nowrap">Hub</th><th className="p-4 whitespace-nowrap">Actions</th></tr>
+                                </thead>
+                                <tbody className="divide-y">
+                                    {filteredUsers.map((user: any) => (
+                                        <tr key={user._id} className="hover:bg-gray-50">
+                                            <td className="p-4">
+                                                <div className="font-bold text-gray-800">{user.name}</div>
+                                                <div className="text-xs text-gray-500">{user.mobile}</div>
+                                                {user.sellerStatus === 'pending' && <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">Pending Seller</span>}
+                                            </td>
+                                            <td className="p-4 uppercase text-xs font-bold text-gray-500">{user.role}</td>
+                                            <td className="p-4 text-xs text-gray-500">{hubs.find((h: any) => h._id === user.connectedHub)?.name || '-'}</td>
+                                            <td className="p-4">
+                                                <div className="flex gap-2">
+                                                    {user.sellerStatus === 'pending' && (
+                                                        <>
+                                                            <button onClick={() => handleUserAction(user._id, 'approve')} disabled={!!sellerActionLoading} className="p-1.5 bg-green-100 text-green-600 rounded hover:bg-green-200 disabled:opacity-50" title="Approve Seller"><CheckCircle size={16}/></button>
+                                                            <button onClick={() => handleUserAction(user._id, 'reject')} disabled={!!sellerActionLoading} className="p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200 disabled:opacity-50" title="Reject Application"><XCircle size={16}/></button>
+                                                        </>
+                                                    )}
+                                                    <button onClick={() => handleUserAction(user._id, user.isBlocked ? 'unblock' : 'block')} className={`p-1.5 rounded ${user.isBlocked ? 'bg-gray-100 text-gray-600' : 'bg-red-50 text-red-500'}`}>
+                                                        {user.isBlocked ? <Shield size={16}/> : <Ban size={16}/>}
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {filteredUsers.length === 0 && <tr><td colSpan={4} className="p-8 text-center text-gray-400">No users found.</td></tr>}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                    {userFilter === 'pending' && pendingSellers.length === 0 && (
+                        <div className="p-8 text-center text-gray-400 text-sm">No pending applications.</div>
+                    )}
                 </div>
             </div>
         )
@@ -673,7 +805,7 @@ export default function AdminDashboard() {
                     <SidebarItem icon={<TrendingUp/>} label="Overview" active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} />
                     <SidebarItem icon={<Bike/>} label="Delivery Approvals" active={activeTab === 'delivery'} onClick={() => setActiveTab('delivery')} />
                     <SidebarItem icon={<Store/>} label="Manage Hubs" active={activeTab === 'hubs'} onClick={() => setActiveTab('hubs')} />
-                    <SidebarItem icon={<Users/>} label="Global Users" active={activeTab === 'users'} onClick={() => setActiveTab('users')} />
+                    <SidebarItem icon={<Users/>} label={`Global Users${users.filter((u: any) => u.sellerStatus === 'pending').length > 0 ? ` (${users.filter((u: any) => u.sellerStatus === 'pending').length}⏳)` : ''}`} active={activeTab === 'users'} onClick={() => { setActiveTab('users'); setUserFilter('pending'); }} />
                     <SidebarItem icon={<ShoppingBag/>} label="Global Orders" active={activeTab === 'orders'} onClick={() => setActiveTab('orders')} />
                     <SidebarItem icon={<Layers/>} label="Content & Hero" active={activeTab === 'content'} onClick={() => setActiveTab('content')} />
                     <Link href="/admin/catalog" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-gray-500 hover:bg-gray-50">

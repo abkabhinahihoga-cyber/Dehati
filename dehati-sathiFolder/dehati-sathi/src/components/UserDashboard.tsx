@@ -1,11 +1,11 @@
 'use client'
-import React from 'react';
+import React, { useState } from 'react';
 import CategorySlider from "./CategorySlider";
 import HeroSection from "./HeroSection";
 import ProductFeed from "./ProductFeed";
 import Link from 'next/link';
-import { ArrowLeft, SearchX } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { ArrowLeft, SearchX, Mic, MicOff } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import MandiBhavTicker from "./MandiBhavTicker";
 import HorizontalReelsFeed from "./HorizontalReelsFeed";
@@ -27,6 +27,41 @@ function UserDashboard({ user, products, searchQuery }: UserDashboardProps) {
     noProductsFound: isHindi ? 'कोई उत्पाद नहीं मिला' : 'No products found',
     noProductsDesc: isHindi ? (query: string) => `हमें "${query}" से मेल खाने वाला कुछ नहीं मिला। किसी अन्य कीवर्ड या श्रेणी की खोज करने का प्रयास करें।` : (query: string) => `We couldn't find anything matching "${query}". Try searching for a different keyword or category.`,
     browseAll: isHindi ? 'सभी उत्पाद ब्राउज़ करें' : 'Browse All Products',
+  };
+
+  const router = useRouter();
+  const [isListening, setIsListening] = useState(false);
+
+  // --- MASSIVE VOICE SEARCH LOGIC ---
+  const startListening = () => {
+      if (isListening) return;
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+          alert(isHindi ? "आपका फोन बोल कर खोजने का समर्थन नहीं करता है।" : "Voice search is not supported on this browser.");
+          return;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = isHindi ? 'hi-IN' : 'en-IN'; 
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 3;
+
+      recognition.onstart = () => setIsListening(true);
+      recognition.onend = () => setIsListening(false);
+
+      recognition.onresult = (event: any) => {
+          const transcript = event.results[0][0].transcript;
+          router.push(`/?query=${encodeURIComponent(transcript)}`); 
+      };
+
+      recognition.onerror = (event: any) => {
+          setIsListening(false);
+          if (event.error === 'not-allowed') {
+              alert(isHindi ? "माइक्रोफोन की अनुमति नहीं है। (Microphone Denied)" : "Microphone permission denied.");
+          }
+      };
+
+      try { recognition.start(); } catch (err) { setIsListening(false); }
   };
 
   // --- 1. SEARCH MODE ---
@@ -98,6 +133,31 @@ function UserDashboard({ user, products, searchQuery }: UserDashboardProps) {
       
       {/* Default Feed (Self-fetching based on Geolocation) */}
       <ProductFeed isSearch={false} />
+
+      {/* MASSIVE FLOATING VOICE SEARCH BUTTON (For Rural / Illiterate Users) */}
+      <div className="fixed right-3 bottom-24 md:right-6 md:bottom-8 z-[60]">
+        <button
+          onClick={startListening}
+          className={`group flex items-center gap-2 md:gap-3 rounded-full shadow-[0_10px_30px_rgba(13,105,56,0.28)] transition-all border-2 px-4 py-3 md:px-5 md:py-4 ${
+            isListening 
+              ? 'bg-red-500 text-white animate-pulse scale-105 border-red-300' 
+              : 'bg-[#0d6938] text-white hover:bg-[#0a522c] hover:scale-105 border-white'
+          }`}
+          aria-label={isHindi ? 'बोलकर खोजें' : 'Speak to search'}
+        >
+          {isListening ? (
+            <>
+               <MicOff size={24} />
+               <span className="font-black text-xl tracking-wide">{isHindi ? 'सुन रहा हूँ...' : 'Listening...'}</span>
+            </>
+          ) : (
+            <>
+               <Mic size={24} />
+               <span className="font-black text-xl tracking-wide">{isHindi ? 'बोल कर खोजें' : 'Speak to Search'}</span>
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 }

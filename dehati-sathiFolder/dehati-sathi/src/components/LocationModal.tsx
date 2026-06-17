@@ -232,8 +232,8 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
                             <>
                                 <div className="px-6 py-5 bg-white border-b border-gray-100 flex items-center justify-between sticky top-0 z-10">
                                     <div>
-                                        <h3 className="text-xl font-black text-gray-800 tracking-tight">Select Location</h3>
-                                        <p className="text-xs text-gray-500 font-medium mt-0.5">Where should we deliver?</p>
+                                        <h3 className="text-xl font-black text-gray-800 tracking-tight">स्थान चुनें</h3>
+                                        <p className="text-xs text-gray-500 font-medium mt-0.5">डिलीवरी कहां भेजनी है?</p>
                                     </div>
                                     <button onClick={onClose} className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"><X size={18} className="text-gray-600"/></button>
                                 </div>
@@ -244,34 +244,35 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
                                         <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none ${themeColor}`}>
                                             <Search className="h-5 w-5" />
                                         </div>
-                                        <input readOnly type="text" placeholder="Search area, pincode..." className="block w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium text-gray-900 focus:outline-none cursor-pointer hover:bg-white hover:border-gray-300 transition-all" />
+                                        <input readOnly type="text" placeholder="गांव, कस्बा या पिनकोड खोजें..." className="block w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium text-gray-900 focus:outline-none cursor-pointer hover:bg-white hover:border-gray-300 transition-all" />
                                     </div>
 
                                     <div className="grid grid-cols-1 gap-3">
-                                        <button onClick={handleGPS} disabled={resolving} className={`flex items-center gap-4 p-4 rounded-xl border border-transparent bg-white shadow-sm hover:shadow-md transition-all group text-left ${resolving ? 'opacity-70' : ''}`}>
-                                            <div className={`p-3 rounded-full ${bgLight} ${themeColor} group-hover:scale-110 transition-transform`}>
+                                        <button onClick={handleGPS} disabled={resolving} className={`relative flex items-center gap-4 p-5 rounded-2xl border-2 ${isGrocery ? 'border-green-500 bg-green-50 shadow-[0_12px_30px_rgba(22,163,74,0.18)]' : 'border-indigo-500 bg-indigo-50 shadow-[0_12px_30px_rgba(79,70,229,0.18)]'} hover:shadow-lg transition-all group text-left ${resolving ? 'opacity-80' : ''}`}>
+                                            <div className="absolute right-4 top-3 rounded-full bg-white px-2.5 py-1 text-[10px] font-black text-green-700 shadow-sm">सबसे आसान</div>
+                                            <div className={`p-3 rounded-full bg-white ${themeColor} group-hover:scale-110 transition-transform shadow-sm`}>
                                                 {resolving ? <Loader2 size={20} className="animate-spin"/> : <Navigation size={20} fill="currentColor" />}
                                             </div>
                                             <div>
-                                                <h4 className={`font-bold text-sm ${themeColor}`}>Use Current Location</h4>
-                                                <p className="text-xs text-gray-400 mt-0.5">Using GPS</p>
+                                                <h4 className={`font-black text-base ${themeColor}`}>वर्तमान लोकेशन इस्तेमाल करें</h4>
+                                                <p className="text-xs text-gray-600 mt-0.5">GPS से अपने-आप पता भर जाएगा</p>
                                             </div>
                                         </button>
 
                                         <button onClick={() => setView('editor')} className="flex items-center gap-4 p-4 rounded-xl border border-dashed border-gray-300 bg-transparent hover:bg-white hover:border-gray-400 hover:shadow-sm transition-all group text-left">
                                             <div className="p-3 rounded-full bg-gray-100 text-gray-500 group-hover:scale-110 transition-transform"><Plus size={20}/></div>
                                             <div>
-                                                <h4 className="font-bold text-sm text-gray-700">Add Manual Address</h4>
-                                                <p className="text-xs text-gray-400 mt-0.5">Search on map or enter details</p>
+                                                <h4 className="font-bold text-sm text-gray-700">मैनुअल पता जोड़ें</h4>
+                                                <p className="text-xs text-gray-400 mt-0.5">मैप पर खोजें या खुद भरें</p>
                                             </div>
                                         </button>
                                     </div>
 
                                     {/* Saved List */}
                                     <div>
-                                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 ml-1">Saved Addresses</h4>
+                                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 ml-1">सेव किए पते</h4>
                                         {savedAddresses.length === 0 ? (
-                                            <div className="text-center py-8 bg-gray-50 rounded-2xl border border-dashed text-gray-400 text-sm">No addresses found.</div>
+                                            <div className="text-center py-8 bg-gray-50 rounded-2xl border border-dashed text-gray-400 text-sm">अभी कोई पता सेव नहीं है.</div>
                                         ) : (
                                             <div className="space-y-3">
                                                 {savedAddresses.map((addr) => (

@@ -70,6 +70,33 @@ export async function POST(req: NextRequest) {
             { new: true }
         );
 
+        // 5. Send notifications to Hub Manager and Admins
+        try {
+            const { createNotification } = await import("@/lib/notify");
+            
+            // Notify Hub Manager
+            const hubManager = await User.findOne({ role: 'hub', connectedHub: hubId });
+            if (hubManager) {
+                await createNotification({
+                    recipientId: hubManager._id.toString(),
+                    type: 'system',
+                    message: `New seller application from ${updatedUser?.name || 'User'} for "${shopName}".`
+                });
+            }
+
+            // Notify Admins
+            const admins = await User.find({ role: 'admin' });
+            for (const admin of admins) {
+                await createNotification({
+                    recipientId: admin._id.toString(),
+                    type: 'system',
+                    message: `New seller application from ${updatedUser?.name || 'User'} for "${shopName}" (Hub: ${hubName}).`
+                });
+            }
+        } catch (notifErr) {
+            console.error("Failed to send seller application notifications:", notifErr);
+        }
+
         return NextResponse.json({ success: true, user: updatedUser, hub: hubName });
 
     } catch (error: any) {

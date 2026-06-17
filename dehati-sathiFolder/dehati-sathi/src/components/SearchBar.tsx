@@ -7,6 +7,8 @@ import { RootState } from '@/redux/store';
 import Link from 'next/link';
 import Image from 'next/image';
 import { algoliasearch } from 'algoliasearch'; 
+import { getBestSearchQuery } from '@/lib/search-normalizer';
+import { useLocale } from 'next-intl';
 
 const client = (process.env.NEXT_PUBLIC_ALGOLIA_APP_ID && process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY) 
     ? algoliasearch(process.env.NEXT_PUBLIC_ALGOLIA_APP_ID, process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY)
@@ -23,6 +25,8 @@ export default function SearchBar() {
     const searchRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     const searchParams = useSearchParams();
+    const locale = useLocale();
+    const isHindi = locale === 'hi';
 
     const { mode } = useSelector((state: RootState) => state.mode);
     const isGrocery = mode === 'grocery';
@@ -89,9 +93,9 @@ export default function SearchBar() {
         }
 
         const recognition = new SpeechRecognition();
-        recognition.lang = 'en-US'; 
+        recognition.lang = isHindi ? 'hi-IN' : 'en-IN'; 
         recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
+        recognition.maxAlternatives = 3;
 
         recognition.onstart = () => setIsListening(true);
         recognition.onend = () => setIsListening(false);
@@ -108,9 +112,9 @@ export default function SearchBar() {
 
             if (event.error === 'network') {
                 // Suppress the console error and show a helpful alert
-                alert("Voice Search is blocked by your browser (likely Brave). Please use Google Chrome.");
+                alert(isHindi ? "बोलकर खोज अभी ब्राउज़र में ब्लॉक है। कृपया Chrome/Edge में खोलें।" : "Voice Search is blocked by your browser. Please use Chrome or Edge.");
             } else if (event.error === 'not-allowed') {
-                alert("Microphone permission denied. Please enable it in settings.");
+                alert(isHindi ? "माइक्रोफोन की अनुमति दें, फिर दोबारा बोलकर खोजें।" : "Microphone permission denied. Please enable it in settings.");
             } else if (event.error === 'no-speech') {
                 // Ignore silent errors
                 return;
@@ -139,7 +143,7 @@ export default function SearchBar() {
             try {
                 if (client) {
                     const { results } = await client.search({
-                        requests: [{ indexName: 'products', query: query, hitsPerPage: 5 }]
+                        requests: [{ indexName: 'products', query: getBestSearchQuery(query), hitsPerPage: 5 }]
                     });
                     
                     const hits = (results[0] as any).hits.map((hit: any) => ({
@@ -149,10 +153,16 @@ export default function SearchBar() {
                         image: hit.image,
                         price: hit.price
                     }));
-                    setResults(hits);
+                    if (hits.length > 0) {
+                        setResults(hits);
+                    } else {
+                        const res = await fetch(`/api/products/search?query=${encodeURIComponent(query)}`);
+                        const data = await res.json();
+                        setResults(data.products || []);
+                    }
                     setShowResults(true);
                 } else {
-                    const res = await fetch(`/api/products/search?query=${query}`);
+                    const res = await fetch(`/api/products/search?query=${encodeURIComponent(query)}`);
                     const data = await res.json();
                     setResults(data.products || []);
                     setShowResults(true);
@@ -193,7 +203,7 @@ export default function SearchBar() {
 
                 <input
                     type="text"
-                    placeholder={isListening ? "Listening..." : (isGrocery ? "Search vegetables, fruits..." : "Search books, notes...")}
+                    placeholder={isListening ? (isHindi ? "सुन रहा है..." : "Listening...") : (isHindi ? (isGrocery ? "सब्जी, फल, राशन खोजें..." : "किताब, कॉपी, नोट्स खोजें...") : (isGrocery ? "Search vegetables, fruits..." : "Search books, notes..."))}
                     className='w-full bg-transparent p-2.5 outline-none text-gray-700 placeholder:text-gray-400 text-sm font-medium'
                     value={query}
                     onChange={(e) => {
@@ -214,7 +224,7 @@ export default function SearchBar() {
                     <button 
                         onClick={startListening} 
                         className={`p-1.5 rounded-full transition-all ${micColor}`}
-                        title="Voice Search"
+                        title={isHindi ? "बोलकर खोजें" : "Voice Search"}
                         type="button"
                     >
                         {isListening ? <MicOff size={18} /> : <Mic size={18} />}
@@ -225,7 +235,7 @@ export default function SearchBar() {
                     onClick={() => handleFullSearch(query)}
                     className={`hidden md:block px-5 py-2.5 text-white font-bold text-sm transition-all hover:brightness-105 ${gradientBg}`}
                 >
-                    Search
+                    {isHindi ? "खोजें" : "Search"}
                 </button>
             </div>
 
@@ -237,8 +247,8 @@ export default function SearchBar() {
                     {query.length < 2 && recentSearches.length > 0 && (
                         <div className="py-2">
                             <div className="flex items-center justify-between px-4 pb-2 border-b border-gray-50">
-                                <span className="text-xs font-bold text-gray-400 uppercase">Recent Searches</span>
-                                <button onClick={clearHistory} className="text-[10px] text-red-500 hover:underline">Clear All</button>
+                                <span className="text-xs font-bold text-gray-400 uppercase">{isHindi ? "हाल की खोज" : "Recent Searches"}</span>
+                                <button onClick={clearHistory} className="text-[10px] text-red-500 hover:underline">{isHindi ? "साफ करें" : "Clear All"}</button>
                             </div>
                             {recentSearches.map((term, index) => (
                                 <div 
@@ -296,7 +306,7 @@ export default function SearchBar() {
                                 onClick={() => handleFullSearch(query)}
                                 className={`w-full text-center py-2.5 text-xs font-bold border-t border-gray-100 hover:bg-gray-50 transition-colors ${isGrocery ? 'text-green-600' : 'text-blue-600'}`}
                             >
-                                See all results for "{query}"
+                                {isHindi ? `"${query}" के सभी नतीजे देखें` : `See all results for "${query}"`}
                             </button>
                         </div>
                     )}

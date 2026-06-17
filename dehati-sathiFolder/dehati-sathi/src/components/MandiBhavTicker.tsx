@@ -1,13 +1,17 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { TrendingUp, AlertCircle } from 'lucide-react'
+import { TrendingUp } from 'lucide-react'
 
 interface MandiBhav {
   _id: string
   price: number
   retailPrice?: number
+  retailMinPrice?: number
+  retailMaxPrice?: number
   wholesalePrice?: number
+  wholesaleMinPrice?: number
+  wholesaleMaxPrice?: number
   product: {
     name: string
     nameHindi: string
@@ -37,30 +41,31 @@ export default function MandiBhavTicker({ hubId }: { hubId: string }) {
 
   if (!hubId || loading || data.length === 0) return null
 
+  const range = (min?: number, max?: number, fallback?: number) => {
+    const low = min || fallback || 0
+    const high = max || fallback || 0
+    return low === high ? `₹${low}` : `₹${low}-${high}`
+  }
+
   return (
-    <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-y border-green-100 overflow-hidden relative shadow-sm flex items-center">
-      
-      {/* Title - Fixed on the left */}
-      <div className="flex items-center gap-2 font-bold text-green-800 text-xs md:text-sm whitespace-nowrap bg-gradient-to-r from-green-50 to-emerald-50 pl-4 pr-3 py-2.5 z-10 border-r border-green-200 shadow-[4px_0_10px_-4px_rgba(0,0,0,0.1)]">
+    <div className="bg-gradient-to-r from-green-50 via-white to-emerald-50 border-y border-green-100 overflow-hidden relative shadow-sm flex items-stretch">
+      <div className="flex items-center gap-2 font-bold text-green-800 text-xs md:text-sm whitespace-nowrap bg-gradient-to-r from-green-50 to-emerald-50 pl-4 pr-3 py-3 z-10 border-r border-green-200 shadow-[4px_0_10px_-4px_rgba(0,0,0,0.1)]">
         <TrendingUp className="w-4 h-4 text-green-600" />
-        Mandi Bhav
+        मंडी भाव
       </div>
 
-      {/* Marquee Container */}
       <div className="flex-1 overflow-hidden relative h-full flex items-center">
-        <div className="flex gap-6 items-center w-max animate-marquee hover:pause pl-4">
-          {/* Duplicate items for infinite scroll effect */}
+        <div className="flex gap-3 items-center w-max animate-marquee hover:pause pl-4 py-2">
           {[...data, ...data].map((item, index) => (
-            <div key={`${item._id}-${index}`} className="flex items-center gap-2 whitespace-nowrap text-sm">
-              <span className="font-bold text-gray-800 text-xs md:text-sm">{item.product.name}</span>
-              <span className="text-gray-500 text-[10px] md:text-xs">({item.product.nameHindi})</span>
-              <span className="font-bold text-blue-700 bg-white px-2 py-0.5 rounded-md border border-blue-100 shadow-sm text-xs">
-                R: ₹{item.retailPrice || item.price}
+            <div key={`${item._id}-${index}`} className="flex items-center gap-2 whitespace-nowrap text-sm bg-white/85 border border-green-100 rounded-xl px-3 py-1.5 shadow-sm">
+              <span className="font-black text-gray-800 text-xs md:text-sm">{item.product.nameHindi || item.product.name}</span>
+              <span className="text-gray-400 text-[10px] md:text-xs">/ {item.product.unit}</span>
+              <span className="font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-lg border border-blue-100 text-[11px]">
+                खुदरा {range(item.retailMinPrice, item.retailMaxPrice, item.retailPrice || item.price)}
               </span>
-              <span className="font-bold text-purple-700 bg-white px-2 py-0.5 rounded-md border border-purple-100 shadow-sm text-xs">
-                W: ₹{item.wholesalePrice || 0}
+              <span className="font-bold text-purple-700 bg-purple-50 px-2 py-1 rounded-lg border border-purple-100 text-[11px]">
+                थोक {range(item.wholesaleMinPrice, item.wholesaleMaxPrice, item.wholesalePrice)}
               </span>
-              <span className="text-[10px] md:text-xs font-medium text-gray-400">/ {item.product.unit}</span>
             </div>
           ))}
         </div>
@@ -72,7 +77,7 @@ export default function MandiBhavTicker({ hubId }: { hubId: string }) {
           100% { transform: translateX(-50%); }
         }
         .animate-marquee {
-          animation: marquee 30s linear infinite;
+          animation: marquee 34s linear infinite;
         }
         .hover\\:pause:hover {
           animation-play-state: paused;

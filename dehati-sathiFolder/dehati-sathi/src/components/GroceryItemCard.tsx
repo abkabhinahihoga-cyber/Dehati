@@ -1,8 +1,8 @@
 'use client'
-import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef, useTransition } from 'react';
 import { motion } from "framer-motion"
 import Image from 'next/image';
-import { Star, Zap, MapPin, Heart, Clock, Share2, Copy, MoreHorizontal } from 'lucide-react';
+import { Star, Zap, MapPin, Heart, Clock, Share2, Copy, MoreHorizontal, Loader2 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useSelector } from 'react-redux';
@@ -84,11 +84,25 @@ function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
       }).catch(err => console.error(err));
   }, [item._id, item.category]);
 
-  const handleImpression = () => { if (!hasViewed) { trackInteraction('view'); setHasViewed(true); } };
+  const handleImpression = () => { 
+      if (!hasViewed) { 
+          trackInteraction('view'); 
+          setHasViewed(true); 
+      }
+      router.prefetch(`/product/${item._id}`);
+  };
   
+  const [isPending, startTransition] = useTransition();
+
   const handleCardClick = () => {
       trackInteraction('click');
-      router.push(`/product/${item._id}`);
+      startTransition(() => {
+          router.push(`/product/${item._id}`);
+      });
+  };
+
+  const handleMouseEnter = () => {
+      router.prefetch(`/product/${item._id}`);
   };
 
   const handleWishlist = (e: React.MouseEvent) => {
@@ -181,9 +195,15 @@ function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
       onViewportEnter={handleImpression}
+      onMouseEnter={handleMouseEnter}
       onClick={handleCardClick}
       className={`h-full bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col overflow-hidden relative group cursor-pointer ${isBook ? 'hover:border-indigo-200' : 'hover:border-green-200'}`}
     >
+      {isPending && (
+          <div className="absolute inset-0 bg-white/50 backdrop-blur-[2px] z-50 flex items-center justify-center pointer-events-none rounded-2xl">
+              <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
+          </div>
+      )}
       {/* Discount Badge */}
       {discount > 0 && item.stock > 0 && (
           <div className={`absolute top-3 left-3 z-10 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-md flex items-center gap-1 ${isBook ? 'bg-indigo-600' : 'bg-green-600'}`}>

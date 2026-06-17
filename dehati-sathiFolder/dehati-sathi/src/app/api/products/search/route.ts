@@ -1,6 +1,7 @@
 import connectDb from "@/lib/db";
 import Grocery from "@/app/models/grocery.model"; // Ensure this matches your actual Product model filename
 import { NextRequest, NextResponse } from "next/server";
+import { escapeRegex, getSearchVariants } from "@/lib/search-normalizer";
 
 export const dynamic = 'force-dynamic';
 
@@ -15,21 +16,21 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ success: true, products: [] });
         }
 
-        // Create a case-insensitive Regex
-        const searchRegex = new RegExp(query, "i");
+        const variants = getSearchVariants(query);
+        const regexes = variants.map((term) => new RegExp(escapeRegex(term), "i"));
 
-        // Search in Name, Category, or Description
         const products = await Grocery.find({
             $or: [
-                { name: { $regex: searchRegex } },
-                { category: { $regex: searchRegex } },
-                { description: { $regex: searchRegex } }
+                { name: { $in: regexes } },
+                { category: { $in: regexes } },
+                { description: { $in: regexes } },
+                { unit: { $in: regexes } }
             ]
         })
         .select("name price image unit category _id seller") // Select only needed fields
-        .limit(10); // Limit results for performance
+        .limit(12);
 
-        return NextResponse.json({ success: true, products });
+        return NextResponse.json({ success: true, products, queryVariants: variants });
 
     } catch (error: any) {
         console.error("Search Error:", error);

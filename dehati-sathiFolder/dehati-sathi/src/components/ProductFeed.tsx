@@ -69,7 +69,6 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
         setLoading(true); 
         setPage(1);
         setHasMore(true);
-        setProducts([]); 
     }, [mode, sort, priceRange, minRating, activeCategory, minDiscount, isSearch, refreshKey]);
 
     // 2. FETCH RAILS
@@ -326,7 +325,7 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
                 </div>
             )}
             
-            {(loading || isRefetching) && <div className="w-full flex justify-center py-10"><Loader2 className='animate-spin text-gray-400 w-8 h-8' /></div>}
+            {(loading || isRefetching) && displayProducts.length === 0 && <div className="w-full flex justify-center py-10"><Loader2 className='animate-spin text-gray-400 w-8 h-8' /></div>}
         </div>
     )
 }
