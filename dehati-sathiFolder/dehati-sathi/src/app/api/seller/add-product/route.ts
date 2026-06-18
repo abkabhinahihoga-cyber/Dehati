@@ -6,6 +6,7 @@ import Grocery from "@/app/models/grocery.model";
 import User from "@/app/models/user.model"; // Import User model
 import uploadOnCloudinary from "@/lib/cloudinary";
 import { auth } from "@/auth";
+import { normalizeCategory } from "@/lib/constants";
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest) {
     // 1. Common Fields
     const name = String(formData.get("name") || "");
     const description = String(formData.get("description") || ""); 
-    const category = String(formData.get("category") || "");
+    const category = normalizeCategory(String(formData.get("category") || ""));
     const stock = Number(formData.get("stock") || 1);
     const masterProductId = formData.get("masterProductId");
     const qualityScale = parseInt((formData.get("qualityScale") as string) || "5");

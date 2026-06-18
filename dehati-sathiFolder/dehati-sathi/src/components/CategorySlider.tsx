@@ -1,68 +1,39 @@
 'use client'
-import { 
-    Apple, Book, Box, ChevronLeft, ChevronRight, Hand, Home, Wheat, Flower, Salad, 
-    Shapes, Backpack, BookOpen, NotebookPen, GraduationCap, Scroll, Library, Milk, Search,
-    Sparkles, Zap, IceCream, Coffee
-} from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { motion } from "framer-motion"
 import { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Image from 'next/image'
+import { useLocale } from 'next-intl'
 import { RootState } from '@/redux/store'
-// 👇 This import will work now because we exported GROCERY_CATEGORIES in constants.ts
-import { GROCERY_CATEGORIES, BOOK_CATEGORIES } from '@/lib/constants' 
+import { BOOK_CATEGORIES, GROCERY_CATEGORIES, getCategoryImage, getCategoryLabel } from '@/lib/constants'
 
-// --- 1. ICON MAPPING ---
-const CATEGORY_CONFIG: any = {
-    // Grocery
-    "Fresh Fruits": { emoji: "🍎", color: "bg-red-100" },
-    "Fresh Vegetables": { emoji: "🥬", color: "bg-green-100" },
-    "Live Plants": { emoji: "🪴", color: "bg-emerald-100" },
-    "Rice, Atta & Dals": { emoji: "🌾", color: "bg-orange-100" },
-    "Dairy & Breakfast": { emoji: "🥛", color: "bg-blue-50" },
-    "Spices & Masalas": { emoji: "🌶️", color: "bg-yellow-100" },
-    "HandCrafted": { emoji: "🏺", color: "bg-rose-100" },
-    "Household Essentials": { emoji: "🧹", color: "bg-lime-100" },
-    "Snacks & Packaged Food": { emoji: "🍿", color: "bg-amber-100" },
-    "Personal Care": { emoji: "🧴", color: "bg-purple-100" },
-    "Cold Drinks & Juices": { emoji: "🥤", color: "bg-teal-100" },
-    "Chocolates & Ice Cream": { emoji: "🍦", color: "bg-pink-100" },
-    
-    // Student
-    "LKG & UKG": { emoji: "🧸", color: "bg-pink-100" },
-    "Class 1 - 5": { emoji: "🎒", color: "bg-blue-100" },
-    "Class 6 - 8": { emoji: "📓", color: "bg-indigo-100" },
-    "Class 9 & 11": { emoji: "📐", color: "bg-violet-100" },
-    "Class 10 & 12 (Board)": { emoji: "🎓", color: "bg-purple-100" },
-    "Graduation (B.Tech/B.Sc/BA)": { emoji: "🏫", color: "bg-yellow-100" },
-    "Textbooks": { emoji: "📚", color: "bg-teal-100" },
-    "Notes & Study Material": { emoji: "📝", color: "bg-amber-100" },
-    "Entrance Exam (JEE/NEET)": { emoji: "🎯", color: "bg-red-100" },
-    "Novels & Fiction": { emoji: "📖", color: "bg-pink-100" },
-    "Stationary": { emoji: "🖊️", color: "bg-gray-200" },
-    "Others": { emoji: "📦", color: "bg-gray-100" }
-};
+const BOOK_EMOJIS: Record<string, string> = {
+    "LKG & UKG": "🧸",
+    "Class 1 - 5": "🎒",
+    "Class 6 - 8": "📓",
+    "Class 9 & 11": "📐",
+    "Class 10 & 12 (Board)": "🎓",
+    "Graduation (B.Tech/B.Sc/BA)": "🏫",
+    "Notes & Study Material": "📝",
+    "Entrance Exam (JEE/NEET)": "🎯",
+    "Novels & Fiction": "📖",
+    "Stationary": "✏️",
+    "Others": "📦"
+}
 
 function CategorySlider() {
     const router = useRouter()
     const searchParams = useSearchParams()
+    const locale = useLocale()
     const { mode } = useSelector((state: RootState) => state.mode)
     const currentCategory = searchParams.get('category') || ""
-
-    // Use the Combined list for the slider
     const rawCategories = mode === 'grocery' ? GROCERY_CATEGORIES : BOOK_CATEGORIES
-
-    const categories = rawCategories.map((name, index) => ({
-        id: index,
-        name: name,
-        ... (CATEGORY_CONFIG[name] || CATEGORY_CONFIG["Others"])
-    }))
-
     const scrollRef = useRef<HTMLDivElement>(null)
     const [showLeft, setShowLeft] = useState(false)
     const [showRight, setShowRight] = useState(true)
 
-    // Click Handler
     const handleCategoryClick = (cat: string) => {
         const params = new URLSearchParams(searchParams.toString())
         if (currentCategory === cat) params.delete('category')
@@ -70,7 +41,6 @@ function CategorySlider() {
         router.push(`/?${params.toString()}`)
     }
 
-    // Auto Scroll
     useEffect(() => {
         const autoScroll = setInterval(() => {
             if (!scrollRef.current) return
@@ -80,15 +50,12 @@ function CategorySlider() {
             } else {
                 scrollRef.current.scrollBy({ left: 300, behavior: "smooth" })
             }
-        }, 4000) 
+        }, 4500)
         return () => clearInterval(autoScroll)
-    }, [categories])
+    }, [rawCategories])
 
-    // Scroll Logic
     const scroll = (direction: "left" | "right") => {
-        if (!scrollRef.current) return
-        const scrollAmount = direction === "left" ? -300 : 300
-        scrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" })
+        scrollRef.current?.scrollBy({ left: direction === "left" ? -300 : 300, behavior: "smooth" })
     }
 
     const checkScroll = () => {
@@ -99,11 +66,11 @@ function CategorySlider() {
     }
 
     useEffect(() => {
-        const ref = scrollRef.current;
+        const ref = scrollRef.current
         ref?.addEventListener("scroll", checkScroll)
         checkScroll()
         return () => ref?.removeEventListener("scroll", checkScroll)
-    }, [categories])
+    }, [rawCategories])
 
     return (
         <motion.div
@@ -114,7 +81,7 @@ function CategorySlider() {
             viewport={{ once: true }}
         >
             <h2 className={`text-2xl md:text-3xl font-bold mb-6 text-center ${mode === 'grocery' ? 'text-green-700' : 'text-indigo-700'}`}>
-                {mode === 'grocery' ? '🛒 Shop by Category' : '📚 Browse by Class'}
+                {mode === 'grocery' ? (locale === 'hi' ? 'श्रेणी से खरीदें' : 'Shop by Category') : (locale === 'hi' ? 'कक्षा के अनुसार देखें' : 'Browse by Class')}
             </h2>
 
             {showLeft && (
@@ -123,33 +90,32 @@ function CategorySlider() {
                 </button>
             )}
 
-            <div className='flex gap-6 overflow-x-auto px-4 pb-8 pt-2 scrollbar-hide scroll-smooth' ref={scrollRef}>
-                {categories.map((cat) => {
-                    const Icon = cat.icon
-                    const isActive = currentCategory === cat.name
+            <div className='flex gap-4 overflow-x-auto px-4 pb-8 pt-2 scrollbar-hide scroll-smooth' ref={scrollRef}>
+                {rawCategories.map((name, index) => {
+                    const isActive = currentCategory === name
                     return (
-                        <motion.div
-                            key={cat.id}
-                            onClick={() => handleCategoryClick(cat.name)}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`min-w-[140px] md:min-w-[160px] h-[160px] flex flex-col items-center justify-center rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer border-2
-                                ${isActive 
-                                    ? (mode === 'grocery' ? 'border-green-600 ring-2 ring-green-200 bg-green-50' : 'border-indigo-600 ring-2 ring-indigo-200 bg-indigo-50') 
-                                    : `border-transparent ${cat.color}`
-                                }`}
+                        <motion.button
+                            key={name}
+                            onClick={() => handleCategoryClick(name)}
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}
+                            className={`relative min-w-[148px] md:min-w-[170px] h-[158px] overflow-hidden rounded-2xl shadow-sm hover:shadow-md transition-all cursor-pointer border-2 text-left
+                                ${isActive ? (mode === 'grocery' ? 'border-green-600 ring-2 ring-green-200' : 'border-indigo-600 ring-2 ring-indigo-200') : 'border-white/80'}`}
                         >
-                            <div className='flex flex-col items-center justify-center p-4 text-center'>
-                                {cat.emoji ? (
-                                    <span className={`text-4xl md:text-5xl mb-3 ${isActive ? 'scale-110' : ''} transition-transform`}>{cat.emoji}</span>
-                                ) : Icon ? (
-                                    <Icon className={`w-10 h-10 mb-3 ${isActive ? 'scale-110' : ''} ${mode === 'grocery' ? 'text-green-700' : 'text-indigo-700'}`} />
-                                ) : null}
-                                <p className={`text-sm font-bold leading-tight ${isActive ? 'text-black' : 'text-gray-700'}`}>
-                                    {cat.name}
+                            {mode === 'grocery' ? (
+                                <Image src={getCategoryImage(name)} alt={getCategoryLabel(name, locale)} fill sizes="170px" className="object-cover" priority={index < 4} />
+                            ) : (
+                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-white flex items-center justify-center text-5xl">
+                                    {BOOK_EMOJIS[name] || "📦"}
+                                </div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                            <div className="absolute bottom-0 left-0 right-0 p-3">
+                                <p className="text-white text-sm font-black leading-tight drop-shadow">
+                                    {mode === 'grocery' ? getCategoryLabel(name, locale) : name}
                                 </p>
                             </div>
-                        </motion.div>
+                        </motion.button>
                     )
                 })}
             </div>

@@ -3,6 +3,7 @@ import connectDb from "@/lib/db";
 import MasterProduct from "@/app/models/masterProduct.model";
 import { auth } from "@/auth";
 import { v2 as cloudinary } from "cloudinary";
+import { normalizeCategory } from "@/lib/constants";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const name = formData.get("name") as string;
     const nameHindi = formData.get("nameHindi") as string;
-    const category = formData.get("category") as string;
+    const category = normalizeCategory(formData.get("category") as string);
     const unit = formData.get("unit") as string;
     const description = formData.get("description") as string;
     const isHubProduct = formData.get("isHubProduct") === "true";

@@ -60,9 +60,12 @@ export async function PUT(req: NextRequest) {
           $set: {
             retailMinPrice: u.retailMinPrice,
             retailMaxPrice: u.retailMaxPrice,
+            retailPrice: u.retailPrice ?? u.retailMaxPrice ?? u.retailMinPrice ?? 0,
             wholesaleMinPrice: u.wholesaleMinPrice,
             wholesaleMaxPrice: u.wholesaleMaxPrice,
+            wholesalePrice: u.wholesalePrice ?? u.wholesaleMaxPrice ?? u.wholesaleMinPrice ?? 0,
             updatedBy: userId,
+            updatedAt: new Date(),
           },
         },
         upsert: true,

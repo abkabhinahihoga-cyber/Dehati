@@ -12,6 +12,7 @@ interface MandiBhav {
   wholesalePrice?: number
   wholesaleMinPrice?: number
   wholesaleMaxPrice?: number
+  updatedAt?: string
   product: {
     name: string
     nameHindi: string
@@ -39,12 +40,20 @@ export default function MandiBhavTicker({ hubId }: { hubId: string }) {
     fetchMandi()
   }, [hubId])
 
-  if (!hubId || loading || data.length === 0) return null
+  if (!hubId || loading) return null
 
   const range = (min?: number, max?: number, fallback?: number) => {
     const low = min || fallback || 0
     const high = max || fallback || 0
     return low === high ? `₹${low}` : `₹${low}-${high}`
+  }
+
+  if (data.length === 0) {
+    return (
+      <div className="mx-3 md:mx-6 mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">
+        मंडी भाव अभी उपलब्ध नहीं है. हब से भाव अपडेट होते ही यहां दिखेगा.
+      </div>
+    )
   }
 
   return (
@@ -66,6 +75,11 @@ export default function MandiBhavTicker({ hubId }: { hubId: string }) {
               <span className="font-bold text-purple-700 bg-purple-50 px-2 py-1 rounded-lg border border-purple-100 text-[11px]">
                 थोक {range(item.wholesaleMinPrice, item.wholesaleMaxPrice, item.wholesalePrice)}
               </span>
+              {item.updatedAt && (
+                <span className="text-[10px] font-bold text-gray-500 bg-gray-50 px-2 py-1 rounded-lg border border-gray-100">
+                  अपडेट {new Date(item.updatedAt).toLocaleDateString('hi-IN')}
+                </span>
+              )}
             </div>
           ))}
         </div>

@@ -8,6 +8,7 @@ import { useLocale } from 'next-intl';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
 import { toast } from 'sonner'; // Ensure toast is imported
+import { getCategoryLabel } from '@/lib/constants';
 
 // 🔥 CUSTOM WHATSAPP ICON (Official Brand SVG)
 const WhatsAppIcon = ({ size = 20, className = "" }: { size?: number, className?: string }) => (
@@ -240,7 +241,7 @@ function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
       <div className='p-4 flex flex-col flex-1'>
         <div className='flex justify-between items-start mb-1'>
             <div className="flex flex-col gap-1">
-              <p className={`text-[10px] font-bold uppercase tracking-wider ${isBook ? 'text-indigo-500' : 'text-gray-500'}`}>{item.category}</p>
+              <p className={`text-[10px] font-bold uppercase tracking-wider ${isBook ? 'text-indigo-500' : 'text-gray-500'}`}>{isBook ? item.category : getCategoryLabel(item.category, locale)}</p>
               {!isBook && item.qualityScale && (
                 <div className="flex items-center gap-1">
                   <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-sm ${

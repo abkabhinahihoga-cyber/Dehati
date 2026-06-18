@@ -7,6 +7,7 @@ import User from "@/app/models/user.model";
 import Hub from "@/app/models/hub.model";
 import uploadOnCloudinary from "@/lib/cloudinary";
 import { auth } from "@/auth";
+import { normalizeCategory } from "@/lib/constants";
 
 export async function GET(req: NextRequest) {
     try {
@@ -42,7 +43,7 @@ export async function POST(req: NextRequest) {
 
         const name = String(formData.get("name") || "");
         const description = String(formData.get("description") || ""); 
-        const category = String(formData.get("category") || "");
+        const category = normalizeCategory(String(formData.get("category") || ""));
         const unit = String(formData.get("unit") || "");
         const stock = Number(formData.get("stock") || 1);
         const wholesalePrice = Number(formData.get("wholesalePrice") || 0);
@@ -100,7 +101,7 @@ export async function PUT(req: NextRequest) {
 
         product.name = String(formData.get("name") || product.name);
         product.description = String(formData.get("description") || product.description);
-        product.category = String(formData.get("category") || product.category);
+        product.category = normalizeCategory(String(formData.get("category") || product.category));
         product.unit = String(formData.get("unit") || product.unit);
         product.stock = Number(formData.get("stock") || product.stock);
         product.wholesalePrice = Number(formData.get("wholesalePrice") || product.wholesalePrice);

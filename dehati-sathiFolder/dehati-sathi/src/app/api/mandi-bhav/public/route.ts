@@ -26,14 +26,15 @@ export async function GET(req: NextRequest) {
     const enabledProductIds = hub.enabledProducts || [];
     let mandiBhavList = await MandiBhav.find({
       hubId,
-      masterProductId: { $in: enabledProductIds },
-    }).populate("masterProductId", "name nameHindi category unit image").lean();
+      ...(enabledProductIds.length ? { masterProductId: { $in: enabledProductIds } } : {}),
+    }).populate("masterProductId", "name nameHindi category unit image").sort({ updatedAt: -1 }).lean();
 
     // FALLBACK: If this hub has no MandiBhav data, just fetch any global data
     if (mandiBhavList.length === 0) {
       mandiBhavList = await MandiBhav.find({})
-        .limit(10)
+        .limit(12)
         .populate("masterProductId", "name nameHindi category unit image")
+        .sort({ updatedAt: -1 })
         .lean();
     }
 

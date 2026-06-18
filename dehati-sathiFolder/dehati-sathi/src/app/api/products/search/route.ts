@@ -2,6 +2,7 @@ import connectDb from "@/lib/db";
 import Grocery from "@/app/models/grocery.model"; // Ensure this matches your actual Product model filename
 import { NextRequest, NextResponse } from "next/server";
 import { escapeRegex, getSearchVariants } from "@/lib/search-normalizer";
+import { normalizeCategory } from "@/lib/constants";
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ success: true, products: [] });
         }
 
-        const variants = getSearchVariants(query);
+        const variants = Array.from(new Set(getSearchVariants(query).flatMap((term) => [term, normalizeCategory(term)])));
         const regexes = variants.map((term) => new RegExp(escapeRegex(term), "i"));
 
         const products = await Grocery.find({

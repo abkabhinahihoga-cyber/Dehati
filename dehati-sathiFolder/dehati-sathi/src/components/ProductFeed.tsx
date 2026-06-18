@@ -11,7 +11,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { GROCERY_CATEGORIES, BOOK_CATEGORIES, HUB_GROCERY_CATEGORIES } from '@/lib/constants'
+import { GROCERY_CATEGORIES, BOOK_CATEGORIES, HUB_GROCERY_CATEGORIES, getCategoryLabel } from '@/lib/constants'
+import { useLocale } from 'next-intl'
 
 interface ProductFeedProps {
     searchProducts?: any[]; 
@@ -22,6 +23,7 @@ type SortOption = 'relevance' | 'price_asc' | 'price_desc' | 'newest' | 'rating'
 
 export default function ProductFeed({ searchProducts = [], isSearch = false }: ProductFeedProps) {
     const router = useRouter();
+    const locale = useLocale();
     const searchParams = useSearchParams();
     const activeCategory = searchParams.get('category') || "";
 
@@ -149,7 +151,7 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
                         {isGrocery ? <Store className="text-green-700 w-6 h-6"/> : <BookOpen className="text-indigo-600 w-6 h-6"/>}
                         <div>
                             <h2 className={`text-xl md:text-2xl font-bold ${isGrocery ? 'text-green-800' : 'text-indigo-800'}`}>
-                                {isSearch ? 'Search Results' : (activeCategory ? activeCategory : (isGrocery ? 'Daily Essentials' : 'Student Library'))}
+                                {isSearch ? (locale === 'hi' ? 'खोज के नतीजे' : 'Search Results') : (activeCategory ? getCategoryLabel(activeCategory, locale) : (isGrocery ? (locale === 'hi' ? 'रोज की जरूरतें' : 'Daily Essentials') : (locale === 'hi' ? 'छात्र पुस्तकालय' : 'Student Library')))}
                             </h2>
                             {!isSearch && <p className='text-[10px] md:text-xs text-gray-400 font-medium'>{RADIUS_KM}km Radius • {isGrocery ? 'Farm Fresh' : 'Study Material'}</p>}
                         </div>
@@ -171,7 +173,7 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
                     <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
                         <button onClick={() => updateCategory("")} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${activeCategory === "" ? (isGrocery ? 'bg-green-100 text-green-700 border-green-200' : 'bg-indigo-100 text-indigo-700 border-indigo-200') : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'}`}>All</button>
                         {filterCategories.map(cat => (
-                            <button key={cat} onClick={() => updateCategory(cat === activeCategory ? "" : cat)} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${activeCategory === cat ? (isGrocery ? 'bg-green-600 text-white border-green-600' : 'bg-indigo-600 text-white border-indigo-600') : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'}`}>{cat}</button>
+                            <button key={cat} onClick={() => updateCategory(cat === activeCategory ? "" : cat)} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${activeCategory === cat ? (isGrocery ? 'bg-green-600 text-white border-green-600' : 'bg-indigo-600 text-white border-indigo-600') : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'}`}>{isGrocery ? getCategoryLabel(cat, locale) : cat}</button>
                         ))}
                     </div>
                 )}
@@ -301,7 +303,7 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
                 <div className="flex items-center gap-2 mb-4 mt-8">
                     <div className="p-1.5 bg-gray-100 rounded-full"><Compass className="w-5 h-5 text-gray-600" /></div>
                     <h3 className="text-lg font-bold text-gray-800">
-                        {activeCategory ? `Results for ${activeCategory}` : 'Explore Nearby'}
+                        {activeCategory ? `${locale === 'hi' ? 'नतीजे' : 'Results for'} ${getCategoryLabel(activeCategory, locale)}` : (locale === 'hi' ? 'आस-पास देखें' : 'Explore Nearby')}
                     </h3>
                 </div>
             )}

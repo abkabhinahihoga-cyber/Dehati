@@ -10,6 +10,7 @@ interface MandiBhav {
   retailMaxPrice: number
   wholesaleMinPrice: number
   wholesaleMaxPrice: number
+  updatedAt?: string
 }
 
 interface Product {
@@ -95,6 +96,8 @@ function HubCatalogPage() {
         retailMaxPrice: parseFloat(prices[p._id]?.retailMaxPrice || '0'),
         wholesaleMinPrice: parseFloat(prices[p._id]?.wholesaleMinPrice || '0'),
         wholesaleMaxPrice: parseFloat(prices[p._id]?.wholesaleMaxPrice || '0'),
+        retailPrice: parseFloat(prices[p._id]?.retailMaxPrice || prices[p._id]?.retailMinPrice || '0'),
+        wholesalePrice: parseFloat(prices[p._id]?.wholesaleMaxPrice || prices[p._id]?.wholesaleMinPrice || '0'),
       }))
       await axios.put('/api/hub/mandi-bhav', { updates })
       toast.success('Mandi Bhav prices saved!')
@@ -128,7 +131,7 @@ function HubCatalogPage() {
           <h1 className="text-2xl font-bold text-green-900 flex items-center gap-2">
             <Package className="w-7 h-7 text-green-600" /> Hub Product Catalog
           </h1>
-          <p className="text-green-700 text-sm mt-1">Enable products for your hub and set today's Mandi Bhav price range.</p>
+          <p className="text-green-700 text-sm mt-1">उत्पाद चालू करें और आज का खुदरा/थोक मंडी भाव आसानी से अपडेट करें.</p>
         </div>
 
         {/* Stats */}
@@ -278,6 +281,9 @@ function HubCatalogPage() {
                           <div className="min-w-0">
                             <div className="font-semibold text-gray-800 text-xs truncate">{p.name}</div>
                             <div className="text-gray-400 text-[10px]">/{p.unit}</div>
+                            {p.mandiBhav?.updatedAt && (
+                              <div className="text-[10px] text-green-600 font-bold">अपडेट: {new Date(p.mandiBhav.updatedAt).toLocaleDateString('hi-IN')}</div>
+                            )}
                           </div>
                         </div>
 

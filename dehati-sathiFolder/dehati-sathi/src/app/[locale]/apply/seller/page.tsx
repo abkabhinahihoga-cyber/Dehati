@@ -2,15 +2,15 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Store, MapPin, CheckCircle, ArrowLeft, Loader2, CheckSquare, Square } from 'lucide-react'
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
+import { useLocale } from 'next-intl'
 
 function BecomeSellerPage() {
     const router = useRouter()
-    const pathname = usePathname()
-    const isHindi = pathname.startsWith('/hi')
+    const isHindi = useLocale() === 'hi'
     const { update, data: session } = useSession()
     const [loading, setLoading] = useState(false)
     const [submitted, setSubmitted] = useState(false)

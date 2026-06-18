@@ -6,6 +6,7 @@ import Grocery from "@/app/models/grocery.model";
 import Hub from "@/app/models/hub.model";
 import uploadOnCloudinary from "@/lib/cloudinary"; 
 import { NextRequest, NextResponse } from "next/server";
+import { normalizeCategory } from "@/lib/constants";
 
 // GET: Fetch Hub Inventory
 export async function GET(req: NextRequest) {
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
         const newProduct = await Grocery.create({
             name: String(formData.get("name")),
             price: parseFloat(String(formData.get("price"))),
-            category: String(formData.get("category")),
+            category: normalizeCategory(String(formData.get("category"))),
             unit: String(formData.get("unit")),
             stock: parseInt(String(formData.get("stock"))),
             description: String(formData.get("description")),
@@ -95,7 +96,7 @@ export async function PUT(req: NextRequest) {
         product.retailPrice = price;
         product.wholesalePrice = price;
         
-        product.category = String(formData.get("category"));
+        product.category = normalizeCategory(String(formData.get("category")));
         product.unit = String(formData.get("unit"));
         product.stock = parseInt(String(formData.get("stock")));
         product.description = String(formData.get("description"));

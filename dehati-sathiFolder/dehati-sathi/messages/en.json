@@ -37,7 +37,14 @@
     "workOpportunities": "Work Opportunities",
     "becomeDeliveryPartner": "Become Delivery Partner",
     "technicalJobs": "Technical Jobs",
-    "referAndEarn": "Refer & Earn"
+    "referAndEarn": "Refer & Earn",
+    "helpSupport": "Help & Support",
+    "language": "Language",
+    "connectedHub": "Connected Hub",
+    "viewHub": "View Hub",
+    "selectHub": "Select Hub",
+    "instagram": "Instagram",
+    "whatsappChannel": "WhatsApp Channel"
   },
   "Auth": {
     "welcomeBack": "Welcome Back",

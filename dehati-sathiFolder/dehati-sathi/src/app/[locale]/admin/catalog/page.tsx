@@ -4,12 +4,10 @@ import axios from 'axios'
 import Image from 'next/image'
 import { PlusCircle, Pencil, Trash2, Loader2, Upload, X, CheckCircle, BookOpen, Building2, Leaf, Package, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
+import { GROCERY_CATEGORIES, getCategoryLabel } from '@/lib/constants'
+import { useLocale } from 'next-intl'
 
-const CATEGORIES = [
-  "Fresh Vegetables", "Fresh Fruits", "Rice, Atta & Dals", "Live Plants", "HandCrafted",
-  "Dairy & Breakfast", "Spices & Masalas", "Snacks & Packaged Food", "Household Essentials",
-  "Personal Care", "Cold Drinks & Juices", "Chocolates & Ice Cream", "Others"
-]
+const CATEGORIES = GROCERY_CATEGORIES
 const UNITS = ["kg", "g", "quintal", "liter", "ml", "piece", "dozen", "bundle"]
 
 interface Product {
@@ -27,6 +25,7 @@ interface Product {
 }
 
 function AdminCatalogPage() {
+  const locale = useLocale()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -280,7 +279,7 @@ function AdminCatalogPage() {
                     <select required value={form.category} onChange={e => setForm(f => ({...f, category: e.target.value}))}
                       className="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-green-400 outline-none bg-white">
                       <option value="">Select...</option>
-                      {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                      {CATEGORIES.map(c => <option key={c} value={c}>{getCategoryLabel(c, locale)}</option>)}
                     </select>
                   </div>
                   <div>

@@ -27,7 +27,7 @@ function WelcomePage() {
     
     // Steps: 1=Intro, 2=Language, 3=Mobile, 4=Location
     const [step, setStep] = useState(1) 
-    const [language, setLanguage] = useState<'en'|'hi'>('en')
+    const [language, setLanguage] = useState<'en'|'hi'>('hi')
     const [mobile, setMobile] = useState('')
     const [loading, setLoading] = useState(false)
     const [isPending, startTransition] = useTransition()
@@ -386,16 +386,17 @@ function WelcomePage() {
                             <button 
                                 onClick={handleGPS} 
                                 disabled={resolvingLocation}
-                                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-green-50 border-2 border-green-200 hover:border-green-400 hover:bg-green-100 transition-all mb-4 group"
+                                className="relative w-full flex items-center gap-4 p-5 rounded-2xl bg-green-600 text-white border-2 border-green-400 shadow-[0_14px_35px_rgba(22,163,74,0.28)] hover:bg-green-700 transition-all mb-5 group"
                             >
-                                <div className="p-3 rounded-full bg-green-100 text-green-700 group-hover:scale-110 transition-transform">
+                                <span className="absolute right-4 top-3 rounded-full bg-white text-green-700 px-2.5 py-1 text-[10px] font-black">सबसे आसान</span>
+                                <div className="p-3 rounded-full bg-white text-green-700 group-hover:scale-110 transition-transform">
                                     {resolvingLocation ? <Loader2 size={22} className="animate-spin" /> : <Navigation size={22} fill="currentColor" />}
                                 </div>
                                 <div className="text-left">
-                                    <h4 className="font-bold text-green-800 text-sm">{tr.useCurrentLocation}</h4>
-                                    <p className="text-xs text-green-600 mt-0.5">{tr.autoDetect}</p>
+                                    <h4 className="font-black text-base">{tr.useCurrentLocation}</h4>
+                                    <p className="text-xs text-green-50 mt-0.5">{tr.autoDetect}</p>
                                 </div>
-                                {resolvingLocation && <span className="ml-auto text-xs text-green-600 font-semibold animate-pulse">{tr.detecting}</span>}
+                                {resolvingLocation && <span className="ml-auto text-xs text-white font-semibold animate-pulse">{tr.detecting}</span>}
                             </button>
 
                             {/* 2. Map Container */}

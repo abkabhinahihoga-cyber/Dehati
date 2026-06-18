@@ -2,7 +2,7 @@
 import { 
     LogOut, ShoppingCartIcon, User, X, UserCircle, Store, BookOpen, Briefcase, 
     Bike, Laptop, Share2, ChevronDown, MapPin, Home, LayoutDashboard, 
-    ShieldCheck, Tractor, ShoppingBag, Truck, PlayCircle, Wallet, Globe, HelpCircle, Mail, PhoneCall
+    ShieldCheck, Tractor, ShoppingBag, Truck, PlayCircle, Wallet, Globe, HelpCircle, Mail, PhoneCall, Instagram, MessageCircle
 } from 'lucide-react'
 import { Link, useRouter, usePathname } from '@/i18n/routing'
 import React, { useEffect, useState } from 'react'
@@ -185,7 +185,7 @@ function Nav({ user }: { user: INavUser }) {
 
                                 <div className='flex items-center justify-between p-3 mx-2 rounded-lg text-gray-700 hover:bg-gray-50 font-medium'>
                                     <div className='flex items-center gap-4'>
-                                        <Globe className='text-gray-400 w-5 h-5' /> Language
+                                        <Globe className='text-gray-400 w-5 h-5' /> {t('language')}
                                     </div>
                                     <LanguageSwitcher />
                                 </div>
@@ -217,7 +217,7 @@ function Nav({ user }: { user: INavUser }) {
                                 <div className='pt-2 pb-2'>
                                     <button onClick={() => setSupportOpen(!supportOpen)} className='w-full flex items-center justify-between p-3 mx-2 pr-6 rounded-lg text-gray-700 hover:bg-gray-50 font-medium'>
                                         <div className='flex items-center gap-4'>
-                                            <HelpCircle className='text-orange-400' /> {t('helpSupport') || 'Help & Support'}
+                                            <HelpCircle className='text-orange-400' /> {t('helpSupport')}
                                         </div>
                                         <ChevronDown className={`w-4 h-4 transition ${supportOpen ? 'rotate-180' : ''}`} />
                                     </button>
@@ -232,6 +232,14 @@ function Nav({ user }: { user: INavUser }) {
                                                     <a href="https://wa.me/917565089255" target="_blank" rel="noopener noreferrer" className='flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm text-sm text-gray-700 hover:text-green-600 border border-gray-100 transition-colors'>
                                                         <div className="p-2 bg-green-50 rounded-full"><PhoneCall className='w-4 h-4 text-green-500' /></div>
                                                         <span className="font-medium">+91 7565089255</span>
+                                                    </a>
+                                                    <a href="https://www.instagram.com/dehati_sathi?utm_source=qr&igsh=MTV4MDczeWVoZGpobA==" target="_blank" rel="noopener noreferrer" className='flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm text-sm text-gray-700 hover:text-pink-600 border border-gray-100 transition-colors'>
+                                                        <div className="p-2 bg-pink-50 rounded-full"><Instagram className='w-4 h-4 text-pink-500' /></div>
+                                                        <span className="font-medium">{t('instagram')}</span>
+                                                    </a>
+                                                    <a href="https://whatsapp.com/channel/0029Vb8Md88Fsn0YVmAUlv2Z" target="_blank" rel="noopener noreferrer" className='flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm text-sm text-gray-700 hover:text-green-600 border border-gray-100 transition-colors'>
+                                                        <div className="p-2 bg-green-50 rounded-full"><MessageCircle className='w-4 h-4 text-green-500' /></div>
+                                                        <span className="font-medium">{t('whatsappChannel')}</span>
                                                     </a>
                                                     <div className='mt-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg flex items-center gap-3'>
                                                         <div className="w-10 h-10 rounded-full bg-blue-100 border-2 border-white shadow-sm flex items-center justify-center shrink-0">
@@ -336,9 +344,9 @@ function Nav({ user }: { user: INavUser }) {
                             
                             <div className='flex items-center gap-2 pl-3 border-l border-gray-200 cursor-pointer hover:opacity-80 transition shrink-0' onClick={() => setIsHubModalOpen(true)}>
                                 <div className='flex flex-col text-right leading-none'>
-                                    <span className='text-[10px] md:text-xs font-bold text-gray-500 uppercase tracking-wide'>Connected Hub</span>
+                                    <span className='text-[10px] md:text-xs font-bold text-gray-500 uppercase tracking-wide'>{t('connectedHub')}</span>
                                     <span className={`text-xs md:text-sm font-bold ${user.connectedHub ? 'text-green-700' : 'text-orange-500'} flex items-center gap-1`}>
-                                        <Store size={14}/> {user.connectedHub ? 'View Hub' : 'Select Hub'}
+                                        <Store size={14}/> {user.connectedHub ? t('viewHub') : t('selectHub')}
                                     </span>
                                 </div>
                             </div>

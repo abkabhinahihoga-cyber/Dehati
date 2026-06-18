@@ -8,6 +8,7 @@ import User from "@/app/models/user.model";
 import { auth } from "@/auth";
 import redis from "@/lib/redis"; 
 import mongoose from "mongoose";
+import { CATEGORY_ALIASES, normalizeCategory } from "@/lib/constants";
 
 export async function GET(req: NextRequest) {
     try {
@@ -30,7 +31,7 @@ export async function GET(req: NextRequest) {
         const minRating = parseFloat(searchParams.get('minRating') || "0");
         
         const rawCategory = searchParams.get('category') || "";
-        const categoryParam = rawCategory ? decodeURIComponent(rawCategory) : "";
+        const categoryParam = rawCategory ? normalizeCategory(decodeURIComponent(rawCategory)) : "";
         const minDiscount = parseFloat(searchParams.get('minDiscount') || "0");
         
         const userHash = userId.split("").reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
@@ -146,8 +147,13 @@ export async function GET(req: NextRequest) {
         }
 
         if (categoryParam) {
-            const safeCategory = categoryParam.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            matchStage.category = { $regex: new RegExp(`^${safeCategory}$`, "i") };
+            const aliasMatches = Object.entries(CATEGORY_ALIASES)
+                .filter(([, target]) => target === categoryParam)
+                .map(([alias]) => alias);
+            const categories = [categoryParam, ...aliasMatches];
+            matchStage.category = {
+                $in: categories.map((cat) => new RegExp(`^${cat.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, "i"))
+            };
         }
 
         const startIndex = (page - 1) * limit;

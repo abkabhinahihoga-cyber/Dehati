@@ -100,7 +100,7 @@ export async function proxy(req: NextRequest) {
   }
 
   // --- 1. Allow public routes (checked on bare path) ---
-  const publicRoutes = ["/login", "/register", "/api/auth", "/landing"];
+  const publicRoutes = ["/login", "/register", "/api/auth"];
   if (publicRoutes.some((path) => barePath.startsWith(path))) {
     const response = createFinalResponse();
     // Set locale cookie for next-intl to pick up
@@ -116,6 +116,15 @@ export async function proxy(req: NextRequest) {
     secureCookie: isProduction,
     cookieName: isProduction ? "__Secure-authjs.session-token" : "authjs.session-token",
   });
+
+  if (barePath.startsWith("/landing")) {
+    if (!token) {
+      const response = createFinalResponse();
+      response.cookies.set("NEXT_LOCALE", activeLocale, { path: "/", sameSite: "lax" });
+      return response;
+    }
+    return NextResponse.redirect(localizedUrl(token.isNewUser ? "/welcome" : "/", pathLocale, req.url));
+  }
 
   // --- 3. If Not Logged In -> Show Landing Page ---
   if (!token) {

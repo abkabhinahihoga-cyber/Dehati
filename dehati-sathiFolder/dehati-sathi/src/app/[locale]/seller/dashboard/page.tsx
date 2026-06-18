@@ -6,10 +6,11 @@ import {
     Upload, Clock, Users, X, Edit3, Check, MessageCircle, Send, FilePenLine
 } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import Image from 'next/image'
 import { toast } from 'sonner'
+import { useLocale } from 'next-intl'
 
 // --- INTERFACES ---
 interface Product {
@@ -63,8 +64,7 @@ interface Conversation {
 
 function SellerDashboard() {
     const router = useRouter();
-    const pathname = usePathname();
-    const isHindi = pathname.startsWith('/hi');
+    const isHindi = useLocale() === 'hi';
 
     // Start with 'inventory' or 'messages' depending on priority
     const [activeTab, setActiveTab] = useState<'inventory' | 'orders' | 'channel' | 'messages'>('inventory')

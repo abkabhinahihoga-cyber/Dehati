@@ -1,18 +1,18 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { ArrowLeft, Store, MapPin, ExternalLink } from 'lucide-react'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import axios from 'axios'
+import { useLocale } from 'next-intl'
 
 export default function ConnectionsPage() {
-    const router = useRouter();
-    const pathname = usePathname();
-    const isHindi = pathname.startsWith('/hi');
-    const [connections, setConnections] = useState<any[]>([]);
-    const [hubSellers, setHubSellers] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<'following' | 'discover'>('discover');
+    const router = useRouter()
+    const isHindi = useLocale() === 'hi'
+    const [connections, setConnections] = useState<any[]>([])
+    const [hubSellers, setHubSellers] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
+    const [activeTab, setActiveTab] = useState<'following' | 'discover'>('discover')
 
     const t = {
         title: isHindi ? 'दुकानें और विक्रेता' : 'Shops & Sellers',
@@ -20,7 +20,7 @@ export default function ConnectionsPage() {
         following: isHindi ? 'फॉलो कर रहे हैं' : 'Following',
         loading: isHindi ? 'दुकानें लोड हो रही हैं...' : 'Loading shops...',
         noShops: isHindi ? 'कोई दुकान नहीं मिली।' : 'No shops found.',
-        exploreReels: isHindi ? 'रील्स एक्सप्लोर करें' : 'Explore Reels',
+        exploreReels: isHindi ? 'रील्स देखें' : 'Explore Reels',
         localSeller: isHindi ? 'स्थानीय विक्रेता' : 'Local Seller',
         visit: isHindi ? 'दुकान देखें' : 'Visit Shop',
         unfollow: isHindi ? 'फॉलोइंग' : 'Following'
@@ -29,21 +29,21 @@ export default function ConnectionsPage() {
     useEffect(() => {
         const fetchConnections = async () => {
             try {
-                const res = await axios.get('/api/user/connections');
+                const res = await axios.get('/api/user/connections')
                 if (res.data.success) {
-                    setConnections(res.data.connections);
-                    setHubSellers(res.data.hubSellers || []);
+                    setConnections(res.data.connections)
+                    setHubSellers(res.data.hubSellers || [])
                 }
-            } catch (error) {
-                console.error("Failed to load connections");
+            } catch {
+                console.error("Failed to load connections")
             } finally {
-                setLoading(false);
+                setLoading(false)
             }
-        };
-        fetchConnections();
-    }, []);
+        }
+        fetchConnections()
+    }, [])
 
-    const displayList = activeTab === 'following' ? connections : hubSellers;
+    const displayList = activeTab === 'following' ? connections : hubSellers
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
@@ -55,17 +55,11 @@ export default function ConnectionsPage() {
                     <h1 className="text-xl font-black text-gray-800 tracking-tight">{t.title}</h1>
                 </div>
                 <div className="flex gap-6 mt-2">
-                    <button 
-                        className={`pb-3 font-bold text-sm transition-all relative ${activeTab === 'discover' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
-                        onClick={() => setActiveTab('discover')}
-                    >
+                    <button className={`pb-3 font-bold text-sm transition-all relative ${activeTab === 'discover' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`} onClick={() => setActiveTab('discover')}>
                         {t.hubSellers}
                         {activeTab === 'discover' && <div className="absolute bottom-0 left-0 w-full h-1 bg-indigo-600 rounded-t-full" />}
                     </button>
-                    <button 
-                        className={`pb-3 font-bold text-sm transition-all relative ${activeTab === 'following' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
-                        onClick={() => setActiveTab('following')}
-                    >
+                    <button className={`pb-3 font-bold text-sm transition-all relative ${activeTab === 'following' ? 'text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`} onClick={() => setActiveTab('following')}>
                         {t.following} ({connections.length})
                         {activeTab === 'following' && <div className="absolute bottom-0 left-0 w-full h-1 bg-indigo-600 rounded-t-full" />}
                     </button>
@@ -88,13 +82,9 @@ export default function ConnectionsPage() {
                     </div>
                 ) : (
                     displayList.map((shop) => {
-                        const isFollowing = connections.some(c => c._id === shop._id);
+                        const isFollowing = connections.some(c => c._id === shop._id)
                         return (
-                            <div 
-                                key={shop._id} 
-                                onClick={() => router.push(`/shop/${shop._id}`)}
-                                className="bg-white p-4 rounded-3xl flex items-center gap-4 border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-100 active:scale-[0.98] transition-all cursor-pointer group"
-                            >
+                            <div key={shop._id} onClick={() => router.push(`/shop/${shop._id}`)} className="bg-white p-4 rounded-3xl flex items-center gap-4 border border-gray-100 shadow-sm hover:shadow-md hover:border-indigo-100 active:scale-[0.98] transition-all cursor-pointer group">
                                 <div className="w-14 h-14 rounded-full border-2 border-indigo-50 p-0.5 relative shrink-0 group-hover:border-indigo-200 transition-colors">
                                     <div className="relative w-full h-full rounded-full overflow-hidden bg-gray-50">
                                         <Image src={shop.image || "/avatar.png"} fill alt="shop" className="object-cover" />
@@ -109,11 +99,7 @@ export default function ConnectionsPage() {
                                         <span className="truncate">{shop.location?.address || t.localSeller}</span>
                                     </div>
                                 </div>
-                                <button className={`text-[10px] sm:text-xs font-bold px-4 py-2 rounded-full border flex items-center gap-1 transition-colors ${
-                                    isFollowing 
-                                    ? 'text-gray-500 bg-gray-50 border-gray-200 hover:bg-gray-100' 
-                                    : 'text-indigo-700 bg-indigo-50 border-indigo-100 hover:bg-indigo-100 shadow-sm'
-                                }`}>
+                                <button className={`text-[10px] sm:text-xs font-bold px-4 py-2 rounded-full border flex items-center gap-1 transition-colors ${isFollowing ? 'text-gray-500 bg-gray-50 border-gray-200 hover:bg-gray-100' : 'text-indigo-700 bg-indigo-50 border-indigo-100 hover:bg-indigo-100 shadow-sm'}`}>
                                     {isFollowing ? t.unfollow : <><ExternalLink size={12} /> {t.visit}</>}
                                 </button>
                             </div>
@@ -122,5 +108,5 @@ export default function ConnectionsPage() {
                 )}
             </div>
         </div>
-    );
+    )
 }
