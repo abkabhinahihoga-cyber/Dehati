@@ -42,7 +42,7 @@ export default async function RootLayout({
   };
 
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body className="w-full min-h-screen bg-linear-to-b from-green-50 to-white">
         <Provider>
           <SocketProvider>

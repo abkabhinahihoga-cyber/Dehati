@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 // --- i18n configuration (mirrors src/i18n/routing.ts) ---
 const locales = ["en", "hi"] as const;
 type Locale = (typeof locales)[number];
-const defaultLocale: Locale = "en";
+const defaultLocale: Locale = "hi";
 
 /**
  * Extract the locale prefix from a pathname.
@@ -33,8 +33,8 @@ function stripLocalePrefix(pathname: string, locale: Locale | null): string {
 
 /**
  * Build a URL that preserves the user's current locale prefix.
- * For default locale ('en') with 'as-needed' mode, we don't add a prefix.
- * For 'hi', we prepend /hi.
+ * For default locale ('hi') with 'as-needed' mode, we don't add a prefix.
+ * For 'en', we prepend /en.
  */
 function localizedUrl(path: string, locale: Locale | null, baseUrl: string): URL {
   const effectiveLocale = locale ?? defaultLocale;
@@ -77,7 +77,7 @@ export async function proxy(req: NextRequest) {
     detectLocaleFromHeaders(req);
 
   // --- HANDLE LOCALE REDIRECT (for 'as-needed' prefix mode) ---
-  // If someone visits /en/something, redirect to /something (default locale needs no prefix)
+  // If someone visits /hi/something, redirect to /something (default locale needs no prefix)
   if (pathLocale === defaultLocale) {
     const cleanPath = stripLocalePrefix(pathname, defaultLocale);
     const cleanUrl = new URL(cleanPath, req.url);
@@ -91,7 +91,7 @@ export async function proxy(req: NextRequest) {
   // Helper to create the correct pass-through or rewrite response
   function createFinalResponse() {
     if (!pathLocale && !pathname.startsWith("/api") && !pathname.startsWith("/_next")) {
-      // Rewrite to /en/... so the [locale] folder catches it, without changing the URL bar
+      // Rewrite to the active locale so the [locale] folder catches it, without changing the URL bar
       const rewriteUrl = new URL(`/${activeLocale}${pathname === "/" ? "" : pathname}`, req.url);
       rewriteUrl.search = req.nextUrl.search;
       return NextResponse.rewrite(rewriteUrl);
