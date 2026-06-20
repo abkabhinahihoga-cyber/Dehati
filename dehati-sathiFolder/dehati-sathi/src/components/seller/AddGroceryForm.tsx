@@ -238,8 +238,8 @@ function AddGroceryForm() {
       router.push('/seller/dashboard')
     } catch (error: any) {
       console.error("Upload failed", error);
-      if (error.code === 'ECONNABORTED') toast.error("Upload timed out. Check internet.");
-      else toast.error('Failed: ' + (error.response?.data?.error || error.message || 'Server Error'));
+      if (error.code === 'ECONNABORTED') toast.error(isHindi ? "अपलोड टाइमआउट। इंटरनेट की जाँच करें।" : "Upload timed out. Check internet.");
+      else toast.error((isHindi ? 'विफल: ' : 'Failed: ') + (error.response?.data?.error || error.message || 'Server Error'));
     } finally {
       setLoading(false)
       setUploadProgress(0)
@@ -532,14 +532,14 @@ function AddGroceryForm() {
         {uploadProgress > 0 && uploadProgress < 100 && (
             <div className="py-2 space-y-2 bg-orange-50 p-4 rounded-xl mt-4">
                 <div className="flex justify-between text-xs font-bold text-orange-800">
-                    <span>{t.publishing} (Video)</span>
+                    <span>{t.publishing} {isHindi ? '(वीडियो)' : '(Video)'}</span>
                     <span>{uploadProgress}%</span>
                 </div>
                 <div className="w-full bg-white rounded-full h-2.5 overflow-hidden border border-orange-200">
                     <div className="bg-orange-500 h-2.5 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
                 </div>
                 <div className="flex items-center justify-center gap-1.5 text-xs text-orange-700 font-medium pt-1">
-                    <span>⏳ {timeLeft || "Estimating..."}</span>
+                    <span>⏳ {timeLeft || (isHindi ? "अनुमान लगाया जा रहा है..." : "Estimating...")}</span>
                 </div>
             </div>
         )}

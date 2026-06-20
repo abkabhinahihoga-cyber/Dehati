@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { useSocket } from '@/components/SocketProvider' // Ensure you have this context provider
 import { toast } from 'sonner'
+import { useLocale } from 'next-intl'
 
 // Dynamic Import for Map
 const LiveMap = dynamic(() => import('@/components/LiveMap'), { 
@@ -15,6 +16,8 @@ const LiveMap = dynamic(() => import('@/components/LiveMap'), {
 })
 
 export default function TrackOrderPage() {
+    const locale = useLocale();
+    const isHindi = locale === 'hi';
     const { orderId } = useParams()
     const router = useRouter()
     const { socket } = useSocket()
@@ -55,15 +58,15 @@ export default function TrackOrderPage() {
         }
     }, [socket, orderId])
 
-    if (loading) return <div className="h-screen flex items-center justify-center font-bold text-gray-500">Loading Tracking Info...</div>
-    if (!order) return <div className="h-screen flex items-center justify-center text-red-500">Order not found</div>
+    if (loading) return <div className="h-screen flex items-center justify-center font-bold text-gray-500">{isHindi ? 'ट्रैकिंग जानकारी लोड हो रही है...' : 'Loading Tracking Info...'}</div>
+    if (!order) return <div className="h-screen flex items-center justify-center text-red-500">{isHindi ? 'ऑर्डर नहीं मिला' : 'Order not found'}</div>
 
     // --- TIMELINE LOGIC ---
     const steps = [
-        { key: 'pending', label: 'Order Placed', icon: Package, date: order.createdAt },
-        { key: 'processing', label: 'Processing', icon: Clock, date: order.updatedAt },
-        { key: 'out_for_delivery', label: 'Out for Delivery', icon: Truck, date: order.updatedAt },
-        { key: 'delivered', label: 'Delivered', icon: CheckCircle, date: order.updatedAt }
+        { key: 'pending', label: isHindi ? 'ऑर्डर दिया गया' : 'Order Placed', icon: Package, date: order.createdAt },
+        { key: 'processing', label: isHindi ? 'प्रोसेस हो रहा है' : 'Processing', icon: Clock, date: order.updatedAt },
+        { key: 'out_for_delivery', label: isHindi ? 'डिलीवरी के लिए निकला' : 'Out for Delivery', icon: Truck, date: order.updatedAt },
+        { key: 'delivered', label: isHindi ? 'डिलीवर हो गया' : 'Delivered', icon: CheckCircle, date: order.updatedAt }
     ]
 
     let currentStepIndex = 0;
@@ -79,7 +82,7 @@ export default function TrackOrderPage() {
                     <ArrowLeft size={20} className="text-gray-700"/>
                 </button>
                 <div>
-                    <h1 className="text-lg font-bold text-gray-800">Track Order</h1>
+                    <h1 className="text-lg font-bold text-gray-800">{isHindi ? 'ऑर्डर ट्रैक करें' : 'Track Order'}</h1>
                     <p className="text-xs text-gray-500">ID: #{order._id.toString().slice(-6).toUpperCase()}</p>
                 </div>
             </div>
@@ -94,13 +97,13 @@ export default function TrackOrderPage() {
                      <div className="flex-1">
                         <h3 className="font-bold text-gray-800 line-clamp-1">{order.items[0]?.name}</h3>
                         <p className="text-lg font-black text-green-700 mt-1">₹{order.totalAmount}</p>
-                        <p className="text-xs text-gray-400 mt-1">{order.items.reduce((acc:any, i:any) => acc + i.quantity, 0)} Items • {order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Paid Online'}</p>
+                        <p className="text-xs text-gray-400 mt-1">{order.items.reduce((acc:any, i:any) => acc + i.quantity, 0)} {isHindi ? 'आइटम' : 'Items'} • {order.paymentMethod === 'cod' ? (isHindi ? 'कैश ऑन डिलीवरी' : 'Cash on Delivery') : (isHindi ? 'ऑनलाइन भुगतान किया गया' : 'Paid Online')}</p>
                      </div>
                 </div>
 
                 {/* Status Timeline */}
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 className="font-bold text-gray-800 mb-6">Order Status</h3>
+                    <h3 className="font-bold text-gray-800 mb-6">{isHindi ? 'ऑर्डर की स्थिति' : 'Order Status'}</h3>
                     <div className="relative pl-2">
                         <div className="absolute top-2 left-[19px] bottom-10 w-0.5 bg-gray-200"></div>
                         {steps.map((step, index) => {
@@ -127,7 +130,7 @@ export default function TrackOrderPage() {
                                                 </div>
                                                 <div className="flex-1">
                                                     <p className="text-xs font-bold text-indigo-900">{order.assignedDeliveryBoy.name}</p>
-                                                    <p className="text-[10px] text-indigo-600">Your Delivery Partner</p>
+                                                    <p className="text-[10px] text-indigo-600">{isHindi ? 'आपका डिलीवरी पार्टनर' : 'Your Delivery Partner'}</p>
                                                 </div>
                                                 <a href={`tel:${order.assignedDeliveryBoy.mobile}`} className="bg-white p-2 rounded-full text-indigo-600 shadow-sm hover:bg-indigo-600 hover:text-white transition-colors"><Phone size={16}/></a>
                                             </div>
@@ -149,9 +152,9 @@ export default function TrackOrderPage() {
                                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                                   <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                                 </span>
-                                Live Tracking
+                                {isHindi ? 'लाइव ट्रैकिंग' : 'Live Tracking'}
                             </h3>
-                            <span className="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded font-bold">ON THE WAY</span>
+                            <span className="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded font-bold">{isHindi ? 'रास्ते में है' : 'ON THE WAY'}</span>
                         </div>
                         
                         <div className="flex-1 w-full rounded-xl overflow-hidden border border-gray-200 bg-gray-50 relative z-0">
@@ -167,13 +170,13 @@ export default function TrackOrderPage() {
                 )}
 
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 className="font-bold text-gray-800 mb-4">Delivery Address</h3>
+                    <h3 className="font-bold text-gray-800 mb-4">{isHindi ? 'डिलीवरी का पता' : 'Delivery Address'}</h3>
                     <div className="flex gap-3">
                         <div className="mt-1"><MapPin size={20} className="text-gray-400"/></div>
                         <div>
                             <p className="font-bold text-sm text-gray-800">{order.address.fullName}</p>
                             <p className="text-sm text-gray-500 mt-1 leading-relaxed">{order.address.fullAddress}, {order.address.pincode}</p>
-                            <p className="text-xs text-gray-400 mt-1">Mobile: {order.address.mobile}</p>
+                            <p className="text-xs text-gray-400 mt-1">{isHindi ? 'मोबाइल' : 'Mobile'}: {order.address.mobile}</p>
                         </div>
                     </div>
                 </div>

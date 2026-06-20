@@ -61,10 +61,13 @@ function HeroSection() {
         return () => clearInterval(timer)
     }, [page, slides.length])
 
+    const pathname = usePathname();
+    const isHindi = pathname.startsWith('/hi');
+
     if (slides.length === 0) return (
         // 👇 Adjusted loading skeleton height & margin
         <div className="w-[96%] mx-auto mt-44 md:mt-32 h-[260px] md:h-[400px] rounded-2xl bg-gray-100 flex items-center justify-center text-gray-400 animate-pulse border border-gray-200">
-            Loading {mode} offers...
+            {isHindi ? `${mode === 'buyer' ? 'खरीदार' : 'विक्रेता'} ऑफ़र लोड हो रहे हैं...` : `Loading ${mode} offers...`}
         </div>
     )
 

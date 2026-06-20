@@ -6,6 +6,7 @@ import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
+import { useLocale } from 'next-intl'
 
 export default function ReelsPage() {
     const router = useRouter()
@@ -13,6 +14,8 @@ export default function ReelsPage() {
     const [loading, setLoading] = useState(true)
     const [activeIndex, setActiveIndex] = useState(0)
     const containerRef = useRef<HTMLDivElement>(null)
+    const locale = useLocale()
+    const isHindi = locale === 'hi'
 
     // 👇 1. Get Location from Global Redux Store (Synced with Navbar)
     const { latitude, longitude, address } = useSelector((state: RootState) => state.location);
@@ -67,13 +70,13 @@ export default function ReelsPage() {
                             <>
                                 <MapPin size={10} className="text-green-400" />
                                 <span className="text-[10px] text-gray-200 max-w-[150px] truncate">
-                                    {address?.split(',')[0] || "Nearby"}
+                                    {address?.split(',')[0] || (isHindi ? "आसपास" : "Nearby")}
                                 </span>
                             </>
                         ) : (
                             <>
                                 <MapPinOff size={10} className="text-gray-400" />
-                                <span className="text-[10px] text-gray-400">Global Feed</span>
+                                <span className="text-[10px] text-gray-400">{isHindi ? 'ग्लोबल फीड' : 'Global Feed'}</span>
                             </>
                         )}
                     </div>
@@ -87,7 +90,7 @@ export default function ReelsPage() {
                 <div className="flex flex-col items-center justify-center h-full space-y-4">
                     <Loader2 className="animate-spin text-green-500 w-10 h-10" />
                     <p className="text-white text-sm font-medium animate-pulse">
-                        {isPersonalized ? "Finding fresh crops near you..." : "Loading Global Feed..."}
+                        {isPersonalized ? (isHindi ? "आपके आस-पास ताज़ा फसलें खोजी जा रही हैं..." : "Finding fresh crops near you...") : (isHindi ? "ग्लोबल फीड लोड हो रही है..." : "Loading Global Feed...")}
                     </p>
                 </div>
             ) : (
@@ -103,9 +106,9 @@ export default function ReelsPage() {
                     
                     {videos.length === 0 && (
                         <div className="h-full flex flex-col items-center justify-center text-white p-10 text-center">
-                            <p className="text-lg font-bold mb-2">No reels here yet! 🌾</p>
+                            <p className="text-lg font-bold mb-2">{isHindi ? 'यहाँ अभी तक कोई रील नहीं है! 🌾' : 'No reels here yet! 🌾'}</p>
                             <p className="text-sm text-gray-400">
-                                {isPersonalized ? "No sellers found in your 5km radius." : "Check back later for new content."}
+                                {isPersonalized ? (isHindi ? "आपके 5 किमी के दायरे में कोई विक्रेता नहीं मिला।" : "No sellers found in your 5km radius.") : (isHindi ? "नई सामग्री के लिए बाद में वापस आएं।" : "Check back later for new content.")}
                             </p>
                         </div>
                     )}

@@ -7,8 +7,10 @@ import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { useSession } from 'next-auth/react'
 import { toast } from 'sonner' // Using sonner for professional toasts
+import { useLocale } from 'next-intl'
 
 function ProfilePage() {
+    const locale = useLocale()
     const router = useRouter()
     const { update, data: session } = useSession()
     const fileInputRef = useRef<HTMLInputElement>(null)
@@ -59,7 +61,7 @@ function ProfilePage() {
         const file = e.target.files?.[0]
         if (file) {
             if (file.size > 2 * 1024 * 1024) { // 2MB limit check
-                toast.error("Image size should be less than 2MB")
+                toast.error(locale === 'hi' ? 'छवि का आकार 2MB से कम होना चाहिए' : "Image size should be less than 2MB")
                 return
             }
             const reader = new FileReader()
@@ -93,11 +95,11 @@ function ProfilePage() {
                     name: formData.name,
                     
                 })
-                toast.success("Profile updated successfully!")
+                toast.success(locale === 'hi' ? 'प्रोफ़ाइल सफलतापूर्वक अपडेट हो गई!' : "Profile updated successfully!")
                 router.refresh()
             }
         } catch (error: any) {
-            const msg = error.response?.data?.message || "Failed to update profile"
+            const msg = error.response?.data?.message || (locale === 'hi' ? 'प्रोफ़ाइल अपडेट करने में विफल' : "Failed to update profile")
             toast.error(msg)
         } finally {
             setSaving(false)
@@ -117,8 +119,8 @@ function ProfilePage() {
                     <ArrowLeft className="w-5 h-5 text-gray-700" />
                 </button>
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Edit Profile</h1>
-                    <p className='text-sm text-gray-500'>Update your personal details</p>
+                    <h1 className="text-2xl font-bold text-gray-900">{locale === 'hi' ? 'प्रोफ़ाइल संपादित करें' : 'Edit Profile'}</h1>
+                    <p className='text-sm text-gray-500'>{locale === 'hi' ? 'अपना व्यक्तिगत विवरण अपडेट करें' : 'Update your personal details'}</p>
                 </div>
             </div>
                     
@@ -153,24 +155,24 @@ function ProfilePage() {
                                 <Camera className="text-white w-8 h-8" />
                             </div>
                         </div>
-                        <p className='text-sm text-gray-500 mt-3'>Tap to change photo</p>
+                        <p className='text-sm text-gray-500 mt-3'>{locale === 'hi' ? 'फोटो बदलने के लिए टैप करें' : 'Tap to change photo'}</p>
                     </div>
 
                     {/* --- Inputs Section --- */}
                     <div className="grid gap-6">
                         
                         <InputField 
-                            label="Full Name"
+                            label={locale === 'hi' ? 'पूरा नाम' : "Full Name"}
                             icon={<User />}
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
-                            placeholder="Enter your full name"
+                            placeholder={locale === 'hi' ? 'अपना पूरा नाम दर्ज करें' : "Enter your full name"}
                             required
                         />
 
                          <InputField 
-                            label="Mobile Number"
+                            label={locale === 'hi' ? 'मोबाइल नंबर' : "Mobile Number"}
                             icon={<Phone />}
                             name="mobile"
                             type="tel"
@@ -181,7 +183,7 @@ function ProfilePage() {
 
                         {/* Address Textarea */}
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">Delivery Address</label>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">{locale === 'hi' ? 'डिलीवरी का पता' : 'Delivery Address'}</label>
                             <div className="relative">
                                 <div className="absolute left-4 top-4 text-gray-400">
                                     <MapPin className="w-5 h-5" />
@@ -192,7 +194,7 @@ function ProfilePage() {
                                     onChange={handleChange}
                                     rows={3}
                                     className="w-full pl-12 pr-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:bg-white focus:border-green-500 focus:ring-2 focus:ring-green-100 outline-none transition-all resize-none text-gray-800 font-medium placeholder:text-gray-400"
-                                    placeholder="Enter Village, Post, District..."
+                                    placeholder={locale === 'hi' ? 'गांव, पोस्ट, जिला दर्ज करें...' : "Enter Village, Post, District..."}
                                 />
                             </div>
                         </div>
@@ -207,11 +209,11 @@ function ProfilePage() {
                         >
                             {saving ? (
                                 <>
-                                    <Loader2 className="animate-spin w-5 h-5" /> Saving...
+                                    <Loader2 className="animate-spin w-5 h-5" /> {locale === 'hi' ? 'सहेजा जा रहा है...' : 'Saving...'}
                                 </>
                             ) : (
                                 <>
-                                    <Save className="w-5 h-5" /> Save Changes
+                                    <Save className="w-5 h-5" /> {locale === 'hi' ? 'परिवर्तन सहेजें' : 'Save Changes'}
                                 </>
                             )}
                         </button>

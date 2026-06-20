@@ -418,130 +418,140 @@ function SellerDashboard() {
                         <div className='p-20 flex justify-center'><Loader2 className='animate-spin text-green-600 w-10 h-10' /></div> 
                     ) : activeTab === 'inventory' ? (
                         /* ================== INVENTORY TAB ================== */
-                        <div className='overflow-x-auto'>
-                            <table className='w-full text-left'>
-                                <thead className='bg-gray-50 text-gray-500 text-xs uppercase font-bold tracking-wider'>
-                                    <tr>
-                                        <th className='p-4'>{t.product}</th>
-                                        <th className='p-4'>{t.prices}</th>
-                                        <th className='p-4'>{t.stock}</th>
-                                        <th className='p-4 text-right'>{t.actions}</th>
-                                    </tr>
-                                </thead>
-                                <tbody className='divide-y divide-gray-100'>
-                                    {products.map((item) => {
-                                        const isEditing = editingId === item._id;
-                                        return (
-                                            <tr key={item._id} className={`transition-colors ${isEditing ? 'bg-green-50/50' : 'hover:bg-gray-50'}`}>
-                                                <td className='p-4'>
-                                                    <div className='flex items-center gap-3'>
-                                                        <div className='w-10 h-10 bg-gray-100 rounded-lg relative overflow-hidden flex-shrink-0'>
-                                                            {item.images[0] && <Image src={item.images[0]} fill alt={item.name} className='object-cover' />}
-                                                        </div>
-                                                        <div>
-                                                            <p className='font-bold text-gray-800 line-clamp-1 text-sm'>{item.name}</p>
-                                                            <p className='text-xs text-gray-500'>{item.category}</p>
-                                                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+                            {products.map((item) => {
+                                const isEditing = editingId === item._id;
+                                return (
+                                    <div key={item._id} className={`bg-white border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col ${isEditing ? 'border-green-400 bg-green-50' : 'border-gray-200'}`}>
+                                        <div className="relative w-full h-40 bg-gray-100 flex-shrink-0 border-b border-gray-100">
+                                            {item.images[0] ? <Image src={item.images[0]} fill alt={item.name} className="object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-400"><Package size={40}/></div>}
+                                            <div className="absolute top-2 right-2 bg-white px-2 py-1 rounded-md shadow text-xs font-bold text-gray-700">{item.category}</div>
+                                        </div>
+                                        <div className="p-4 flex-1 flex flex-col">
+                                            <h3 className="font-bold text-lg text-gray-800 line-clamp-1 mb-2">{item.name}</h3>
+                                            
+                                            {isEditing ? (
+                                                <div className="space-y-3 mb-4 flex-1">
+                                                    <div>
+                                                        <label className="text-[10px] text-gray-500 font-bold uppercase">Wholesale Price (₹)</label>
+                                                        <input type="number" className="w-full p-2 border border-gray-300 bg-white rounded-lg text-sm font-bold" value={editValues.wholesalePrice} onChange={e => setEditValues({...editValues, wholesalePrice: Number(e.target.value)})} placeholder="Wholesale"/>
                                                     </div>
-                                                </td>
+                                                    <div>
+                                                        <label className="text-[10px] text-gray-500 font-bold uppercase">Retail Price (₹)</label>
+                                                        <input type="number" className="w-full p-2 border border-gray-300 bg-white rounded-lg text-sm font-bold text-green-700" value={editValues.retailPrice} onChange={e => setEditValues({...editValues, retailPrice: Number(e.target.value)})} placeholder="Retail"/>
+                                                    </div>
+                                                    <div>
+                                                        <label className="text-[10px] text-gray-500 font-bold uppercase">Stock Quantity</label>
+                                                        <input type="number" className="w-full p-2 border border-gray-300 bg-white rounded-lg text-sm font-bold" value={editValues.stock} onChange={e => setEditValues({...editValues, stock: Number(e.target.value)})}/>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-2 mb-4 flex-1">
+                                                    <div className="flex justify-between items-center bg-gray-50 p-2 rounded-lg border border-gray-100">
+                                                        <span className="text-xs text-gray-500 font-bold">Wholesale:</span>
+                                                        <span className="font-bold text-gray-700">₹{item.wholesalePrice}</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center bg-green-50 p-2 rounded-lg border border-green-100">
+                                                        <span className="text-xs text-green-800 font-bold">Retail:</span>
+                                                        <span className="font-black text-green-700 text-lg">₹{item.retailPrice}</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center mt-2 px-1">
+                                                        <span className="text-xs text-gray-500 font-bold">Stock:</span>
+                                                        <span className={`px-2 py-1 rounded-md text-sm font-black ${item.stock > 10 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{item.stock} <span className="text-[10px]">{item.unit}</span></span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            
+                                            <div className="pt-3 border-t border-gray-100">
                                                 {isEditing ? (
-                                                    <>
-                                                        <td className='p-4 flex gap-2'>
-                                                            <input type="number" className='w-16 p-1 text-sm border rounded' value={editValues.wholesalePrice} onChange={e => setEditValues({...editValues, wholesalePrice: Number(e.target.value)})} placeholder="W"/>
-                                                            <input type="number" className='w-16 p-1 text-sm border rounded' value={editValues.retailPrice} onChange={e => setEditValues({...editValues, retailPrice: Number(e.target.value)})} placeholder="R"/>
-                                                        </td>
-                                                        <td className='p-4'>
-                                                            <input type="number" className='w-16 p-1 text-sm border rounded' value={editValues.stock} onChange={e => setEditValues({...editValues, stock: Number(e.target.value)})}/>
-                                                        </td>
-                                                    </>
+                                                    <div className="flex gap-2">
+                                                        <button onClick={saveQuickEdit} disabled={saving} className="flex-1 bg-green-600 text-white py-2 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-green-700 shadow-sm"><Check size={18}/> Save</button>
+                                                        <button onClick={cancelEditing} className="p-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 shadow-sm"><X size={18}/></button>
+                                                    </div>
                                                 ) : (
-                                                    <>
-                                                        <td className='p-4 text-sm'><span className='text-gray-500'>₹{item.wholesalePrice}</span> / <span className='text-green-700 font-bold'>₹{item.retailPrice}</span></td>
-                                                        <td className='p-4 text-sm'>
-                                                            <span className={`px-2 py-1 rounded text-xs font-bold ${item.stock > 10 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{item.stock}</span>
-                                                        </td>
-                                                    </>
+                                                    <div className="flex gap-2">
+                                                        <button onClick={() => startEditing(item)} className="flex-1 bg-indigo-50 border border-indigo-100 text-indigo-700 py-2 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-100 transition-colors"><Edit3 size={16}/> Edit</button>
+                                                        <Link href={`/seller/edit-product/${item._id}`} className="p-2.5 bg-blue-50 border border-blue-100 text-blue-700 rounded-xl hover:bg-blue-100 transition-colors"><FilePenLine size={18}/></Link>
+                                                        <button onClick={() => handleDelete(item._id)} className="p-2.5 bg-red-50 border border-red-100 text-red-600 rounded-xl hover:bg-red-100 transition-colors"><Trash2 size={18}/></button>
+                                                    </div>
                                                 )}
-                                                <td className='p-4 text-right'>
-                                                    {isEditing ? (
-                                                        <div className='flex justify-end gap-2'>
-                                                            <button onClick={saveQuickEdit} disabled={saving} className='p-1.5 bg-green-600 text-white rounded hover:bg-green-700'><Check className='w-4 h-4'/></button>
-                                                            <button onClick={cancelEditing} className='p-1.5 bg-gray-200 text-gray-600 rounded hover:bg-gray-300'><X className='w-4 h-4'/></button>
-                                                        </div>
-                                                    ) : (
-                                                        <div className='flex justify-end gap-2'>
-                                                            <button onClick={() => startEditing(item)} className='p-1.5 border border-green-200 text-green-600 rounded hover:bg-green-50'><Edit3 className='w-4 h-4'/></button>
-                                                            <Link href={`/seller/edit-product/${item._id}`} className='p-1.5 border border-blue-200 text-blue-600 rounded hover:bg-blue-50'><FilePenLine className='w-4 h-4'/></Link>
-                                                            <button onClick={() => handleDelete(item._id)} className='p-1.5 border border-red-200 text-red-600 rounded hover:bg-red-50'><Trash2 className='w-4 h-4'/></button>
-                                                        </div>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        )
-                                    })}
-                                </tbody>
-                            </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            })}
                         </div>
                     ) : activeTab === 'orders' ? (
                         /* ================== ORDERS TAB ================== */
-                        <div className='overflow-x-auto'>
+                        <div className='p-2 sm:p-4 bg-gray-50/50 min-h-[400px]'>
                             {orders.length === 0 ? (
                                 <div className='p-20 text-center text-gray-500'>{t.noOrders}</div>
                             ) : (
-                                <table className='w-full text-left'>
-                                    <thead className='bg-gray-50 text-gray-500 text-xs uppercase font-bold tracking-wider'>
-                                        <tr>
-                                            <th className='p-4'>{t.orderId}</th>
-                                            <th className='p-4'>{t.customer}</th>
-                                            <th className='p-4'>{t.items}</th>
-                                            <th className='p-4'>{t.earnings}</th>
-                                            <th className='p-4'>{t.status}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className='divide-y divide-gray-100'>
-                                        {orders.map((order) => (
-                                            <tr key={order._id} className='hover:bg-gray-50 transition-colors'>
-                                                <td className='p-4 font-mono text-xs text-gray-500'>
-                                                    #{order._id.slice(-6)}
-                                                    <div className='text-[10px] text-gray-400 mt-1'>{new Date(order.createdAt).toLocaleDateString()}</div>
-                                                </td>
-                                                <td className='p-4'>
-                                                    <p className='font-bold text-sm text-gray-800'>{order.address?.fullName || "Guest"}</p>
-                                                    <p className='text-xs text-gray-500 line-clamp-1 w-32'>{order.address?.fullAddress}</p>
-                                                    <p className='text-[10px] text-blue-600 font-medium mt-1 uppercase'>{order.paymentMethod}</p>
-                                                </td>
-                                                <td className='p-4'>
-                                                    <div className='space-y-1'>
-                                                        {order.items.map((i: any, idx: number) => (
-                                                            <div key={idx} className='flex items-center gap-2 text-sm'>
-                                                                <span className='bg-gray-100 text-gray-600 px-1.5 rounded text-xs font-bold'>{i.quantity}x</span>
-                                                                <span className='text-gray-700 truncate w-32'>{i.name || i.product?.name}</span>
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                                    {orders.map((order) => (
+                                        <div key={order._id} className="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 sm:p-5 hover:shadow-md transition-shadow flex flex-col relative overflow-hidden">
+                                            {/* Status Badge Background Color strip */}
+                                            <div className={`absolute top-0 left-0 w-1.5 h-full ${
+                                                order.status === 'delivered' ? 'bg-green-500' :
+                                                order.status === 'cancelled' ? 'bg-red-500' :
+                                                'bg-yellow-400'
+                                            }`} />
+                                            
+                                            <div className="flex justify-between items-start mb-4 pb-4 border-b border-gray-100 pl-3">
+                                                <div className="pr-2">
+                                                    <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">ORDER #{order._id.slice(-6).toUpperCase()}</span>
+                                                    <h3 className="font-black text-lg sm:text-xl text-gray-800 mt-2 line-clamp-1">{order.address?.fullName || "Guest"}</h3>
+                                                    <p className="text-xs sm:text-sm text-gray-500 mt-1 flex items-start gap-1">
+                                                        <MapPin size={16} className="shrink-0 mt-0.5 text-gray-400"/>
+                                                        <span className="line-clamp-2 leading-tight">{order.address?.fullAddress}</span>
+                                                    </p>
+                                                </div>
+                                                <div className="text-right shrink-0">
+                                                    <span className="bg-green-50 text-green-800 text-lg sm:text-xl font-black px-3 py-1 rounded-xl border border-green-100">₹{order.orderRevenue}</span>
+                                                    <p className="text-[10px] font-bold text-indigo-700 mt-2 uppercase bg-indigo-50 px-2 py-0.5 rounded-md inline-block border border-indigo-100">{order.paymentMethod}</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="flex-1 mb-4 pl-3">
+                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">{t.items}</p>
+                                                <div className="space-y-2">
+                                                    {order.items.map((i: any, idx: number) => (
+                                                        <div key={idx} className="flex items-center gap-3 bg-gray-50/80 p-2 sm:p-2.5 rounded-xl border border-gray-100">
+                                                            <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden relative shrink-0">
+                                                                {i.product?.images?.[0] ? <Image src={i.product.images[0]} fill alt="product" className="object-cover"/> : <Package size={20} className="text-gray-300"/>}
                                                             </div>
-                                                        ))}
-                                                    </div>
-                                                </td>
-                                                <td className='p-4 font-bold text-green-700'>₹{order.orderRevenue}</td>
-                                                <td className='p-4'>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="font-bold text-gray-800 text-sm sm:text-base line-clamp-1">{i.name || i.product?.name}</p>
+                                                                <p className="text-xs font-bold text-indigo-600 bg-indigo-50 inline-block px-1.5 py-0.5 rounded mt-0.5">Qty: {i.quantity}</p>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            <div className="pt-4 border-t border-gray-100 pl-3">
+                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Update Status</p>
+                                                <div className="relative">
                                                     <select 
                                                         value={order.status} 
                                                         onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
-                                                        className={`text-xs font-bold px-3 py-1.5 rounded-lg outline-none cursor-pointer border ${
-                                                            order.status === 'delivered' ? 'bg-green-100 text-green-700 border-green-300' :
-                                                            order.status === 'cancelled' ? 'bg-red-100 text-red-700 border-red-300' :
-                                                            'bg-yellow-50 text-yellow-700 border-yellow-200'
+                                                        className={`w-full text-sm sm:text-base font-black p-3.5 rounded-xl outline-none cursor-pointer border-2 appearance-none text-center shadow-sm transition-all ${
+                                                            order.status === 'delivered' ? 'bg-green-50 text-green-800 border-green-400 hover:bg-green-100' :
+                                                            order.status === 'cancelled' ? 'bg-red-50 text-red-800 border-red-400 hover:bg-red-100' :
+                                                            'bg-yellow-50 text-yellow-800 border-yellow-400 hover:bg-yellow-100'
                                                         }`}
                                                     >
-                                                        <option value="pending">Pending</option>
-                                                        <option value="processing">Processing</option>
-                                                        <option value="out for delivery">Out for Delivery</option>
-                                                        <option value="delivered">Delivered</option>
-                                                        <option value="cancelled">Cancelled</option>
+                                                        <option value="pending">⏳ Pending (पेंडिंग)</option>
+                                                        <option value="processing">⚙️ Processing (तैयार हो रहा है)</option>
+                                                        <option value="out for delivery">🚚 Out for Delivery (रास्ते में)</option>
+                                                        <option value="delivered">✅ Delivered (वितरित)</option>
+                                                        <option value="cancelled">❌ Cancelled (रद्द)</option>
                                                     </select>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             )}
                         </div>
                     ) : activeTab === 'messages' ? (

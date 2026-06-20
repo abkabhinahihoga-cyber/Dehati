@@ -153,7 +153,7 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
                             <h2 className={`text-xl md:text-2xl font-bold ${isGrocery ? 'text-green-800' : 'text-indigo-800'}`}>
                                 {isSearch ? (locale === 'hi' ? 'खोज के नतीजे' : 'Search Results') : (activeCategory ? getCategoryLabel(activeCategory, locale) : (isGrocery ? (locale === 'hi' ? 'रोज की जरूरतें' : 'Daily Essentials') : (locale === 'hi' ? 'छात्र पुस्तकालय' : 'Student Library')))}
                             </h2>
-                            {!isSearch && <p className='text-[10px] md:text-xs text-gray-400 font-medium'>{RADIUS_KM}km Radius • {isGrocery ? 'Farm Fresh' : 'Study Material'}</p>}
+                            {!isSearch && <p className='text-[10px] md:text-xs text-gray-400 font-medium'>{RADIUS_KM}km {locale === 'hi' ? 'दायरा' : 'Radius'} • {isGrocery ? (locale === 'hi' ? 'ताज़ा खेत से' : 'Farm Fresh') : (locale === 'hi' ? 'अध्ययन सामग्री' : 'Study Material')}</p>}
                         </div>
                     </div>
                     {!isSearch && (
@@ -162,7 +162,7 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
                                 <RefreshCw size={18} className={isRefetching ? "animate-spin" : ""} />
                             </button>
                             <button onClick={() => setShowFilters(!showFilters)} className={`flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs font-bold border transition-all ${showFilters ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 hover:border-gray-400'}`}>
-                                <Filter size={14} /> <span className="hidden md:inline">Filters</span> {minDiscount > 0 || activeCategory ? '•' : ''}
+                                <Filter size={14} /> <span className="hidden md:inline">{locale === 'hi' ? 'फ़िल्टर' : 'Filters'}</span> {minDiscount > 0 || activeCategory ? '•' : ''}
                             </button>
                         </div>
                     )}
@@ -171,7 +171,7 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
                 {/* CATEGORY CHIPS */}
                 {!isSearch && (
                     <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
-                        <button onClick={() => updateCategory("")} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${activeCategory === "" ? (isGrocery ? 'bg-green-100 text-green-700 border-green-200' : 'bg-indigo-100 text-indigo-700 border-indigo-200') : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'}`}>All</button>
+                        <button onClick={() => updateCategory("")} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${activeCategory === "" ? (isGrocery ? 'bg-green-100 text-green-700 border-green-200' : 'bg-indigo-100 text-indigo-700 border-indigo-200') : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'}`}>{locale === 'hi' ? 'सभी' : 'All'}</button>
                         {filterCategories.map(cat => (
                             <button key={cat} onClick={() => updateCategory(cat === activeCategory ? "" : cat)} className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${activeCategory === cat ? (isGrocery ? 'bg-green-600 text-white border-green-600' : 'bg-indigo-600 text-white border-indigo-600') : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'}`}>{isGrocery ? getCategoryLabel(cat, locale) : cat}</button>
                         ))}
@@ -186,9 +186,9 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
                         <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                              <div className="flex flex-col gap-6">
                                 <div className="flex flex-col gap-2">
-                                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Sort By</span>
+                                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{locale === 'hi' ? 'इसके अनुसार क्रमबद्ध करें' : 'Sort By'}</span>
                                     <div className="flex flex-wrap gap-2">
-                                        {[{ label: '🔥 Relevance', value: 'relevance' }, { label: '📍 Nearest', value: 'distance_asc' }, { label: '🏷️ Best Discount', value: 'discount_desc' }, { label: '⭐ Top Rated', value: 'rating' }, { label: '🆕 Newest', value: 'newest' }, { label: '💰 Price: Low to High', value: 'price_asc' }].map((opt) => (
+                                        {[{ label: locale === 'hi' ? '🔥 प्रासंगिकता' : '🔥 Relevance', value: 'relevance' }, { label: locale === 'hi' ? '📍 निकटतम' : '📍 Nearest', value: 'distance_asc' }, { label: locale === 'hi' ? '🏷️ सर्वोत्तम छूट' : '🏷️ Best Discount', value: 'discount_desc' }, { label: locale === 'hi' ? '⭐ शीर्ष रेटेड' : '⭐ Top Rated', value: 'rating' }, { label: locale === 'hi' ? '🆕 नवीनतम' : '🆕 Newest', value: 'newest' }, { label: locale === 'hi' ? '💰 कीमत: कम से ज्यादा' : '💰 Price: Low to High', value: 'price_asc' }].map((opt) => (
                                             <button key={opt.value} onClick={() => setSort(opt.value as SortOption)} className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${sort === opt.value ? 'bg-black text-white border-black' : 'bg-gray-50 text-gray-600 border-gray-200'}`}>{opt.label}</button>
                                         ))}
                                     </div>
@@ -196,21 +196,21 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
                                 <div className="h-px bg-gray-100 w-full"></div>
                                 <div className="flex flex-wrap gap-8">
                                     <div className="flex flex-col gap-2 min-w-[150px]">
-                                        <div className="flex justify-between"><span className="text-xs font-bold text-gray-600">Max Price</span><span className="text-xs font-bold text-green-600">₹{priceRange.max}</span></div>
+                                        <div className="flex justify-between"><span className="text-xs font-bold text-gray-600">{locale === 'hi' ? 'अधिकतम कीमत' : 'Max Price'}</span><span className="text-xs font-bold text-green-600">₹{priceRange.max}</span></div>
                                         <input type="range" min="0" max="5000" step="100" value={priceRange.max} onChange={(e) => setPriceRange({ ...priceRange, max: Number(e.target.value) })} className="w-full accent-green-600 h-1 bg-gray-200 rounded-lg cursor-pointer" />
                                     </div>
                                     <div className="flex flex-col gap-2">
-                                        <span className="text-xs font-bold text-gray-600">Min Discount</span>
+                                        <span className="text-xs font-bold text-gray-600">{locale === 'hi' ? 'न्यूनतम छूट' : 'Min Discount'}</span>
                                         <div className="flex gap-2">
                                             {[10, 20, 30, 50].map((d) => (
-                                                <button key={d} onClick={() => setMinDiscount(minDiscount === d ? 0 : d)} className={`px-3 py-1 rounded-md text-xs font-bold border transition-all ${minDiscount === d ? 'bg-red-50 text-red-600 border-red-200' : 'bg-gray-50 text-gray-500 border-gray-200'}`}>{d}%+ Off</button>
+                                                <button key={d} onClick={() => setMinDiscount(minDiscount === d ? 0 : d)} className={`px-3 py-1 rounded-md text-xs font-bold border transition-all ${minDiscount === d ? 'bg-red-50 text-red-600 border-red-200' : 'bg-gray-50 text-gray-500 border-gray-200'}`}>{d}%+ {locale === 'hi' ? 'छूट' : 'Off'}</button>
                                             ))}
                                         </div>
                                     </div>
                                 </div>
                                 <div className="flex justify-end mt-2">
                                     <button onClick={() => { setSort('relevance'); setPriceRange({min:0, max:10000}); setMinRating(0); updateCategory(""); setMinDiscount(0); }} className="text-xs font-bold text-red-500 hover:underline flex items-center gap-1">
-                                        <X size={12} /> Clear All Filters
+                                        <X size={12} /> {locale === 'hi' ? 'सभी फ़िल्टर साफ़ करें' : 'Clear All Filters'}
                                     </button>
                                 </div>
                             </div>
@@ -222,8 +222,8 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
            {/* 🚀 1. SUGGESTED FOR YOU */}
 {!isSearch && !activeCategory && aiRecommendations.length > 0 && (
     <HorizontalRail 
-        title="Suggested for You" 
-        subtitle="Based on your recent orders" 
+        title={locale === 'hi' ? 'आपके लिए सुझाया गया' : "Suggested for You"} 
+        subtitle={locale === 'hi' ? 'आपके हाल के ऑर्डर के आधार पर' : "Based on your recent orders"} 
         products={aiRecommendations} 
         icon={Sparkles} 
         colorClass={isGrocery ? 'bg-green-50 border-green-100' : 'bg-indigo-50 border-indigo-100'}
@@ -246,8 +246,8 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
                                             <Zap className="w-5 h-5 text-red-600 fill-red-600" />
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-black text-gray-900 leading-none italic">FLASH SALE</h3>
-                                            <p className="text-[11px] font-bold mt-1 text-red-600">Prices drop for next 4 hours!</p>
+                                            <h3 className="text-lg font-black text-gray-900 leading-none italic">{locale === 'hi' ? 'फ़्लैश सेल' : 'FLASH SALE'}</h3>
+                                            <p className="text-[11px] font-bold mt-1 text-red-600">{locale === 'hi' ? 'अगले 4 घंटों के लिए कीमतें कम!' : 'Prices drop for next 4 hours!'}</p>
                                         </div>
                                     </div>
                                     <CountdownTimer />
@@ -270,8 +270,8 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
                     {/* B. TRENDING */}
                     {rails.trending.length > 0 ? (
                         <HorizontalRail 
-                            title={isGrocery ? "Trending in Your Area" : "Most Popular Books"} 
-                            subtitle="Items everyone is buying" 
+                            title={isGrocery ? (locale === 'hi' ? 'आपके क्षेत्र में लोकप्रिय' : "Trending in Your Area") : (locale === 'hi' ? 'सबसे लोकप्रिय किताबें' : "Most Popular Books")} 
+                            subtitle={locale === 'hi' ? 'चीजें जो हर कोई खरीद रहा है' : "Items everyone is buying"} 
                             products={rails.trending} 
                             icon={TrendingUp} 
                             colorClass="bg-blue-50 border-blue-100" 
@@ -280,15 +280,15 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
                     ) : (
                         <div className="mb-8 p-6 rounded-2xl border border-dashed border-gray-300 bg-gray-50 flex items-center justify-center gap-3 text-gray-400">
                             <Frown className="w-6 h-6" />
-                            <span className="font-medium text-sm">No trending products in your area yet.</span>
+                            <span className="font-medium text-sm">{locale === 'hi' ? 'आपके क्षेत्र में अभी तक कोई लोकप्रिय उत्पाद नहीं हैं।' : 'No trending products in your area yet.'}</span>
                         </div>
                     )}
 
                     {/* C. BUDGET STORE */}
                     {rails.under99.length > 0 && (
                         <HorizontalRail 
-                            title={`Under ₹${rails.budgetPriceCap} Store`} 
-                            subtitle="Budget friendly picks" 
+                            title={locale === 'hi' ? `₹${rails.budgetPriceCap} से कम स्टोर` : `Under ₹${rails.budgetPriceCap} Store`} 
+                            subtitle={locale === 'hi' ? 'बजट के अनुकूल विकल्प' : "Budget friendly picks"} 
                             products={rails.under99} 
                             icon={Tag} 
                             colorClass="bg-yellow-50 border-yellow-100" 
@@ -313,7 +313,7 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
                 <div className='py-20 text-center opacity-50 flex flex-col items-center'>
                     <SearchX className='w-12 h-12 mb-2' />
                     <p className='font-bold'>
-                        {activeCategory ? `No items found in ${activeCategory}` : 'No items found nearby.'}
+                        {activeCategory ? (locale === 'hi' ? `${activeCategory} में कोई आइटम नहीं मिला` : `No items found in ${activeCategory}`) : (locale === 'hi' ? 'आस-पास कोई आइटम नहीं मिला।' : 'No items found nearby.')}
                     </p>
                 </div>
             ) : (

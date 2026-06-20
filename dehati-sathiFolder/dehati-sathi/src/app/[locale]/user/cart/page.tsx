@@ -73,12 +73,12 @@ function CartPage() {
       else if (hasHub && hasSeller) {
           // Case 2: Mixed Items -> Disable
           farmPickupStatus = 'disabled';
-          farmPickupReason = "Mixed Order: You cannot pick up Hub items from a farm.";
+          farmPickupReason = isHindi ? "मिश्रित ऑर्डर: आप हब आइटम को फार्म से नहीं ले सकते।" : "Mixed Order: You cannot pick up Hub items from a farm.";
       } 
       else if (isMultiSeller) {
           // Case 3: Multiple Sellers -> Disable
           farmPickupStatus = 'disabled';
-          farmPickupReason = "Multiple Sellers: Please choose Hub Pickup to collect all items in one go.";
+          farmPickupReason = isHindi ? "कई विक्रेता: कृपया एक ही बार में सभी आइटम लेने के लिए हब पिकअप चुनें।" : "Multiple Sellers: Please choose Hub Pickup to collect all items in one go.";
       }
 
       return { farmPickupStatus, farmPickupReason };
@@ -298,7 +298,7 @@ function CartPage() {
                 {distanceToHub > 3500 && (
                     <div className="flex items-start gap-2 bg-orange-50 text-orange-800 text-[10px] p-2 rounded-lg border border-orange-100 mt-1">
                         <AlertCircle size={12} className="mt-0.5 shrink-0"/>
-                        <p>You are outside our 3.5km delivery zone for the selected Hub. Please choose Pickup.</p>
+                        <p>{isHindi ? 'आप चयनित हब के लिए हमारे 3.5 किमी डिलीवरी ज़ोन से बाहर हैं। कृपया पिकअप चुनें।' : 'You are outside our 3.5km delivery zone for the selected Hub. Please choose Pickup.'}</p>
                     </div>
                 )}
             </div>
@@ -314,14 +314,14 @@ function CartPage() {
                         
                         {deliveryType === 'hub-pickup' && (
                             <div className="flex items-center justify-between text-xs text-blue-800 font-medium">
-                                <span className="flex items-center gap-2"><MapPin size={14}/> You to Hub:</span>
+                                <span className="flex items-center gap-2"><MapPin size={14}/> {isHindi ? 'आपसे हब तक:' : 'You to Hub:'}</span>
                                 <span className="font-bold">{(distanceToHub / 1000).toFixed(1)} km</span>
                             </div>
                         )}
 
                         {deliveryType === 'farm-pickup' && (
                             <div className="flex items-center justify-between text-xs text-green-800 font-medium">
-                                <span className="flex items-center gap-2"><Store size={14}/> You to Seller:</span>
+                                <span className="flex items-center gap-2"><Store size={14}/> {isHindi ? 'आपसे विक्रेता तक:' : 'You to Seller:'}</span>
                                 <span className="font-bold">{(distances.userToSeller / 1000).toFixed(1)} km</span>
                             </div>
                         )}
@@ -329,7 +329,7 @@ function CartPage() {
                         {deliveryType === 'home-delivery' && (
                             <>
                                 <div className="flex items-center justify-between text-xs text-blue-800 font-bold cursor-pointer" onClick={() => setShowDistanceDetails(!showDistanceDetails)}>
-                                    <span className="flex items-center gap-2"><Route size={14}/> Total Logistics:</span>
+                                    <span className="flex items-center gap-2"><Route size={14}/> {isHindi ? 'कुल लॉजिस्टिक्स:' : 'Total Logistics:'}</span>
                                     <div className="flex items-center gap-1">
                                         <span>{((distances.hubToSeller + distanceToHub) / 1000).toFixed(1)} km</span>
                                         {showDistanceDetails ? <ChevronUp size={14}/> : <ChevronDown size={14}/>}
@@ -344,11 +344,11 @@ function CartPage() {
                                             className="overflow-hidden space-y-1.5 pt-2 border-t border-blue-200 mt-2"
                                         >
                                             <div className="flex items-center justify-between text-[11px] text-gray-500">
-                                                <span>1. Seller to Hub:</span>
+                                                <span>{isHindi ? '1. विक्रेता से हब:' : '1. Seller to Hub:'}</span>
                                                 <span>{(distances.hubToSeller / 1000).toFixed(1)} km</span>
                                             </div>
                                             <div className="flex items-center justify-between text-[11px] text-gray-500">
-                                                <span>2. Hub to You:</span>
+                                                <span>{isHindi ? '2. हब से आप तक:' : '2. Hub to You:'}</span>
                                                 <span>{(distanceToHub / 1000).toFixed(1)} km</span>
                                             </div>
                                         </motion.div>

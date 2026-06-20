@@ -294,7 +294,7 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                             <span className={`font-bold text-xs uppercase tracking-wider px-2 py-0.5 rounded ${isBook ? 'bg-indigo-100 text-indigo-700' : 'bg-green-100 text-green-700'}`}>
                                 {product.category}
                             </span>
-                            {isBook && <span className='text-xs text-gray-500'>• {product.bookDetails?.type === 'notes' ? 'Handwritten Notes' : 'Printed Book'}</span>}
+                            {isBook && <span className='text-xs text-gray-500'>• {product.bookDetails?.type === 'notes' ? (isHindi ? 'हस्तलिखित नोट्स' : 'Handwritten Notes') : (isHindi ? 'मुद्रित पुस्तक' : 'Printed Book')}</span>}
                         </div>
                         
                         {/* 🔗 CUSTOM SHARE MENU */}
@@ -417,7 +417,7 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                 <div className="space-y-4">
                     <div className="bg-gray-50 p-5 rounded-xl">
                         <h3 className="font-bold text-gray-800 mb-2 flex items-center gap-2"><Book size={18}/> {t.description}</h3>
-                        <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">{product.description || "No description provided."}</p>
+                        <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">{product.description || (isHindi ? 'कोई विवरण नहीं दिया गया है।' : "No description provided.")}</p>
                     </div>
                     
                     <div className="flex items-center gap-3 p-4 border border-gray-100 rounded-xl bg-white">
@@ -426,13 +426,13 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                             <div>
                                 <p className="text-xs text-gray-500 font-bold uppercase">{t.soldByHub}</p>
                                 <p className="font-semibold text-gray-900">Dehati Hub</p>
-                                <p className="text-xs text-gray-500">Hub Manager: {hubManager?.name || product.seller?.name || "Hub Manager"}</p>
+                                <p className="text-xs text-gray-500">{isHindi ? 'हब मैनेजर' : 'Hub Manager'}: {hubManager?.name || product.seller?.name || (isHindi ? 'हब मैनेजर' : "Hub Manager")}</p>
                             </div>
                         ) : (
                             <div>
                                 <p className="text-xs text-gray-500 font-bold uppercase">{t.soldBySeller}</p>
-                                <p className="font-semibold text-gray-900">{product.seller?.sellerDetails?.shopName || "Local Shop"}</p>
-                                <p className="text-xs text-gray-500">Hub Contact: {hubManager?.name || product.seller?.name || "Verified Seller"}</p>
+                                <p className="font-semibold text-gray-900">{product.seller?.sellerDetails?.shopName || (isHindi ? 'स्थानीय दुकान' : "Local Shop")}</p>
+                                <p className="text-xs text-gray-500">{isHindi ? 'हब संपर्क' : 'Hub Contact'}: {hubManager?.name || product.seller?.name || (isHindi ? 'सत्यापित विक्रेता' : "Verified Seller")}</p>
                             </div>
                         )}
                     </div>

@@ -13,8 +13,10 @@ import axios from 'axios'
 import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'sonner'
+import { useLocale } from 'next-intl'
 
 export default function AdminDashboard() {
+    const locale = useLocale();
     // --- STATE ---
     const [stats, setStats] = useState<any>({ totalUsers: 0, totalOrders: 0, totalRevenue: 0, pendingApprovals: 0, totalHubs: 0 })
     const [users, setUsers] = useState<any[]>([])
@@ -98,26 +100,26 @@ export default function AdminDashboard() {
 
     // --- ACTIONS ---
     const handleUserAction = async (userId: string, action: string) => {
-        const toastId = toast.loading(action === 'approve' ? 'Approving seller...' : action === 'reject' ? 'Rejecting application...' : 'Processing...')
+        const toastId = toast.loading(action === 'approve' ? (locale === 'hi' ? 'विक्रेता को स्वीकार किया जा रहा है...' : 'Approving seller...') : action === 'reject' ? (locale === 'hi' ? 'आवेदन अस्वीकार किया जा रहा है...' : 'Rejecting application...') : (locale === 'hi' ? 'प्रोसेस हो रहा है...' : 'Processing...'))
         setSellerActionLoading(userId + action)
         try {
             await axios.put('/api/admin/dashboard', { userId, action })
             toast.success(
-                action === 'approve' ? '✅ Seller approved & notified!' :
-                action === 'reject' ? 'Application rejected & user notified.' :
+                action === 'approve' ? (locale === 'hi' ? '✅ विक्रेता स्वीकृत और सूचित!' : '✅ Seller approved & notified!') :
+                action === 'reject' ? (locale === 'hi' ? 'आवेदन अस्वीकृत और उपयोगकर्ता को सूचित किया गया।' : 'Application rejected & user notified.') :
                 `Action "${action}" applied.`,
                 { id: toastId }
             )
             fetchDashboardData()
         } catch (error) {
-            toast.error('Action failed. Please try again.', { id: toastId })
+            toast.error(locale === 'hi' ? 'कार्रवाई विफल। कृपया पुनः प्रयास करें।' : 'Action failed. Please try again.', { id: toastId })
         } finally {
             setSellerActionLoading(null)
         }
     }
 
     const handleDeliveryAction = async (id: string, action: 'approve' | 'reject') => {
-        const toastId = toast.loading("Processing...");
+        const toastId = toast.loading(locale === 'hi' ? 'प्रोसेस हो रहा है...' : "Processing...");
         try {
             const res = await axios.put('/api/admin/delivery-requests', { applicantId: id, action })
             if(res.data.success) {
@@ -126,7 +128,7 @@ export default function AdminDashboard() {
                 setStats((prev: any) => ({ ...prev, pendingApprovals: prev.pendingApprovals - 1 }))
             }
         } catch (error) { 
-            toast.error("Action failed", { id: toastId }) 
+            toast.error(locale === 'hi' ? 'कार्रवाई विफल' : "Action failed", { id: toastId }) 
         }
     }
 
@@ -361,13 +363,13 @@ export default function AdminDashboard() {
                         <div className="flex items-center gap-3">
                             <div className="p-2.5 bg-amber-100 rounded-xl"><Store className="text-amber-600" size={20}/></div>
                             <div>
-                                <p className="text-xs font-bold text-amber-600 uppercase tracking-wide">Seller Applications</p>
-                                <h3 className="text-xl font-black text-amber-900">{pendingSellers.length} Pending Review</h3>
-                                <p className="text-amber-700 text-xs mt-0.5">Sellers waiting for approval or rejection.</p>
+                                <p className="text-xs font-bold text-amber-600 uppercase tracking-wide">{locale === 'hi' ? 'विक्रेता आवेदन' : 'Seller Applications'}</p>
+                                <h3 className="text-xl font-black text-amber-900">{pendingSellers.length} {locale === 'hi' ? 'समीक्षा लंबित' : 'Pending Review'}</h3>
+                                <p className="text-amber-700 text-xs mt-0.5">{locale === 'hi' ? 'विक्रेता स्वीकृति या अस्वीकृति की प्रतीक्षा कर रहे हैं।' : 'Sellers waiting for approval or rejection.'}</p>
                             </div>
                         </div>
                         <div className="bg-amber-600 text-white px-4 py-2 rounded-xl font-bold text-sm group-hover:scale-105 transition-transform shrink-0">
-                            Review Now →
+                            {locale === 'hi' ? 'अभी समीक्षा करें →' : 'Review Now →'}
                         </div>
                     </div>
                 </div>
@@ -383,10 +385,10 @@ export default function AdminDashboard() {
                     <div className="relative z-10 flex items-center justify-between">
                         <div>
                             <div className="flex items-center gap-2 mb-2">
-                                <span className="bg-white/20 text-indigo-100 text-xs font-bold px-2 py-1 rounded uppercase">Action Required</span>
+                                <span className="bg-white/20 text-indigo-100 text-xs font-bold px-2 py-1 rounded uppercase">{locale === 'hi' ? 'कार्रवाई आवश्यक' : 'Action Required'}</span>
                             </div>
-                            <h2 className="text-3xl font-black text-white">{deliveryRequests.length} Pending Approvals</h2>
-                            <p className="text-indigo-200 text-sm mt-1">Delivery partners waiting for verification.</p>
+                            <h2 className="text-3xl font-black text-white">{deliveryRequests.length} {locale === 'hi' ? 'स्वीकृतियां लंबित' : 'Pending Approvals'}</h2>
+                            <p className="text-indigo-200 text-sm mt-1">{locale === 'hi' ? 'डिलीवरी पार्टनर सत्यापन की प्रतीक्षा कर रहे हैं।' : 'Delivery partners waiting for verification.'}</p>
                         </div>
                         <div className="bg-white text-indigo-900 px-4 py-2 rounded-lg font-bold text-sm group-hover:scale-105 transition-transform">
                             Review Now &rarr;
@@ -396,10 +398,10 @@ export default function AdminDashboard() {
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <StatCard icon={<Users className="text-blue-600"/>} label="Total Users" value={stats.totalUsers} color="bg-blue-50"/>
-                <StatCard icon={<ShoppingBag className="text-purple-600"/>} label="Total Orders" value={stats.totalOrders} color="bg-purple-50"/>
-                <StatCard icon={<TrendingUp className="text-green-600"/>} label="Total Revenue" value={`₹${stats.totalRevenue}`} color="bg-green-50"/>
-                <StatCard icon={<MapPin className="text-orange-600"/>} label="Total Hubs" value={stats.totalHubs} color="bg-orange-50"/>
+                <StatCard icon={<Users className="text-blue-600"/>} label={locale === 'hi' ? 'कुल उपयोगकर्ता' : 'Total Users'} value={stats.totalUsers} color="bg-blue-50"/>
+                <StatCard icon={<ShoppingBag className="text-purple-600"/>} label={locale === 'hi' ? 'कुल ऑर्डर' : 'Total Orders'} value={stats.totalOrders} color="bg-purple-50"/>
+                <StatCard icon={<TrendingUp className="text-green-600"/>} label={locale === 'hi' ? 'कुल आय' : 'Total Revenue'} value={`₹${stats.totalRevenue}`} color="bg-green-50"/>
+                <StatCard icon={<MapPin className="text-orange-600"/>} label={locale === 'hi' ? 'कुल हब' : 'Total Hubs'} value={stats.totalHubs} color="bg-orange-50"/>
             </div>
         </>
     )}
@@ -409,15 +411,15 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center">
                 <h3 className="font-bold text-gray-800 text-lg flex items-center gap-2">
-                    <Bike className="text-indigo-600"/> Pending Delivery Approvals
+                    <Bike className="text-indigo-600"/> {locale === 'hi' ? 'लंबित डिलीवरी स्वीकृति' : 'Pending Delivery Approvals'}
                 </h3>
             </div>
             
             {deliveryRequests.length === 0 ? (
                 <div className="p-12 text-center flex flex-col items-center">
                     <div className="bg-green-50 p-4 rounded-full mb-3"><CheckCircle className="text-green-500" size={32}/></div>
-                    <p className="text-gray-500 font-bold">All Caught Up!</p>
-                    <p className="text-gray-400 text-sm">No pending applications.</p>
+                    <p className="text-gray-500 font-bold">{locale === 'hi' ? 'सब हो गया!' : 'All Caught Up!'}</p>
+                    <p className="text-gray-400 text-sm">{locale === 'hi' ? 'कोई लंबित आवेदन नहीं।' : 'No pending applications.'}</p>
                 </div>
             ) : (
                 <div className="divide-y">
@@ -445,10 +447,10 @@ export default function AdminDashboard() {
 
                             <div className="flex flex-row md:flex-col gap-2 min-w-[140px]">
                                 <button onClick={() => handleDeliveryAction(app._id, 'approve')} className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 shadow-sm">
-                                    <CheckCircle size={16}/> Approve
+                                    <CheckCircle size={16}/> {locale === 'hi' ? 'स्वीकार करें' : 'Approve'}
                                 </button>
                                 <button onClick={() => handleDeliveryAction(app._id, 'reject')} className="flex-1 bg-white border border-red-200 text-red-600 hover:bg-red-50 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2">
-                                    <XCircle size={16}/> Reject
+                                    <XCircle size={16}/> {locale === 'hi' ? 'अस्वीकार करें' : 'Reject'}
                                 </button>
                             </div>
                         </div>
@@ -461,24 +463,24 @@ export default function AdminDashboard() {
     const renderHubsList = () => (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                <h3 className="font-bold text-gray-800 text-lg">Manage Dehati Hubs</h3>
+                <h3 className="font-bold text-gray-800 text-lg">{locale === 'hi' ? 'देहाती हब प्रबंधित करें' : 'Manage Dehati Hubs'}</h3>
                 <button onClick={() => setShowHubForm(true)} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold hover:bg-indigo-700">
-                    <Plus size={16}/> Add Hub
+                    <Plus size={16}/> {locale === 'hi' ? 'हब जोड़ें' : 'Add Hub'}
                 </button>
             </div>
             
             {hubs.length === 0 ? (
-                <div className="p-8 text-center text-gray-500">No Hubs Created Yet.</div>
+                <div className="p-8 text-center text-gray-500">{locale === 'hi' ? 'अभी तक कोई हब नहीं बनाया गया।' : 'No Hubs Created Yet.'}</div>
             ) : (
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
                         <thead className="bg-gray-50 text-gray-500 font-bold border-b">
                             <tr>
-                                <th className="p-4 whitespace-nowrap">Hub Name</th>
-                                <th className="p-4 whitespace-nowrap">Location</th>
-                                <th className="p-4 whitespace-nowrap">Manager</th>
-                                <th className="p-4 whitespace-nowrap">Status</th>
-                                <th className="p-4 whitespace-nowrap">Action</th>
+                                <th className="p-4 whitespace-nowrap">{locale === 'hi' ? 'हब का नाम' : 'Hub Name'}</th>
+                                <th className="p-4 whitespace-nowrap">{locale === 'hi' ? 'स्थान' : 'Location'}</th>
+                                <th className="p-4 whitespace-nowrap">{locale === 'hi' ? 'प्रबंधक' : 'Manager'}</th>
+                                <th className="p-4 whitespace-nowrap">{locale === 'hi' ? 'स्थिति' : 'Status'}</th>
+                                <th className="p-4 whitespace-nowrap">{locale === 'hi' ? 'कार्रवाई' : 'Action'}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y">
@@ -494,20 +496,20 @@ export default function AdminDashboard() {
                                             </div>
                                         ) : <span className="text-red-500">Unassigned</span>}
                                     </td>
-                                    <td className="p-4"><span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">Active</span></td>
+                                    <td className="p-4"><span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">{locale === 'hi' ? 'सक्रिय' : 'Active'}</span></td>
                                     <td className="p-4">
                                         <div className="flex gap-2" onClick={e => e.stopPropagation()}>
                                             <button
                                                 onClick={() => handleEditHub(hub)}
                                                 className="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-bold transition-colors"
                                             >
-                                                Edit
+                                                {locale === 'hi' ? 'संपादित करें' : 'Edit'}
                                             </button>
                                             <button
                                                 onClick={() => handleDeleteHub(hub._id, hub.name)}
                                                 className="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-xs font-bold transition-colors"
                                             >
-                                                Delete
+                                                {locale === 'hi' ? 'हटाएं' : 'Delete'}
                                             </button>
                                         </div>
                                     </td>
@@ -600,20 +602,20 @@ export default function AdminDashboard() {
 
     const renderOrdersList = () => (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6 border-b border-gray-100"><h3 className="font-bold text-gray-800 text-lg">Global Order History</h3></div>
+            <div className="p-6 border-b border-gray-100"><h3 className="font-bold text-gray-800 text-lg">{locale === 'hi' ? 'वैश्विक ऑर्डर इतिहास' : 'Global Order History'}</h3></div>
             {orders.length === 0 ? (
-                <div className="p-12 text-center text-gray-400">No orders placed yet.</div>
+                <div className="p-12 text-center text-gray-400">{locale === 'hi' ? 'अभी तक कोई ऑर्डर नहीं।' : 'No orders placed yet.'}</div>
             ) : (
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
                         <thead className="bg-gray-50 text-gray-500 font-bold border-b">
                             <tr>
-                                <th className="p-4 whitespace-nowrap">Order ID</th>
-                                <th className="p-4 whitespace-nowrap">Customer</th>
-                                <th className="p-4 whitespace-nowrap">Items</th>
-                                <th className="p-4 whitespace-nowrap">Total</th>
-                                <th className="p-4 whitespace-nowrap">Status</th>
-                                <th className="p-4 whitespace-nowrap">Action</th>
+                                <th className="p-4 whitespace-nowrap">{locale === 'hi' ? 'ऑर्डर आईडी' : 'Order ID'}</th>
+                                <th className="p-4 whitespace-nowrap">{locale === 'hi' ? 'ग्राहक' : 'Customer'}</th>
+                                <th className="p-4 whitespace-nowrap">{locale === 'hi' ? 'आइटम' : 'Items'}</th>
+                                <th className="p-4 whitespace-nowrap">{locale === 'hi' ? 'कुल' : 'Total'}</th>
+                                <th className="p-4 whitespace-nowrap">{locale === 'hi' ? 'स्थिति' : 'Status'}</th>
+                                <th className="p-4 whitespace-nowrap">{locale === 'hi' ? 'कार्रवाई' : 'Action'}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y">
@@ -630,7 +632,7 @@ export default function AdminDashboard() {
                                             {order.status}
                                         </span>
                                     </td>
-                                    <td className="p-4 text-gray-400 text-xs group-hover:text-indigo-600 font-bold">View Details &rarr;</td>
+                                    <td className="p-4 text-gray-400 text-xs group-hover:text-indigo-600 font-bold">{locale === 'hi' ? 'विवरण देखें →' : 'View Details →'}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -656,16 +658,16 @@ export default function AdminDashboard() {
                         <div className="p-5 border-b border-amber-100 bg-amber-50 flex items-center gap-3">
                             <Store className="text-amber-600" size={20}/>
                             <div>
-                                <h3 className="font-black text-amber-900 text-lg">Pending Seller Applications</h3>
-                                <p className="text-amber-700 text-xs">{pendingSellers.length} application{pendingSellers.length !== 1 ? 's' : ''} awaiting review</p>
+                                <h3 className="font-black text-amber-900 text-lg">{locale === 'hi' ? 'लंबित विक्रेता आवेदन' : 'Pending Seller Applications'}</h3>
+                                <p className="text-amber-700 text-xs">{pendingSellers.length} {locale === 'hi' ? 'आवेदन समीक्षा की प्रतीक्षा में' : `application${pendingSellers.length !== 1 ? 's' : ''} awaiting review`}</p>
                             </div>
                         </div>
 
                         {pendingSellers.length === 0 ? (
                             <div className="p-12 text-center">
                                 <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-3"/>
-                                <p className="text-gray-600 font-bold">All Caught Up!</p>
-                                <p className="text-gray-400 text-sm">No pending seller applications.</p>
+                                <p className="text-gray-600 font-bold">{locale === 'hi' ? 'सब हो गया!' : 'All Caught Up!'}</p>
+                                <p className="text-gray-400 text-sm">{locale === 'hi' ? 'कोई लंबित विक्रेता आवेदन नहीं।' : 'No pending seller applications.'}</p>
                             </div>
                         ) : (
                             <div className="divide-y divide-amber-50">
@@ -699,7 +701,7 @@ export default function AdminDashboard() {
                                                         className="flex-1 md:flex-none flex items-center justify-center gap-1.5 px-5 py-2.5 bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white rounded-xl text-xs font-bold transition-all shadow-sm min-w-[110px]"
                                                     >
                                                         {isApproving ? <Loader2 size={14} className="animate-spin"/> : <CheckCircle size={14}/>}
-                                                        Approve
+                                                        {locale === 'hi' ? 'स्वीकार करें' : 'Approve'}
                                                     </button>
                                                     <button
                                                         onClick={() => handleUserAction(user._id, 'reject')}
@@ -707,7 +709,7 @@ export default function AdminDashboard() {
                                                         className="flex-1 md:flex-none flex items-center justify-center gap-1.5 px-5 py-2.5 bg-white border border-red-200 hover:bg-red-50 disabled:opacity-60 text-red-600 rounded-xl text-xs font-bold transition-all min-w-[110px]"
                                                     >
                                                         {isRejecting ? <Loader2 size={14} className="animate-spin"/> : <XCircle size={14}/>}
-                                                        Reject
+                                                        {locale === 'hi' ? 'अस्वीकार करें' : 'Reject'}
                                                     </button>
                                                 </div>
                                             </div>
@@ -722,7 +724,7 @@ export default function AdminDashboard() {
                 {/* All Users Table */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <div className="p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <h3 className="font-bold text-gray-800 text-lg">Global User Management</h3>
+                        <h3 className="font-bold text-gray-800 text-lg">{locale === 'hi' ? 'वैश्विक उपयोगकर्ता प्रबंधन' : 'Global User Management'}</h3>
                         <div className="flex flex-wrap gap-2">
                             {[
                                 { id: 'pending', label: '⏳ Pending', count: pendingSellers.length },
@@ -772,20 +774,20 @@ export default function AdminDashboard() {
                                             </td>
                                         </tr>
                                     ))}
-                                    {filteredUsers.length === 0 && <tr><td colSpan={4} className="p-8 text-center text-gray-400">No users found.</td></tr>}
+                                    {filteredUsers.length === 0 && <tr><td colSpan={4} className="p-8 text-center text-gray-400">{locale === 'hi' ? 'कोई उपयोगकर्ता नहीं मिला।' : 'No users found.'}</td></tr>}
                                 </tbody>
                             </table>
                         </div>
                     )}
                     {userFilter === 'pending' && pendingSellers.length === 0 && (
-                        <div className="p-8 text-center text-gray-400 text-sm">No pending applications.</div>
+                        <div className="p-8 text-center text-gray-400 text-sm">{locale === 'hi' ? 'कोई लंबित आवेदन नहीं।' : 'No pending applications.'}</div>
                     )}
                 </div>
             </div>
         )
     }
 
-    if (loading) return <div className="h-screen flex items-center justify-center text-indigo-600 font-bold">Loading Admin Panel...</div>
+    if (loading) return <div className="h-screen flex items-center justify-center text-indigo-600 font-bold">{locale === 'hi' ? 'एडमिन पैनल लोड हो रहा है...' : 'Loading Admin Panel...'}</div>
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
@@ -802,21 +804,21 @@ export default function AdminDashboard() {
                     <button onClick={() => setMobileMenuOpen(false)} className="md:hidden text-gray-400"><X size={24}/></button>
                 </div>
                 <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-                    <SidebarItem icon={<TrendingUp/>} label="Overview" active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} />
-                    <SidebarItem icon={<Bike/>} label="Delivery Approvals" active={activeTab === 'delivery'} onClick={() => setActiveTab('delivery')} />
-                    <SidebarItem icon={<Store/>} label="Manage Hubs" active={activeTab === 'hubs'} onClick={() => setActiveTab('hubs')} />
-                    <SidebarItem icon={<Users/>} label={`Global Users${users.filter((u: any) => u.sellerStatus === 'pending').length > 0 ? ` (${users.filter((u: any) => u.sellerStatus === 'pending').length}⏳)` : ''}`} active={activeTab === 'users'} onClick={() => { setActiveTab('users'); setUserFilter('pending'); }} />
-                    <SidebarItem icon={<ShoppingBag/>} label="Global Orders" active={activeTab === 'orders'} onClick={() => setActiveTab('orders')} />
-                    <SidebarItem icon={<Layers/>} label="Content & Hero" active={activeTab === 'content'} onClick={() => setActiveTab('content')} />
+                    <SidebarItem icon={<TrendingUp/>} label={locale === 'hi' ? 'अवलोकन' : 'Overview'} active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} />
+                    <SidebarItem icon={<Bike/>} label={locale === 'hi' ? 'डिलीवरी स्वीकृति' : 'Delivery Approvals'} active={activeTab === 'delivery'} onClick={() => setActiveTab('delivery')} />
+                    <SidebarItem icon={<Store/>} label={locale === 'hi' ? 'हब प्रबंधन' : 'Manage Hubs'} active={activeTab === 'hubs'} onClick={() => setActiveTab('hubs')} />
+                    <SidebarItem icon={<Users/>} label={`${locale === 'hi' ? 'वैश्विक उपयोगकर्ता' : 'Global Users'}${users.filter((u: any) => u.sellerStatus === 'pending').length > 0 ? ` (${users.filter((u: any) => u.sellerStatus === 'pending').length}⏳)` : ''}`} active={activeTab === 'users'} onClick={() => { setActiveTab('users'); setUserFilter('pending'); }} />
+                    <SidebarItem icon={<ShoppingBag/>} label={locale === 'hi' ? 'वैश्विक ऑर्डर' : 'Global Orders'} active={activeTab === 'orders'} onClick={() => setActiveTab('orders')} />
+                    <SidebarItem icon={<Layers/>} label={locale === 'hi' ? 'सामग्री और हीरो' : 'Content & Hero'} active={activeTab === 'content'} onClick={() => setActiveTab('content')} />
                     <Link href="/admin/catalog" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-gray-500 hover:bg-gray-50">
-                        <Package size={20} /> Product Catalog
+                        <Package size={20} /> {locale === 'hi' ? 'उत्पाद कैटलॉग' : 'Product Catalog'}
                     </Link>
                     <Link href="/admin/stock-requests" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-gray-500 hover:bg-gray-50">
-                        <Truck size={20} /> Hub Stock Requests
+                        <Truck size={20} /> {locale === 'hi' ? 'हब स्टॉक अनुरोध' : 'Hub Stock Requests'}
                     </Link>
                 </nav>
                 <div className="p-4 border-t border-gray-100">
-                    <button onClick={() => signOut()} className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl font-bold transition-all"><LogOut size={20}/> Logout</button>
+                    <button onClick={() => signOut()} className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl font-bold transition-all"><LogOut size={20}/> {locale === 'hi' ? 'लॉगआउट' : 'Logout'}</button>
                 </div>
             </aside>
             
@@ -827,7 +829,7 @@ export default function AdminDashboard() {
                 <header className="flex justify-between items-center mb-8">
                     <div>
                         <h1 className="text-xl md:text-2xl font-bold text-gray-800">
-                            {activeTab === 'content' ? 'Content Management' : 'Dashboard Overview'}
+                            {activeTab === 'content' ? (locale === 'hi' ? 'सामग्री प्रबंधन' : 'Content Management') : (locale === 'hi' ? 'डैशबोर्ड अवलोकन' : 'Dashboard Overview')}
                         </h1>
                          <p className="text-xs md:text-sm text-gray-500 font-medium mt-1">{new Date().toDateString()}</p>
                     </div>

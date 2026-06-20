@@ -4,11 +4,13 @@ import { ArrowLeft, MapPin, Phone, Navigation, CreditCard, Loader2, Package, Sto
 import { useRouter, useParams } from 'next/navigation'
 import axios from 'axios'
 import Image from 'next/image'
+import { useLocale } from 'next-intl'
 
 // Force dynamic rendering to ensure fresh data
 export const dynamic = "force-dynamic";
 
 function OrderDetailsPage() {
+    const locale = useLocale();
     const params = useParams();
     const router = useRouter();
     const [order, setOrder] = useState<any>(null);
@@ -33,8 +35,8 @@ function OrderDetailsPage() {
         if(params.id) fetchOrder();
     }, [params.id]);
 
-    if (loading) return <div className="h-screen flex items-center justify-center text-gray-500"><Loader2 className="animate-spin mr-2"/> Loading...</div>;
-    if (!order) return <div className="h-screen flex items-center justify-center text-gray-500">Order not found</div>;
+    if (loading) return <div className="h-screen flex items-center justify-center text-gray-500"><Loader2 className="animate-spin mr-2"/> {locale === 'hi' ? 'लोड हो रहा है...' : 'Loading...'}</div>;
+    if (!order) return <div className="h-screen flex items-center justify-center text-gray-500">{locale === 'hi' ? 'ऑर्डर नहीं मिला' : 'Order not found'}</div>;
 
     // --- 👇 MODE RESPONSIVE LOGIC ---
     const deliveryType = order.deliveryType || 'home-delivery'; // 'hub-pickup' | 'farm-pickup' | 'home-delivery'
@@ -42,17 +44,17 @@ function OrderDetailsPage() {
 
     // 1. Dynamic Titles & Icons
     const getModeDetails = () => {
-        if (deliveryType === 'hub-pickup') return { title: "Hub Pickup Location", icon: <Store className="text-blue-600" size={18}/>, color: "text-blue-600" };
-        if (deliveryType === 'farm-pickup') return { title: "Farm (Seller) Location", icon: <Store className="text-green-700" size={18}/>, color: "text-green-700" };
-        return { title: "Delivery Address", icon: <MapPin className="text-green-600" size={18}/>, color: "text-green-600" };
+        if (deliveryType === 'hub-pickup') return { title: locale === 'hi' ? 'हब पिकअप स्थान' : "Hub Pickup Location", icon: <Store className="text-blue-600" size={18}/>, color: "text-blue-600" };
+        if (deliveryType === 'farm-pickup') return { title: locale === 'hi' ? 'खेत (विक्रेता) का स्थान' : "Farm (Seller) Location", icon: <Store className="text-green-700" size={18}/>, color: "text-green-700" };
+        return { title: locale === 'hi' ? 'डिलीवरी का पता' : "Delivery Address", icon: <MapPin className="text-green-600" size={18}/>, color: "text-green-600" };
     }
 
     // 2. Dynamic Payment Text
     const getPaymentText = () => {
-        if (order.paymentMethod === 'online') return "Paid Online";
-        if (deliveryType === 'hub-pickup') return "Cash Payment at Hub";
-        if (deliveryType === 'farm-pickup') return "Cash Payment to Seller";
-        return "Cash on Delivery";
+        if (order.paymentMethod === 'online') return locale === 'hi' ? 'ऑनलाइन भुगतान किया गया' : "Paid Online";
+        if (deliveryType === 'hub-pickup') return locale === 'hi' ? 'हब पर नकद भुगतान' : "Cash Payment at Hub";
+        if (deliveryType === 'farm-pickup') return locale === 'hi' ? 'विक्रेता को नकद भुगतान' : "Cash Payment to Seller";
+        return locale === 'hi' ? 'कैश ऑन डिलीवरी' : "Cash on Delivery";
     }
 
     // 3. Dynamic Google Maps Link
@@ -68,7 +70,7 @@ function OrderDetailsPage() {
                         <ArrowLeft size={20} className="text-gray-600"/>
                     </button>
                     <div>
-                        <h1 className='text-lg font-bold text-gray-900'>Order Details</h1>
+                        <h1 className='text-lg font-bold text-gray-900'>{locale === 'hi' ? 'ऑर्डर विवरण' : 'Order Details'}</h1>
                         <p className='text-xs text-gray-500'>#{order._id.slice(-8).toUpperCase()}</p>
                     </div>
                 </div>
@@ -83,7 +85,7 @@ function OrderDetailsPage() {
                             <Package size={24}/>
                         </div>
                         <div>
-                            <p className='text-sm text-gray-500 font-medium uppercase tracking-wide'>Current Status</p>
+                            <p className='text-sm text-gray-500 font-medium uppercase tracking-wide'>{locale === 'hi' ? 'वर्तमान स्थिति' : 'Current Status'}</p>
                             <h2 className='text-xl font-bold text-gray-900 capitalize'>{order.status.replace(/_/g, " ")}</h2>
                         </div>
                     </div>
@@ -106,7 +108,7 @@ function OrderDetailsPage() {
                     <div className='space-y-1 mb-6 pl-1'>
                         {/* Name */}
                         <p className='font-semibold text-gray-800 text-lg'>
-                            {isPickup ? (order.connectedHub?.name || "Pickup Point") : order.address?.fullName}
+                            {isPickup ? (order.connectedHub?.name || (locale === 'hi' ? 'पिकअप पॉइंट' : "Pickup Point")) : order.address?.fullName}
                         </p>
                         
                         {/* Address Text */}
@@ -125,7 +127,7 @@ function OrderDetailsPage() {
                         <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
                             <div className="flex gap-2 items-start text-blue-800 text-xs mb-3">
                                 <Info size={16} className="shrink-0 mt-0.5"/>
-                                <p>Use the map below to navigate to the location for picking up your order.</p>
+                                <p>{locale === 'hi' ? 'अपना ऑर्डर लेने के लिए स्थान पर नेविगेट करने के लिए नीचे दिए गए मानचित्र का उपयोग करें।' : 'Use the map below to navigate to the location for picking up your order.'}</p>
                             </div>
                             <a 
                                 href={googleMapsUrl} 
@@ -133,7 +135,7 @@ function OrderDetailsPage() {
                                 rel="noreferrer"
                                 className='flex items-center justify-center gap-2 w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95'
                             >
-                                <Navigation size={18} /> Navigate via Google Maps
+                                <Navigation size={18} /> {locale === 'hi' ? 'Google मानचित्र के माध्यम से नेविगेट करें' : 'Navigate via Google Maps'}
                             </a>
                         </div>
                     )}
@@ -142,23 +144,23 @@ function OrderDetailsPage() {
                 {/* 3. PAYMENT INFO */}
                 <div className='bg-white rounded-2xl p-6 shadow-sm border border-gray-100'>
                     <h3 className='font-bold text-gray-900 mb-4 flex items-center gap-2'>
-                        <CreditCard size={18} className="text-gray-600"/> Payment Info
+                        <CreditCard size={18} className="text-gray-600"/> {locale === 'hi' ? 'भुगतान जानकारी' : 'Payment Info'}
                     </h3>
                     <div className='flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100'>
-                        <span className='text-sm font-medium text-gray-600'>Method</span>
+                        <span className='text-sm font-medium text-gray-600'>{locale === 'hi' ? 'तरीका' : 'Method'}</span>
                         <span className={`text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wide ${order.paymentMethod === 'online' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
                             {getPaymentText()}
                         </span>
                     </div>
                     <div className='mt-4 flex justify-between items-center px-2'>
-                        <span className='font-bold text-gray-800'>Total Amount</span>
+                        <span className='font-bold text-gray-800'>{locale === 'hi' ? 'कुल राशि' : 'Total Amount'}</span>
                         <span className='font-bold text-xl text-green-700'>₹{order.totalAmount}</span>
                     </div>
                 </div>
 
                 {/* 4. ITEMS LIST */}
                 <div className='bg-white rounded-2xl p-6 shadow-sm border border-gray-100'>
-                    <h3 className='font-bold text-gray-900 mb-4'>Items Ordered</h3>
+                    <h3 className='font-bold text-gray-900 mb-4'>{locale === 'hi' ? 'ऑर्डर किए गए आइटम' : 'Items Ordered'}</h3>
                     <div className='space-y-4'>
                         {order.items.map((item: any, i: number) => (
                             <div key={i} className='flex items-center gap-4 border-b border-gray-50 last:border-0 pb-4 last:pb-0'>

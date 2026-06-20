@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { X, Send, Loader2, Maximize2, Minimize2, Bot } from 'lucide-react'
 import Image from 'next/image'
 import axios from 'axios'
+import { useLocale } from 'next-intl'
 
 interface Message {
     role: 'user' | 'ai';
@@ -11,11 +12,13 @@ interface Message {
 }
 
 export default function GawarAiWidget() {
+    const locale = useLocale();
+    const isHindi = locale === 'hi';
     const [isOpen, setIsOpen] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
     const [input, setInput] = useState("");
     const [messages, setMessages] = useState<Message[]>([
-        { role: 'ai', content: "Ram Ram! 🙏 I am Gawar Ai. Ask me anything about Dehati Sathi!" }
+        { role: 'ai', content: isHindi ? "राम राम! 🙏 मैं गवार AI हूं। देहाती साथी के बारे में कुछ भी पूछें!" : "Ram Ram! 🙏 I am Gawar Ai. Ask me anything about Dehati Sathi!" }
     ]);
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -39,7 +42,7 @@ export default function GawarAiWidget() {
             });
             setMessages(prev => [...prev, { role: 'ai', content: res.data.reply }]);
         } catch (error) {
-            setMessages(prev => [...prev, { role: 'ai', content: "Network issue! Please check your internet." }]);
+            setMessages(prev => [...prev, { role: 'ai', content: isHindi ? "नेटवर्क समस्या! कृपया अपना इंटरनेट जांचें।" : "Network issue! Please check your internet." }]);
         } finally {
             setIsLoading(false);
         }
@@ -78,7 +81,7 @@ export default function GawarAiWidget() {
                             <div>
                                 <h3 className="font-bold text-lg leading-tight">Gawar Ai</h3>
                                 <p className="text-xs text-white/80 flex items-center gap-1">
-                                    <span className="w-2 h-2 bg-green-300 rounded-full animate-pulse"/> Online
+                                    <span className="w-2 h-2 bg-green-300 rounded-full animate-pulse"/> {isHindi ? 'ऑनलाइन' : 'Online'}
                                 </p>
                             </div>
                         </div>
@@ -119,7 +122,7 @@ export default function GawarAiWidget() {
                             <div className="flex justify-start items-center gap-2">
                                 <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 bg-gray-200"></div>
                                 <div className="bg-white p-3 rounded-2xl rounded-bl-none shadow-sm flex gap-2 items-center text-gray-500 text-sm border border-gray-100">
-                                    <Loader2 className="animate-spin w-4 h-4" /> Typing...
+                                    <Loader2 className="animate-spin w-4 h-4" /> {isHindi ? 'टाइप कर रहा है...' : 'Typing...'}
                                 </div>
                             </div>
                         )}
@@ -133,7 +136,7 @@ export default function GawarAiWidget() {
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                            placeholder="Ask me anything..."
+                            placeholder={isHindi ? 'कुछ भी पूछें...' : 'Ask me anything...'}
                             className="flex-1 bg-gray-100 rounded-full px-5 py-3 text-sm outline-none focus:ring-2 focus:ring-[#008069] transition-all"
                         />
                         <button 
