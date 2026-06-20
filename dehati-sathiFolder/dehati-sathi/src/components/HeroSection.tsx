@@ -9,6 +9,7 @@ import Image from 'next/image'
 import axios from 'axios'
 import { useSelector } from 'react-redux'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 // Mapping Icon Names to Components
 const iconMap: any = {

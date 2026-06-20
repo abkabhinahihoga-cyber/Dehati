@@ -27,7 +27,7 @@ async function ProductDetails(props: Props) {
         })
         .lean();
     
-    if (!productRaw) return <div className="p-10 text-center">{isHindi ? 'उत्पाद नहीं मिला' : 'Product Not Found'}</div>;
+    if (!productRaw) return <div className="p-10 text-center">{params.locale === 'hi' ? 'उत्पाद नहीं मिला' : 'Product Not Found'}</div>;
 
     const product = JSON.parse(JSON.stringify(productRaw));
 

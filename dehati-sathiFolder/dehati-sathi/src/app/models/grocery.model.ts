@@ -22,6 +22,7 @@ export interface IGrocery {
     unit: string;
     stock: number;
     images: string[];
+    videoUrl?: string;
     seller: mongoose.Types.ObjectId;
     masterProductId?: mongoose.Types.ObjectId;
     qualityScale?: number; // 1-10 scale

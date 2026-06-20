@@ -1,11 +1,7 @@
 'use client'
 import { 
     LogOut, ShoppingCartIcon, User, X, UserCircle, Store, BookOpen, Briefcase, 
-    Bike, Laptop, Share2, ChevronDown, MapPin, Home, LayoutDashboard, 
-'use client'
-import { 
-    LogOut, ShoppingCartIcon, User, X, UserCircle, Store, BookOpen, Briefcase, 
-    Bike, Laptop, Share2, ChevronDown, MapPin, Home, LayoutDashboard, 
+    Bike, Laptop, Share2, ChevronDown, MapPin, Home, LayoutDashboard,
     ShieldCheck, Tractor, ShoppingBag, Truck, PlayCircle, Wallet, Globe, HelpCircle, Mail, PhoneCall, Instagram, MessageCircle, Loader2
 } from 'lucide-react'
 import { Link, useRouter, usePathname } from '@/i18n/routing'
@@ -246,6 +242,17 @@ function Nav({ user }: { user: INavUser }) {
                                                         <div className="p-2 bg-green-50 rounded-full"><MessageCircle className='w-4 h-4 text-green-500' /></div>
                                                         <span className="font-medium">{t('whatsappChannel')}</span>
                                                     </a>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            </div>
+                    </motion.div>
+                    </>
+                )}
+            </AnimatePresence>,
+            document.body
         );
     };
 

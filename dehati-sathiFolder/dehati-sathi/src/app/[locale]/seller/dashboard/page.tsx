@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { 
     Package, Plus, DollarSign, ListChecks, Store, TrendingUp, 
     Loader2, ArrowLeft, Trash2, CheckCircle, Video, PlayCircle, 
-    Upload, Clock, Users, X, Edit3, Check, MessageCircle, Send, FilePenLine
+    Upload, Clock, Users, X, Edit3, Check, MessageCircle, Send, FilePenLine, MapPin
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
