@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { 
     Package, Plus, DollarSign, ListChecks, Store, TrendingUp, 
     Loader2, ArrowLeft, Trash2, CheckCircle, Video, PlayCircle, 
-    Upload, Clock, Users, X, Edit3, Check, MessageCircle, Send, FilePenLine, MapPin
+    Upload, Clock, Users, X, Edit3, Check, MessageCircle, Send, FilePenLine, MapPin, Share2, ExternalLink
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -461,19 +461,35 @@ function SellerDashboard() {
                                                     </div>
                                                 </div>
                                             )}
-                                            
-                                            <div className="pt-3 border-t border-gray-100">
+                                            <div className="pt-3 border-t border-gray-100 flex flex-col gap-2">
                                                 {isEditing ? (
                                                     <div className="flex gap-2">
                                                         <button onClick={saveQuickEdit} disabled={saving} className="flex-1 bg-green-600 text-white py-2 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-green-700 shadow-sm"><Check size={18}/> Save</button>
                                                         <button onClick={cancelEditing} className="p-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 shadow-sm"><X size={18}/></button>
                                                     </div>
                                                 ) : (
-                                                    <div className="flex gap-2">
-                                                        <button onClick={() => startEditing(item)} className="flex-1 bg-indigo-50 border border-indigo-100 text-indigo-700 py-2 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-100 transition-colors"><Edit3 size={16}/> Edit</button>
-                                                        <Link href={`/seller/edit-product/${item._id}`} className="p-2.5 bg-blue-50 border border-blue-100 text-blue-700 rounded-xl hover:bg-blue-100 transition-colors"><FilePenLine size={18}/></Link>
-                                                        <button onClick={() => handleDelete(item._id)} className="p-2.5 bg-red-50 border border-red-100 text-red-600 rounded-xl hover:bg-red-100 transition-colors"><Trash2 size={18}/></button>
-                                                    </div>
+                                                    <>
+                                                        <div className="flex gap-2">
+                                                            <button onClick={() => {
+                                                                if (navigator.share) {
+                                                                    navigator.share({
+                                                                        title: item.name,
+                                                                        url: `${window.location.origin}/product/${item._id}`
+                                                                    })
+                                                                } else {
+                                                                    navigator.clipboard.writeText(`${window.location.origin}/product/${item._id}`);
+                                                                    toast.success(isHindi ? "लिंक कॉपी किया गया!" : "Link copied!");
+                                                                }
+                                                            }} className="flex-1 bg-gray-50 border border-gray-200 text-gray-700 py-1.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors text-sm"><Share2 size={16}/> {isHindi ? "शेयर" : "Share"}</button>
+                                                            
+                                                            <Link href={`/product/${item._id}`} className="flex-1 bg-gray-50 border border-gray-200 text-gray-700 py-1.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors text-sm"><ExternalLink size={16}/> {isHindi ? "देखें" : "View"}</Link>
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <button onClick={() => startEditing(item)} className="flex-1 bg-indigo-50 border border-indigo-100 text-indigo-700 py-2 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-indigo-100 transition-colors"><Edit3 size={16}/> Edit</button>
+                                                            <Link href={`/seller/edit-product/${item._id}`} className="p-2.5 bg-blue-50 border border-blue-100 text-blue-700 rounded-xl hover:bg-blue-100 transition-colors"><FilePenLine size={18}/></Link>
+                                                            <button onClick={() => handleDelete(item._id)} className="p-2.5 bg-red-50 border border-red-100 text-red-600 rounded-xl hover:bg-red-100 transition-colors"><Trash2 size={18}/></button>
+                                                        </div>
+                                                    </>
                                                 )}
                                             </div>
                                         </div>

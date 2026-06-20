@@ -4,6 +4,8 @@ import MandiBhav from "@/app/models/mandiBhav.model";
 import MasterProduct from "@/app/models/masterProduct.model";
 import Hub from "@/app/models/hub.model";
 
+export const dynamic = "force-dynamic";
+
 // Public route — get mandi bhav for a hub (for buyer home page display)
 export async function GET(req: NextRequest) {
   try {
@@ -13,32 +15,45 @@ export async function GET(req: NextRequest) {
 
     if (!hubId) return NextResponse.json({ success: false, error: "hubId required" }, { status: 400 });
 
-    let hub;
+    let mandiBhavList = [];
+
     if (hubId === 'public') {
-        hub = await Hub.findOne().lean() as any;
-        if (hub) hubId = hub._id.toString();
+        mandiBhavList = await MandiBhav.find({})
+            .limit(30)
+            .populate("masterProductId", "name nameHindi category unit image")
+            .sort({ updatedAt: -1 })
+            .lean();
+
+        // Deduplicate by masterProductId so we only show the latest price for each product
+        const seen = new Set();
+        mandiBhavList = mandiBhavList.filter((mb: any) => {
+            if (!mb.masterProductId) return false;
+            const pid = mb.masterProductId._id.toString();
+            if (seen.has(pid)) return false;
+            seen.add(pid);
+            return true;
+        });
     } else {
-        hub = await Hub.findById(hubId).lean() as any;
-    }
+        const hub = await Hub.findById(hubId).lean() as any;
+        if (!hub) return NextResponse.json({ success: false, error: "Hub not found" }, { status: 404 });
 
-    if (!hub) return NextResponse.json({ success: false, error: "Hub not found" }, { status: 404 });
+        const mongoose = require('mongoose');
+        const hubObjectId = new mongoose.Types.ObjectId(hubId);
+        const enabledProductIds = hub.enabledProducts || [];
 
-    const mongoose = require('mongoose');
-    const hubObjectId = new mongoose.Types.ObjectId(hubId);
+        mandiBhavList = await MandiBhav.find({
+            hubId: hubObjectId,
+            ...(enabledProductIds.length ? { masterProductId: { $in: enabledProductIds } } : {}),
+        }).populate("masterProductId", "name nameHindi category unit image").sort({ updatedAt: -1 }).lean();
 
-    const enabledProductIds = hub.enabledProducts || [];
-    let mandiBhavList = await MandiBhav.find({
-      hubId: hubObjectId,
-      ...(enabledProductIds.length ? { masterProductId: { $in: enabledProductIds } } : {}),
-    }).populate("masterProductId", "name nameHindi category unit image").sort({ updatedAt: -1 }).lean();
-
-    // FALLBACK: If this hub has no MandiBhav data, just fetch any global data
-    if (mandiBhavList.length === 0) {
-      mandiBhavList = await MandiBhav.find({})
-        .limit(12)
-        .populate("masterProductId", "name nameHindi category unit image")
-        .sort({ updatedAt: -1 })
-        .lean();
+        // FALLBACK: If this hub has no MandiBhav data, just fetch any global data
+        if (mandiBhavList.length === 0) {
+            mandiBhavList = await MandiBhav.find({})
+                .limit(12)
+                .populate("masterProductId", "name nameHindi category unit image")
+                .sort({ updatedAt: -1 })
+                .lean();
+        }
     }
 
     const result = mandiBhavList.map((mb: any) => ({

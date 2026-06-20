@@ -267,10 +267,14 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Left: Images */}
+            {/* Left: Images & Video */}
             <div className="lg:col-span-5 space-y-4">
-                <div className="relative aspect-[4/5] bg-white rounded-2xl border border-gray-200 overflow-hidden">
-                    <Image src={mainImage} fill alt={product.name} className="object-contain p-6" />
+                <div className="relative aspect-[4/5] bg-white rounded-2xl border border-gray-200 overflow-hidden flex items-center justify-center">
+                    {mainImage === product.videoUrl ? (
+                        <video src={product.videoUrl} controls autoPlay className="w-full h-full object-contain bg-black" />
+                    ) : (
+                        <Image src={mainImage} fill alt={product.name} className="object-contain p-6" />
+                    )}
                     {isBook && product.bookDetails?.condition && (
                         <div className='absolute top-4 left-4 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md'>
                             {product.bookDetails.condition} Condition
@@ -283,6 +287,11 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                             <Image src={img} fill alt="thumb" className="object-cover rounded-md" />
                         </div>
                     ))}
+                    {product.videoUrl && (
+                        <div onClick={() => setMainImage(product.videoUrl)} className={`relative w-20 h-20 rounded-lg border-2 cursor-pointer flex-shrink-0 bg-gray-900 flex items-center justify-center ${mainImage === product.videoUrl ? 'border-green-600' : 'border-gray-200'}`}>
+                            <div className="text-white text-xs font-bold">▶ Video</div>
+                        </div>
+                    )}
                 </div>
             </div>
 
