@@ -97,22 +97,22 @@ function SellerDashboard() {
 
     const t = {
         back: isHindi ? 'होम पर वापस जाएं' : 'Back to Home',
-        title: isHindi ? 'विक्रेता डैशबोर्ड' : 'Seller Dashboard',
-        subtitle: isHindi ? 'अपनी दुकान, ऑर्डर, संदेश और चैनल प्रबंधित करें।' : 'Manage your shop, orders, messages, and channel.',
-        addReel: isHindi ? 'रील जोड़ें' : 'Add Reel',
-        addProduct: isHindi ? 'उत्पाद जोड़ें' : 'Add Product',
-        revenue: isHindi ? 'कुल आय' : 'Total Revenue',
-        pendingOrders: isHindi ? 'लंबित ऑर्डर' : 'Pending Orders',
+        title: isHindi ? 'दुकानदार डैशबोर्ड' : 'Seller Dashboard',
+        subtitle: isHindi ? 'अपनी दुकान, ग्राहक, और वीडियो प्रबंधित करें।' : 'Manage your shop, orders, messages, and channel.',
+        addReel: isHindi ? 'वीडियो डालें' : 'Add Reel',
+        addProduct: isHindi ? 'सामान जोड़ें' : 'Add Product',
+        revenue: isHindi ? 'कुल कमाई' : 'Total Revenue',
+        pendingOrders: isHindi ? 'पेंडिंग ऑर्डर' : 'Pending Orders',
         followers: isHindi ? 'फॉलोअर्स' : 'Followers',
-        activeChats: isHindi ? 'सक्रिय चैट' : 'Active Chats',
-        tabInventory: isHindi ? 'मेरी इन्वेंटरी' : 'My Inventory',
-        tabOrders: isHindi ? 'ग्राहक ऑर्डर' : 'Customer Orders',
-        tabMessages: isHindi ? 'संदेश' : 'Messages',
-        tabChannel: isHindi ? 'चैनल और समुदाय' : 'Channel & Community',
-        product: isHindi ? 'उत्पाद' : 'Product',
+        activeChats: isHindi ? 'मैसेज' : 'Active Chats',
+        tabInventory: isHindi ? 'मेरा सामान' : 'My Inventory',
+        tabOrders: isHindi ? 'ऑर्डर' : 'Customer Orders',
+        tabMessages: isHindi ? 'मैसेज' : 'Messages',
+        tabChannel: isHindi ? 'वीडियो (रील्स)' : 'Channel & Community',
+        product: isHindi ? 'सामान' : 'Product',
         prices: isHindi ? 'मूल्य (W/R)' : 'Prices (W/R)',
         stock: isHindi ? 'स्टॉक' : 'Stock',
-        actions: isHindi ? 'कार्रवाई' : 'Actions',
+        actions: isHindi ? 'बदलाव' : 'Actions',
         noOrders: isHindi ? 'कोई ऑर्डर नहीं मिला।' : 'No orders found.',
         orderId: isHindi ? 'ऑर्डर ID' : 'Order ID',
         customer: isHindi ? 'ग्राहक' : 'Customer',
@@ -123,26 +123,26 @@ function SellerDashboard() {
         reply: isHindi ? 'उत्तर दें' : 'Reply',
         recentFollowers: isHindi ? 'हाल ही के फॉलोअर्स' : 'Recent Followers',
         noFollowersYet: isHindi ? 'अभी तक कोई फॉलोअर्स नहीं।' : 'No followers yet.',
-        yourReels: isHindi ? 'आपकी रील्स' : 'Your Reels',
-        noReels: isHindi ? 'अभी तक कोई रील अपलोड नहीं की गई' : 'No Reels Uploaded Yet',
-        boostEngagement: isHindi ? 'छोटे वीडियो के साथ जुड़ाव बढ़ाएं!' : 'Boost engagement with short videos!',
-        uploadReel: isHindi ? 'रील अपलोड करें' : 'Upload Reel',
-        uploadNewReel: isHindi ? 'नई रील अपलोड करें' : 'Upload New Reel',
+        yourReels: isHindi ? 'आपके वीडियो' : 'Your Reels',
+        noReels: isHindi ? 'अभी तक कोई वीडियो अपलोड नहीं किया गया' : 'No Reels Uploaded Yet',
+        boostEngagement: isHindi ? 'छोटे वीडियो के साथ बिक्री बढ़ाएं!' : 'Boost engagement with short videos!',
+        uploadReel: isHindi ? 'वीडियो अपलोड करें' : 'Upload Reel',
+        uploadNewReel: isHindi ? 'नया वीडियो अपलोड करें' : 'Upload New Reel',
         clickSelectVideo: isHindi ? 'वीडियो चुनने के लिए क्लिक करें' : 'Click to select video',
         caption: isHindi ? 'कैप्शन लिखें...' : 'Write a caption...',
-        linkProduct: isHindi ? '-- उत्पाद लिंक करें (वैकल्पिक) --' : '-- Link Product (Optional) --',
+        linkProduct: isHindi ? '-- सामान लिंक करें (वैकल्पिक) --' : '-- Link Product (Optional) --',
         uploading: isHindi ? 'अपलोड हो रहा है...' : 'Uploading...',
-        publishReel: isHindi ? 'रील प्रकाशित करें' : 'Publish Reel',
-        deleteProduct: isHindi ? 'क्या आप इस उत्पाद को हटाना चाहते हैं?' : 'Delete this product?',
-        productDeleted: isHindi ? 'उत्पाद हटा दिया गया' : 'Product deleted',
+        publishReel: isHindi ? 'वीडियो डालें' : 'Publish Reel',
+        deleteProduct: isHindi ? 'क्या आप इस सामान को हटाना चाहते हैं?' : 'Delete this product?',
+        productDeleted: isHindi ? 'सामान हटा दिया गया' : 'Product deleted',
         failedDelete: isHindi ? 'हटाने में विफल' : 'Failed to delete',
         updatedSuccess: isHindi ? 'सफलतापूर्वक अपडेट किया गया' : 'Updated successfully',
         updateFailed: isHindi ? 'अपडेट करने में विफल' : 'Failed to update',
         statusUpdated: isHindi ? 'स्थिति अपडेट की गई' : 'Order marked as',
         loadFailed: isHindi ? 'डेटा लोड करने में विफल' : 'Failed to load dashboard data',
-        deleteReelPrompt: isHindi ? 'क्या आप इस रील को हटाना चाहते हैं?' : 'Delete this reel?',
-        reelDeleted: isHindi ? 'रील हटा दी गई' : 'Reel deleted',
-        reelUploadSuccess: isHindi ? 'रील सफलतापूर्वक अपलोड हुई!' : 'Reel uploaded successfully!',
+        deleteReelPrompt: isHindi ? 'क्या आप इस वीडियो को हटाना चाहते हैं?' : 'Delete this reel?',
+        reelDeleted: isHindi ? 'वीडियो हटा दिया गया' : 'Reel deleted',
+        reelUploadSuccess: isHindi ? 'वीडियो सफलतापूर्वक अपलोड हुआ!' : 'Reel uploaded successfully!',
     }
 
     // --- INITIAL FETCH ---
@@ -400,12 +400,12 @@ function SellerDashboard() {
                 </div>
 
                 {/* --- TABS --- */}
-                <div className='flex gap-4 border-b border-gray-200 mb-6 overflow-x-auto'>
+                <div className='flex gap-4 border-b border-gray-200 mb-6 overflow-x-auto pb-2'>
                     {['inventory', 'orders', 'messages', 'channel'].map(tab => (
                         <button 
                             key={tab}
                             onClick={() => setActiveTab(tab as any)}
-                            className={`pb-3 px-4 font-semibold text-sm transition-all whitespace-nowrap capitalize ${activeTab === tab ? 'text-green-700 border-b-2 border-green-600' : 'text-gray-500 hover:text-gray-800'}`}
+                            className={`pb-2 px-4 text-base sm:text-lg font-bold transition-all whitespace-nowrap capitalize rounded-t-xl ${activeTab === tab ? 'text-green-800 border-b-4 border-green-600 bg-green-50' : 'text-gray-500 hover:text-gray-800 hover:bg-gray-50'}`}
                         >
                             {tab === 'channel' ? t.tabChannel : tab === 'orders' ? t.tabOrders : tab === 'messages' ? t.tabMessages : t.tabInventory}
                         </button>

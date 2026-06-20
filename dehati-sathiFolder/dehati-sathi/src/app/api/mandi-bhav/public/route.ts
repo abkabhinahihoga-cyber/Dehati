@@ -23,9 +23,12 @@ export async function GET(req: NextRequest) {
 
     if (!hub) return NextResponse.json({ success: false, error: "Hub not found" }, { status: 404 });
 
+    const mongoose = require('mongoose');
+    const hubObjectId = new mongoose.Types.ObjectId(hubId);
+
     const enabledProductIds = hub.enabledProducts || [];
     let mandiBhavList = await MandiBhav.find({
-      hubId,
+      hubId: hubObjectId,
       ...(enabledProductIds.length ? { masterProductId: { $in: enabledProductIds } } : {}),
     }).populate("masterProductId", "name nameHindi category unit image").sort({ updatedAt: -1 }).lean();
 

@@ -10,8 +10,29 @@ import { decreaseQuantity, increaseQuantity, removeFromCart, setDeliveryType, se
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { toast } from 'sonner' // Ensure you have sonner or use standard alert
+import { useTranslations, useLocale } from 'next-intl'
 
 function CartPage() {
+  const t = useTranslations('Nav')
+  const isHindi = useLocale() === 'hi'
+  const tCart = {
+      back: isHindi ? 'वापस जाएं' : 'Back to Home',
+      yourCart: isHindi ? '🛒 आपकी शॉपिंग कार्ट' : '🛒 Your Shopping Cart',
+      empty: isHindi ? 'आपकी कार्ट खाली है।' : 'Your cart is empty.',
+      continue: isHindi ? 'खरीदारी जारी रखें' : 'Continue Shopping',
+      hubProduct: isHindi ? 'हब उत्पाद' : 'Hub Product',
+      sellerProduct: isHindi ? 'विक्रेता उत्पाद' : 'Seller Product',
+      orderSummary: isHindi ? 'ऑर्डर सारांश' : 'Order Summary',
+      hubPickup: isHindi ? 'हब पिकअप' : 'Hub Pickup',
+      farmPickup: isHindi ? 'फार्म पिकअप' : 'Farm Pickup',
+      homeDelivery: isHindi ? 'होम डिलीवरी' : 'Home Delivery',
+      calculating: isHindi ? 'लॉजिस्टिक्स की गणना...' : 'Calculating logistics...',
+      subtotal: isHindi ? 'उपकुल' : 'Subtotal',
+      deliveryFee: isHindi ? 'डिलीवरी शुल्क' : 'Delivery Fee',
+      platformFee: isHindi ? 'प्लेटफॉर्म शुल्क' : 'Platform Fee',
+      waived: isHindi ? 'माफ किया गया' : 'Waived',
+      total: isHindi ? 'कुल' : 'Total',
+  }
   const { cartData, subTotal, deliveryFee, platformFee, finalTotal, deliveryType, distanceToHub } = useSelector((state: RootState) => state.cart)
   const { latitude, longitude } = useSelector((state: RootState) => state.location)
   const dispatch = useDispatch<AppDispatch>()
@@ -143,7 +164,7 @@ function CartPage() {
     <div className='w-[95%] sm:w-[90%] md:w-[80%] mx-auto mt-8 mb-24 relative'>
       <Link href={"/"} className='absolute -top-2 left-0 flex items-center gap-2 text-green-700 hover:text-green-800 font-medium transition-all'>
         <ArrowLeft size={20} />
-        <span className='hidden sm:inline'>Back to Home</span>
+        <span className='hidden sm:inline'>{tCart.back}</span>
       </Link>
       
       <motion.h2
@@ -151,7 +172,7 @@ function CartPage() {
         animate={{ opacity: 1, y: 0 }}
         className='text-2xl sm:text-3xl md:text-4xl font-bold text-green-700 text-center mb-10'
       >
-        🛒 Your Shopping Cart
+        {tCart.yourCart}
       </motion.h2>
 
       {cartData.length === 0 ? (
@@ -161,9 +182,9 @@ function CartPage() {
           className='text-center py-20 bg-white rounded-2xl shadow-md'
         >
           <ShoppingBasket className='w-16 h-16 text-gray-400 mx-auto mb-4' />
-          <p className='text-gray-600 text-lg mb-6'>Your cart is empty.</p>
+          <p className='text-gray-600 text-lg mb-6'>{tCart.empty}</p>
           <Link href={"/"} className='bg-green-600 text-white px-6 py-3 rounded-full hover:bg-green-700'>
-            Continue Shopping
+            {tCart.continue}
           </Link>
         </motion.div>
       ) : (
@@ -194,7 +215,7 @@ function CartPage() {
                       <h3 className='text-base font-semibold text-gray-800'>{item.name}</h3>
                       <div className='flex items-center justify-center sm:justify-start gap-2'>
                           <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${item.sellerType === 'hub' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
-                              {item.sellerType === 'hub' ? 'Hub Product' : 'Seller Product'}
+                              {item.sellerType === 'hub' ? tCart.hubProduct : tCart.sellerProduct}
                           </span>
                       </div>
                       
@@ -223,7 +244,7 @@ function CartPage() {
             animate={{opacity:1,x:0}}
             className='bg-white rounded-2xl shadow-xl p-6 h-fit sticky top-24 border border-gray-100 flex flex-col'
           >
-            <h2 className='text-lg sm:text-xl font-bold text-gray-800 mb-4'>Order Summary</h2>
+            <h2 className='text-lg sm:text-xl font-bold text-gray-800 mb-4'>{tCart.orderSummary}</h2>
             
             {/* 👇 DELIVERY TOGGLES */}
             <div className='flex flex-col gap-2 mb-6'>
@@ -234,7 +255,7 @@ function CartPage() {
                         onClick={() => dispatch(setDeliveryType('hub-pickup'))} 
                         className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all duration-300 ${deliveryType === 'hub-pickup' ? 'bg-white text-green-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                     >
-                        <Store size={14} /> Hub Pickup
+                        <Store size={14} /> {tCart.hubPickup}
                     </button>
 
                     {/* FARM PICKUP (Conditional) */}
@@ -246,7 +267,7 @@ function CartPage() {
                                 ${cartAnalysis.farmPickupStatus === 'disabled' ? 'opacity-50 cursor-not-allowed bg-gray-200 text-gray-400' : 'hover:text-gray-700'}
                             `}
                         >
-                            <Store size={14} /> Farm Pickup
+                            <Store size={14} /> {tCart.farmPickup}
                         </button>
                     )}
                 </div>
@@ -270,7 +291,7 @@ function CartPage() {
                         ${distanceToHub > 3500 ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}
                     `}
                 >
-                    <Truck size={14} /> Home Delivery
+                    <Truck size={14} /> {tCart.homeDelivery}
                 </button>
                 
                 {/* Distance Warning for Home Delivery */}
@@ -285,7 +306,7 @@ function CartPage() {
             {/* DYNAMIC DISTANCE DISPLAY */}
             {loadingDistances ? (
                 <div className='mb-4 p-4 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center text-xs text-gray-400 gap-2'>
-                    <Loader2 className="animate-spin" size={14}/> Calculating logistics...
+                    <Loader2 className="animate-spin" size={14}/> {tCart.calculating}
                 </div>
             ) : (
                 distanceToHub > 0 && (
@@ -342,24 +363,24 @@ function CartPage() {
             {/* BILLING */}
             <div className='space-y-3 text-gray-700 text-sm sm:text-base'>
               <div className='flex justify-between'>
-                  <span>Subtotal</span>
+                  <span>{tCart.subtotal}</span>
                   <span className='text-green-700 font-semibold'>₹{subTotal}</span>
               </div>
               <div className='flex justify-between'>
                   <span className='flex items-center gap-1'>
-                    Delivery Fee {deliveryType !== 'home-delivery' && <span className='text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full'>Waived</span>}
+                    {tCart.deliveryFee} {deliveryType !== 'home-delivery' && <span className='text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full'>{tCart.waived}</span>}
                   </span>
                   <span className={`${deliveryType !== 'home-delivery' ? 'text-gray-400 line-through' : 'text-green-700 font-semibold'}`}>₹{deliveryFee}</span>
               </div>
               <div className='flex justify-between'>
                   <span className='flex items-center gap-1'>
-                    Platform Fee {deliveryType === 'farm-pickup' && <span className='text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full'>Waived</span>}
+                    {tCart.platformFee} {deliveryType === 'farm-pickup' && <span className='text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full'>{tCart.waived}</span>}
                   </span>
                   <span className={`${deliveryType === 'farm-pickup' ? 'text-gray-400 line-through' : 'text-green-700 font-semibold'}`}>₹{platformFee}</span>
               </div>
               <hr className='my-3'/>
               <div className='flex justify-between font-bold text-lg sm:text-xl'>
-                  <span>Total</span>
+                  <span>{tCart.total}</span>
                   <span className='text-green-700 font-semibold'>₹{finalTotal}</span>
               </div>
             </div>
@@ -377,7 +398,7 @@ function CartPage() {
                   router.push("/user/checkout");
               }}
             >
-              {deliveryType === 'home-delivery' ? 'Proceed to Delivery' : 'Proceed to Pickup'}
+              {deliveryType === 'home-delivery' ? t('proceedToDelivery') : t('proceedToPickup')}
             </motion.button>
           </motion.div>
         </div>

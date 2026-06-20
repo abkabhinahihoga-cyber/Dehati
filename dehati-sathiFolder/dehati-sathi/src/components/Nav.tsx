@@ -2,7 +2,11 @@
 import { 
     LogOut, ShoppingCartIcon, User, X, UserCircle, Store, BookOpen, Briefcase, 
     Bike, Laptop, Share2, ChevronDown, MapPin, Home, LayoutDashboard, 
-    ShieldCheck, Tractor, ShoppingBag, Truck, PlayCircle, Wallet, Globe, HelpCircle, Mail, PhoneCall, Instagram, MessageCircle
+'use client'
+import { 
+    LogOut, ShoppingCartIcon, User, X, UserCircle, Store, BookOpen, Briefcase, 
+    Bike, Laptop, Share2, ChevronDown, MapPin, Home, LayoutDashboard, 
+    ShieldCheck, Tractor, ShoppingBag, Truck, PlayCircle, Wallet, Globe, HelpCircle, Mail, PhoneCall, Instagram, MessageCircle, Loader2
 } from 'lucide-react'
 import { Link, useRouter, usePathname } from '@/i18n/routing'
 import React, { useEffect, useState } from 'react'
@@ -39,7 +43,7 @@ function Nav({ user }: { user: INavUser }) {
     const t = useTranslations('Nav');
     const common = useTranslations('Common');
     
-    // ðŸ‘‡ FIX: Destructure toggle from context
+    // 👇 FIX: Destructure toggle from context
     const { isOpen, close, toggle } = useSidebar(); 
     
     const [jobsOpen, setJobsOpen] = useState(true)
@@ -47,6 +51,7 @@ function Nav({ user }: { user: INavUser }) {
     const [mounted, setMounted] = useState(false)
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
     const [isHubModalOpen, setIsHubModalOpen] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [connections, setConnections] = useState<any[]>([]);
     
     const dispatch = useDispatch();
@@ -241,32 +246,6 @@ function Nav({ user }: { user: INavUser }) {
                                                         <div className="p-2 bg-green-50 rounded-full"><MessageCircle className='w-4 h-4 text-green-500' /></div>
                                                         <span className="font-medium">{t('whatsappChannel')}</span>
                                                     </a>
-                                                    <div className='mt-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg flex items-center gap-3'>
-                                                        <div className="w-10 h-10 rounded-full bg-blue-100 border-2 border-white shadow-sm flex items-center justify-center shrink-0">
-                                                            <User className="w-5 h-5 text-blue-600" />
-                                                        </div>
-                                                        <div>
-                                                            <div className="text-xs text-blue-500 font-bold uppercase tracking-wider">Founder</div>
-                                                            <div className="text-sm font-black text-gray-800">Vaibhav Patel</div>
-                                                            <p className="text-[10px] text-gray-500 mt-0.5 leading-tight">Mechanical Engineering Student</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </div>
-                            </div>
-                            <div className='p-4 border-t border-gray-100'>
-                                <button onClick={() => signOut({ callbackUrl: "/login" })} className='w-full flex items-center justify-center gap-2 text-red-600 bg-red-50 font-bold text-sm p-3 rounded-xl hover:bg-red-100 transition-all'>
-                                    <LogOut className='w-4 h-4' /> {t('logOut')}
-                                </button>
-                            </div>
-                        </motion.div>
-                    </>
-                )}
-            </AnimatePresence>,
-            document.body
         );
     };
 

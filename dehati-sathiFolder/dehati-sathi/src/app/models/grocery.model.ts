@@ -64,6 +64,7 @@ const grocerySchema = new Schema<IGrocery>(
         unit: { type: String, required: true },
         stock: { type: Number, default: 0 },
         images: [{ type: String }],
+        videoUrl: { type: String },
         seller: { type: Schema.Types.ObjectId, ref: "User", required: true },
         masterProductId: { type: Schema.Types.ObjectId, ref: "MasterProduct" },
         qualityScale: { type: Number, min: 1, max: 10, default: 5 },

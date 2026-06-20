@@ -45,6 +45,11 @@ function AddGroceryForm() {
   const [videoFile, setVideoFile] = useState<File | null>(null)
   const [videoPreview, setVideoPreview] = useState<string | null>(null)
   const [videoDuration, setVideoDuration] = useState<number>(0)
+  
+  // Video Upload Progress State
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [timeLeft, setTimeLeft] = useState<string | null>(null)
+  const uploadStartTime = React.useRef<number>(0)
 
   const t = {
     selectProduct: isHindi ? 'बेचने के लिए उत्पाद चुनें' : 'Select Product to Sell',
@@ -148,7 +153,67 @@ function AddGroceryForm() {
     if (imageFiles.length === 0) return toast.error(t.addPhotoError)
 
     setLoading(true)
+    
     try {
+      let finalVideoUrl = "";
+
+      // --- CLOUDINARY DIRECT UPLOAD FOR VIDEO ---
+      if (videoFile) {
+        setUploadProgress(0)
+        setTimeLeft("Calculating...")
+        uploadStartTime.current = Date.now()
+
+        // 1. Get Signature
+        const timestamp = Math.round((new Date()).getTime() / 1000);
+        const paramsToSign = {
+            timestamp: timestamp,
+            folder: "dehati_reels",
+            eager: "w_300,h_300,c_pad,ac_none", 
+        };
+
+        const signRes = await axios.post("/api/auth/cloudinary-sign", { paramsToSign });
+        const { signature, apiKey, cloudName } = signRes.data;
+
+        if (!apiKey || !cloudName) throw new Error("Server configuration error for Cloudinary");
+
+        // 2. Upload Video directly to Cloudinary
+        const clFormData = new FormData();
+        clFormData.append("file", videoFile);
+        clFormData.append("api_key", apiKey);
+        clFormData.append("timestamp", timestamp.toString());
+        clFormData.append("signature", signature);
+        clFormData.append("folder", "dehati_reels");
+        clFormData.append("eager", "w_300,h_300,c_pad,ac_none");
+
+        const uploadRes = await axios.post(
+            `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, 
+            clFormData, 
+            {
+                onUploadProgress: (progressEvent) => {
+                    const total = progressEvent.total || 0;
+                    const current = progressEvent.loaded;
+                    const percent = Math.round((current * 100) / total);
+                    setUploadProgress(percent);
+
+                    if (percent > 0 && percent < 100) {
+                        const timeElapsed = (Date.now() - uploadStartTime.current) / 1000;
+                        const uploadSpeed = current / timeElapsed; 
+                        const remainingBytes = total - current;
+                        if (uploadSpeed > 0) {
+                            const secondsLeft = Math.round(remainingBytes / uploadSpeed);
+                            setTimeLeft(secondsLeft < 60 ? `${secondsLeft}s remaining` : `${Math.ceil(secondsLeft / 60)}m remaining`);
+                        }
+                    } else if (percent === 100) {
+                        setTimeLeft("Processing video...");
+                    }
+                }
+            }
+        );
+
+        finalVideoUrl = uploadRes.data.secure_url;
+      }
+
+      // --- FORM DATA TO BACKEND ---
       const formData = new FormData()
       formData.append('name', selectedProduct.name)
       formData.append('category', selectedProduct.category)
@@ -161,8 +226,9 @@ function AddGroceryForm() {
       formData.append('wholesalePrice', wholesalePrice)
       formData.append('qualityScale', qualityScale.toString())
       formData.append('productType', 'grocery')
+      if (finalVideoUrl) formData.append('videoUrl', finalVideoUrl)
+      
       imageFiles.forEach(file => formData.append('images', file))
-      if (videoFile) formData.append('video', videoFile)
 
       await axios.post('/api/seller/add-product', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -171,9 +237,13 @@ function AddGroceryForm() {
       toast.success(isHindi ? 'उत्पाद सफलतापूर्वक जोड़ा गया!' : 'Grocery Item Added Successfully!')
       router.push('/seller/dashboard')
     } catch (error: any) {
-      toast.error('Failed: ' + (error.response?.data?.error || 'Server Error'))
+      console.error("Upload failed", error);
+      if (error.code === 'ECONNABORTED') toast.error("Upload timed out. Check internet.");
+      else toast.error('Failed: ' + (error.response?.data?.error || error.message || 'Server Error'));
     } finally {
       setLoading(false)
+      setUploadProgress(0)
+      setTimeLeft(null)
     }
   }
 
@@ -459,6 +529,21 @@ function AddGroceryForm() {
         </div>
 
         {/* Submit Button */}
+        {uploadProgress > 0 && uploadProgress < 100 && (
+            <div className="py-2 space-y-2 bg-orange-50 p-4 rounded-xl mt-4">
+                <div className="flex justify-between text-xs font-bold text-orange-800">
+                    <span>{t.publishing} (Video)</span>
+                    <span>{uploadProgress}%</span>
+                </div>
+                <div className="w-full bg-white rounded-full h-2.5 overflow-hidden border border-orange-200">
+                    <div className="bg-orange-500 h-2.5 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
+                </div>
+                <div className="flex items-center justify-center gap-1.5 text-xs text-orange-700 font-medium pt-1">
+                    <span>⏳ {timeLeft || "Estimating..."}</span>
+                </div>
+            </div>
+        )}
+
         <button
           disabled={loading || imageFiles.length === 0}
           className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
