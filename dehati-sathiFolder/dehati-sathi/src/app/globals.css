@@ -235,6 +235,44 @@ body {
   }
 }
 
+@keyframes onboardingAssistantPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.32);
+    opacity: 0.8;
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes onboardingAssistantPing {
+  0% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  80%, 100% {
+    transform: scale(1.85);
+    opacity: 0;
+  }
+}
+
+.onboarding-assistant-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.2) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.onboarding-assistant-pulse {
+  animation: onboardingAssistantPulse 2.4s ease-in-out infinite;
+}
+
+.onboarding-assistant-ping {
+  animation: onboardingAssistantPing 1.8s ease-out infinite;
+  background: rgba(22, 163, 74, 0.35);
+}
+
 /* Animation utility classes */
 .animate-fadeInUp {
   animation: fadeInUp 0.5s var(--ease-smooth) both;

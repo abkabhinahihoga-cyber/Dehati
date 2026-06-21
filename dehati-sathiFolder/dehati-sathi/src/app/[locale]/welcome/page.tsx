@@ -33,6 +33,10 @@ function WelcomePage() {
     const [isPending, startTransition] = useTransition()
     const [referralInput, setReferralInput] = useState('')
 
+    useEffect(() => {
+        window.dispatchEvent(new CustomEvent('dehati:onboarding-step', { detail: { step, language } }));
+    }, [step, language]);
+
     // Apply pending referral code for Google signups
     useEffect(() => {
         const pendingCode = localStorage.getItem('pendingReferralCode');
