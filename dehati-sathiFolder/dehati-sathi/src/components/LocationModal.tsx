@@ -8,6 +8,7 @@ import { updateLocation, addSavedAddress, removeSavedAddress, setAllAddresses, S
 import dynamic from 'next/dynamic'
 import axios from 'axios'
 import { nanoid } from '@reduxjs/toolkit'
+import { useLocale } from 'next-intl'
 
 // Dynamic Map Import
 const CheckoutMap = dynamic(() => import('./CheckoutMap'), { 
@@ -30,6 +31,8 @@ interface LocationModalProps {
 
 export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
     const dispatch = useDispatch();
+    const locale = useLocale();
+    const isHindi = locale === 'hi';
     const { mode } = useSelector((state: RootState) => state.mode);
     const { savedAddresses, latitude, longitude } = useSelector((state: RootState) => state.location);
     
@@ -232,8 +235,8 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
                             <>
                                 <div className="px-6 py-5 bg-white border-b border-gray-100 flex items-center justify-between sticky top-0 z-10">
                                     <div>
-                                        <h3 className="text-xl font-black text-gray-800 tracking-tight">Select Location</h3>
-                                        <p className="text-xs text-gray-500 font-medium mt-0.5">Where should we deliver?</p>
+                                        <h3 className="text-xl font-black text-gray-800 tracking-tight">स्थान चुनें</h3>
+                                        <p className="text-xs text-gray-500 font-medium mt-0.5">डिलीवरी कहां भेजनी है?</p>
                                     </div>
                                     <button onClick={onClose} className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"><X size={18} className="text-gray-600"/></button>
                                 </div>
@@ -244,34 +247,35 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
                                         <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none ${themeColor}`}>
                                             <Search className="h-5 w-5" />
                                         </div>
-                                        <input readOnly type="text" placeholder="Search area, pincode..." className="block w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium text-gray-900 focus:outline-none cursor-pointer hover:bg-white hover:border-gray-300 transition-all" />
+                                        <input readOnly type="text" placeholder="गांव, कस्बा या पिनकोड खोजें..." className="block w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-xl text-sm font-medium text-gray-900 focus:outline-none cursor-pointer hover:bg-white hover:border-gray-300 transition-all" />
                                     </div>
 
                                     <div className="grid grid-cols-1 gap-3">
-                                        <button onClick={handleGPS} disabled={resolving} className={`flex items-center gap-4 p-4 rounded-xl border border-transparent bg-white shadow-sm hover:shadow-md transition-all group text-left ${resolving ? 'opacity-70' : ''}`}>
-                                            <div className={`p-3 rounded-full ${bgLight} ${themeColor} group-hover:scale-110 transition-transform`}>
+                                        <button onClick={handleGPS} disabled={resolving} className={`relative flex items-center gap-4 p-5 rounded-2xl border-2 ${isGrocery ? 'border-green-500 bg-green-50 shadow-[0_12px_30px_rgba(22,163,74,0.18)]' : 'border-indigo-500 bg-indigo-50 shadow-[0_12px_30px_rgba(79,70,229,0.18)]'} hover:shadow-lg transition-all group text-left ${resolving ? 'opacity-80' : ''}`}>
+                                            <div className="absolute right-4 top-3 rounded-full bg-white px-2.5 py-1 text-[10px] font-black text-green-700 shadow-sm">सबसे आसान</div>
+                                            <div className={`p-3 rounded-full bg-white ${themeColor} group-hover:scale-110 transition-transform shadow-sm`}>
                                                 {resolving ? <Loader2 size={20} className="animate-spin"/> : <Navigation size={20} fill="currentColor" />}
                                             </div>
                                             <div>
-                                                <h4 className={`font-bold text-sm ${themeColor}`}>Use Current Location</h4>
-                                                <p className="text-xs text-gray-400 mt-0.5">Using GPS</p>
+                                                <h4 className={`font-black text-base ${themeColor}`}>वर्तमान लोकेशन इस्तेमाल करें</h4>
+                                                <p className="text-xs text-gray-600 mt-0.5">GPS से अपने-आप पता भर जाएगा</p>
                                             </div>
                                         </button>
 
                                         <button onClick={() => setView('editor')} className="flex items-center gap-4 p-4 rounded-xl border border-dashed border-gray-300 bg-transparent hover:bg-white hover:border-gray-400 hover:shadow-sm transition-all group text-left">
                                             <div className="p-3 rounded-full bg-gray-100 text-gray-500 group-hover:scale-110 transition-transform"><Plus size={20}/></div>
                                             <div>
-                                                <h4 className="font-bold text-sm text-gray-700">Add Manual Address</h4>
-                                                <p className="text-xs text-gray-400 mt-0.5">Search on map or enter details</p>
+                                                <h4 className="font-bold text-sm text-gray-700">मैनुअल पता जोड़ें</h4>
+                                                <p className="text-xs text-gray-400 mt-0.5">मैप पर खोजें या खुद भरें</p>
                                             </div>
                                         </button>
                                     </div>
 
                                     {/* Saved List */}
                                     <div>
-                                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 ml-1">Saved Addresses</h4>
+                                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 ml-1">सेव किए पते</h4>
                                         {savedAddresses.length === 0 ? (
-                                            <div className="text-center py-8 bg-gray-50 rounded-2xl border border-dashed text-gray-400 text-sm">No addresses found.</div>
+                                            <div className="text-center py-8 bg-gray-50 rounded-2xl border border-dashed text-gray-400 text-sm">अभी कोई पता सेव नहीं है.</div>
                                         ) : (
                                             <div className="space-y-3">
                                                 {savedAddresses.map((addr) => (
@@ -308,7 +312,7 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
                                             onKeyDown={handleSearchKeyDown}
                                             onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
                                             type="text" 
-                                            placeholder="Search village, city, pincode..." 
+                                            placeholder={isHindi ? 'गांव, कस्बा, पिनकोड खोजें...' : 'Search village, city, pincode...'}
                                             className="flex-1 px-3 py-2.5 text-sm font-semibold text-gray-800 outline-none bg-transparent placeholder:text-gray-400" 
                                             autoFocus
                                         />
@@ -357,7 +361,7 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
                                         {resolving && (
                                             <div className="absolute bottom-4 left-4 z-[500] bg-white px-3 py-2 rounded-full shadow-lg border border-gray-200 flex items-center gap-2">
                                                 <Loader2 size={14} className="animate-spin text-blue-600" />
-                                                <span className="text-xs font-bold text-gray-600">Fetching address...</span>
+                                                <span className="text-xs font-bold text-gray-600">{isHindi ? 'पता खोजा जा रहा है...' : 'Fetching address...'}</span>
                                             </div>
                                         )}
                                     </div>
@@ -368,24 +372,24 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
                                         <div className={`p-3 rounded-xl bg-blue-50 border border-blue-100 flex items-start gap-3`}>
                                             <Globe size={16} className="text-blue-600 mt-0.5 shrink-0"/>
                                             <div className="flex-1">
-                                                <label className="text-[10px] font-bold text-blue-400 uppercase tracking-wider block mb-1">Detected Address</label>
-                                                <textarea rows={2} value={fullAddress} onChange={e => setFullAddress(e.target.value)} className="w-full bg-transparent text-sm font-semibold text-blue-900 outline-none resize-none placeholder:text-blue-300" placeholder="Tap on map or search above..."/>
+                                                <label className="text-[10px] font-bold text-blue-400 uppercase tracking-wider block mb-1">{isHindi ? 'पता लगाया गया' : 'Detected Address'}</label>
+                                                <textarea rows={2} value={fullAddress} onChange={e => setFullAddress(e.target.value)} className="w-full bg-transparent text-sm font-semibold text-blue-900 outline-none resize-none placeholder:text-blue-300" placeholder={isHindi ? 'मैप पर टैप करें या ऊपर खोजें...' : 'Tap on map or search above...'}/>
                                             </div>
                                         </div>
 
                                         {/* Manual Fields */}
                                         <div className="grid grid-cols-2 gap-3">
-                                            <InputField icon={Milestone} label="Village / Street" value={manualFields.village} field="village" />
-                                            <InputField icon={Building2} label="City / District" value={manualFields.city} field="city" />
+                                            <InputField icon={Milestone} label={isHindi ? 'गांव / सड़क' : 'Village / Street'} value={manualFields.village} field="village" />
+                                            <InputField icon={Building2} label={isHindi ? 'शहर / जिला' : 'City / District'} value={manualFields.city} field="city" />
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
-                                            <InputField icon={Flag} label="State" value={manualFields.state} field="state" />
-                                            <InputField icon={MapPin} label="Pincode" value={manualFields.pincode} field="pincode" />
+                                            <InputField icon={Flag} label={isHindi ? 'राज्य' : 'State'} value={manualFields.state} field="state" />
+                                            <InputField icon={MapPin} label={isHindi ? 'पिनकोड' : 'Pincode'} value={manualFields.pincode} field="pincode" />
                                         </div>
 
                                         {/* Labels */}
                                         <div className="pt-2">
-                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-2">Save As</label>
+                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-2">{isHindi ? 'इस रूप में सेव करें' : 'Save As'}</label>
                                             <div className="flex gap-2">
                                                 {['home', 'work', 'other'].map((t) => (
                                                     <button key={t} onClick={() => setLabelType(t as any)} className={`flex-1 py-2.5 rounded-xl text-xs font-bold uppercase border transition-all flex items-center justify-center gap-2 ${labelType === t ? `${bgLight} ${themeColor} ${borderActive} ring-1 ${isGrocery?'ring-green-500':'ring-indigo-500'}` : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'}`}>
@@ -402,7 +406,7 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
                                 <div className="absolute bottom-0 left-0 w-full p-5 bg-white border-t border-gray-100 z-20">
                                     <button onClick={saveNewAddress} disabled={!fullAddress || resolving} className={`w-full py-3.5 rounded-xl text-white font-bold text-sm shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 ${!fullAddress ? 'bg-gray-300 cursor-not-allowed' : btnPrimary}`}>
                                         {resolving ? <Loader2 className="animate-spin" size={18}/> : <Check size={18} strokeWidth={3} />}
-                                        {resolving ? "Fetching Details..." : "Confirm & Save Address"}
+                                        {resolving ? "Fetching Details..." : (isHindi ? "पता पक्का करें और सेव करें" : "Confirm & Save Address")}
                                     </button>
                                 </div>
                             </div>

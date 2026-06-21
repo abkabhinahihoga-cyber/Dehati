@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useTransition } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowRight, Globe, Phone, Store as StoreIcon, Loader2, Search, Check, Milestone, Building2, Flag, LocateFixed, ArrowLeft, MapPin, Navigation } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -8,6 +8,7 @@ import axios from 'axios'
 import { useDispatch } from 'react-redux'
 import { updateLocation } from '@/redux/locationSlice'
 import dynamic from 'next/dynamic'
+import Image from 'next/image'
 
 // Dynamic Map Import
 const CheckoutMap = dynamic(() => import('@/components/CheckoutMap'), { 
@@ -26,9 +27,10 @@ function WelcomePage() {
     
     // Steps: 1=Intro, 2=Language, 3=Mobile, 4=Location
     const [step, setStep] = useState(1) 
-    const [language, setLanguage] = useState<'en'|'hi'>('en')
+    const [language, setLanguage] = useState<'en'|'hi'>('hi')
     const [mobile, setMobile] = useState('')
     const [loading, setLoading] = useState(false)
+    const [isPending, startTransition] = useTransition()
     const [referralInput, setReferralInput] = useState('')
 
     // Apply pending referral code for Google signups
@@ -106,9 +108,11 @@ function WelcomePage() {
     // 2. Backward Logic: Smart Back Button
     const handleBack = () => {
         // If we are on Location (Step 4) AND user has a saved mobile number...
-        // ...we skip Step 3 and go straight back to Language (Step 2)
+        // ...we skip Step 3 and go straight back to Welcome (Step 1)
         if (step === 4 && session?.user?.mobile) {
-            setStep(2);
+            setStep(1);
+        } else if (step === 3) {
+            setStep(1);
         } else {
             setStep(prev => prev - 1);
         }
@@ -237,65 +241,54 @@ function WelcomePage() {
         <div className="h-screen w-full bg-white flex flex-col">
             <AnimatePresence mode="wait">
                 
-                {/* === STEP 1: WELCOME === */}
+                {/* === STEP 1: WELCOME & LANGUAGE === */}
                 {step === 1 && (
                     <motion.div 
                         key="step1"
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, x: -50 }}
-                        className='flex-1 flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-green-50 to-white'
+                        className='flex-1 flex flex-col relative bg-[#f7f5ef]'
                     >
-                        <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} transition={{ type: "spring" }} className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6 shadow-sm">
-                            <StoreIcon className='w-12 h-12 text-green-600' />
-                        </motion.div>
-                        <h1 className='text-3xl md:text-5xl font-black text-green-800 tracking-tight mb-3'>Dehati Sathi</h1>
-                        <p className='text-gray-500 text-lg font-medium max-w-md leading-relaxed'>
-                            {tr.tagline}
-                        </p>
-                        
-                        <motion.button 
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={handleNext} 
-                            className='mt-12 bg-green-600 hover:bg-green-700 text-white px-10 py-3 rounded-full font-bold shadow-lg shadow-green-200 flex items-center gap-2 transition-all'
-                        >
-                            {tr.getStarted} <ArrowRight className='w-5 h-5'/>
-                        </motion.button>
-                    </motion.div>
-                )}
+                        {/* Background Image filling the top part */}
+                        <div className="absolute inset-0 z-0 h-[80vh]">
+                            <Image 
+                                src="/farmer-bg.png" 
+                                alt="Dehati Sathi" 
+                                fill 
+                                className="object-cover object-top"
+                                priority
+                            />
+                            {/* Premium Masking Gradient */}
+                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#f7f5ef] bottom-0" />
+                        </div>
 
-                {/* === STEP 2: LANGUAGE === */}
-                {step === 2 && (
-                    <motion.div 
-                        key="step2"
-                        initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}
-                        className='flex-1 flex flex-col p-6 bg-white relative'
-                    >
-                        <button onClick={handleBack} className="absolute top-6 left-6 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"><ArrowLeft size={24}/></button>
-                        
-                        <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto">
-                            <div className="text-center mb-10">
-                                <Globe className='w-12 h-12 text-green-600 mx-auto mb-4'/>
-                                <h2 className='text-2xl font-bold text-gray-800'>{tr.selectLanguage}</h2>
-                                <p className="text-gray-500">{tr.selectLanguageHint}</p>
-                            </div>
+                        {/* Bottom Sheet for Actions */}
+                        <div className="absolute bottom-0 left-0 w-full bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-10 px-6 pt-8 pb-10 flex flex-col items-center">
                             
-                            <div className='grid grid-cols-2 gap-4 mb-10 w-full'>
-                                <button onClick={() => setLanguage('en')} className={`p-6 rounded-2xl border-2 transition-all ${language === 'en' ? 'border-green-600 bg-green-50 shadow-md scale-[1.02]' : 'border-gray-100 hover:border-gray-200'}`}>
-                                    <span className="text-3xl mb-2 block">🇺🇸</span>
-                                    <span className={`block font-bold ${language === 'en' ? 'text-green-700' : 'text-gray-600'}`}>English</span>
+                            {/* Language Toggle */}
+                            <div className="w-full max-w-sm bg-[#f8f9fa] border border-gray-100 rounded-full p-1.5 flex mb-6 relative">
+                                <button 
+                                    onClick={() => setLanguage('hi')} 
+                                    className={`flex-1 py-3.5 rounded-full text-[15px] font-bold transition-all z-10 ${language === 'hi' ? 'text-white' : 'text-gray-600'}`}
+                                >
+                                    हिंदी
                                 </button>
-                                <button onClick={() => setLanguage('hi')} className={`p-6 rounded-2xl border-2 transition-all ${language === 'hi' ? 'border-green-600 bg-green-50 shadow-md scale-[1.02]' : 'border-gray-100 hover:border-gray-200'}`}>
-                                    <span className="text-3xl mb-2 block">🇮🇳</span>
-                                    <span className={`block font-bold ${language === 'hi' ? 'text-green-700' : 'text-gray-600'}`}>हिंदी</span>
+                                <button 
+                                    onClick={() => setLanguage('en')} 
+                                    className={`flex-1 py-3.5 rounded-full text-[15px] font-bold transition-all z-10 ${language === 'en' ? 'text-white' : 'text-gray-600'}`}
+                                >
+                                    English
                                 </button>
+                                {/* Sliding Background */}
+                                <div className={`absolute top-1.5 bottom-1.5 w-[calc(50%-0.375rem)] bg-[#0d6938] rounded-full transition-transform duration-300 ease-out shadow-sm ${language === 'en' ? 'translate-x-[calc(100%+0.375rem)] left-1.5' : 'translate-x-0 left-1.5'}`} />
                             </div>
 
+                            {/* Get Started Button */}
                             <motion.button 
                                 whileTap={{ scale: 0.98 }}
                                 onClick={handleLanguageNext} 
-                                className='bg-green-600 hover:bg-green-700 text-white px-10 py-3 rounded-full font-bold shadow-lg shadow-green-200 transition-all flex items-center gap-2'
+                                className='w-full max-w-sm bg-[#0d6938] hover:bg-[#0a522c] text-white py-4 rounded-3xl font-bold shadow-lg transition-all flex items-center justify-center gap-2 text-lg'
                             >
-                                {tr.continue} <ArrowRight size={18}/>
+                                शुरू करें / Get Started <ArrowRight size={20}/>
                             </motion.button>
                         </div>
                     </motion.div>
@@ -393,16 +386,17 @@ function WelcomePage() {
                             <button 
                                 onClick={handleGPS} 
                                 disabled={resolvingLocation}
-                                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-green-50 border-2 border-green-200 hover:border-green-400 hover:bg-green-100 transition-all mb-4 group"
+                                className="relative w-full flex items-center gap-4 p-5 rounded-2xl bg-green-600 text-white border-2 border-green-400 shadow-[0_14px_35px_rgba(22,163,74,0.28)] hover:bg-green-700 transition-all mb-5 group"
                             >
-                                <div className="p-3 rounded-full bg-green-100 text-green-700 group-hover:scale-110 transition-transform">
+                                <span className="absolute right-4 top-3 rounded-full bg-white text-green-700 px-2.5 py-1 text-[10px] font-black">सबसे आसान</span>
+                                <div className="p-3 rounded-full bg-white text-green-700 group-hover:scale-110 transition-transform">
                                     {resolvingLocation ? <Loader2 size={22} className="animate-spin" /> : <Navigation size={22} fill="currentColor" />}
                                 </div>
                                 <div className="text-left">
-                                    <h4 className="font-bold text-green-800 text-sm">{tr.useCurrentLocation}</h4>
-                                    <p className="text-xs text-green-600 mt-0.5">{tr.autoDetect}</p>
+                                    <h4 className="font-black text-base">{tr.useCurrentLocation}</h4>
+                                    <p className="text-xs text-green-50 mt-0.5">{tr.autoDetect}</p>
                                 </div>
-                                {resolvingLocation && <span className="ml-auto text-xs text-green-600 font-semibold animate-pulse">{tr.detecting}</span>}
+                                {resolvingLocation && <span className="ml-auto text-xs text-white font-semibold animate-pulse">{tr.detecting}</span>}
                             </button>
 
                             {/* 2. Map Container */}
