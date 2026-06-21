@@ -35,13 +35,7 @@ export default function LandingPage() {
                     className="w-full h-auto object-contain object-top drop-shadow-[0_28px_40px_rgba(29,78,39,0.18)] [mask-image:linear-gradient(to_bottom,black_0%,black_76%,transparent_96%)]"
                     priority
                 />
-                <div className="absolute left-5 top-8 rounded-full bg-white/80 backdrop-blur px-4 py-2 shadow-lg border border-white/80">
-                    <p className="text-[11px] font-black text-green-800 tracking-wide">गांव की अपनी दुकान</p>
-                </div>
-                <div className="absolute right-5 bottom-16 rounded-2xl bg-[#123d2a]/90 text-white backdrop-blur px-4 py-3 shadow-xl border border-white/15">
-                    <p className="text-[10px] font-bold text-green-100">सीधा खेत से घर तक</p>
-                    <p className="text-lg font-black leading-none mt-1">देहाती साथी</p>
-                </div>
+
             </div>
 
             <div className="relative z-10 w-full bg-white/90 backdrop-blur-xl rounded-t-[2rem] shadow-[0_-18px_45px_rgba(22,80,48,0.14)] px-6 pb-12 pt-7 border-t border-white/80 -mt-10 flex-1 flex flex-col">

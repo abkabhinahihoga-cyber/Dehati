@@ -60,7 +60,12 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
     useEffect(() => {
         const saved = localStorage.getItem('savedAddresses');
         if (saved) dispatch(setAllAddresses(JSON.parse(saved)));
-        if (latitude && longitude) setMapPos([latitude, longitude]);
+        if (latitude && longitude) {
+            setMapPos([latitude, longitude]);
+        } else if (isOpen && !latitude && !longitude) {
+            handleGPS();
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, dispatch, latitude, longitude]);
 
     // --- LOGIC ---

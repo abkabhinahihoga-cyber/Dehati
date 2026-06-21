@@ -174,6 +174,13 @@ function WelcomePage() {
         reverseGeocode(pos[0], pos[1]);
     }
 
+    // Auto-request location on Step 4
+    useEffect(() => {
+        if (step === 4 && !session?.user?.address) {
+            handleGPS();
+        }
+    }, [step]);
+
     const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') forwardGeocode();
     }
@@ -248,17 +255,12 @@ function WelcomePage() {
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, x: -50 }}
                         className='flex-1 flex flex-col relative bg-[#f7f5ef]'
                     >
-                        {/* Background Image filling the top part */}
-                        <div className="absolute inset-0 z-0 h-[80vh]">
-                            <Image 
-                                src="/farmer-bg.png" 
-                                alt="Dehati Sathi" 
-                                fill 
-                                className="object-cover object-top"
-                                priority
-                            />
-                            {/* Premium Masking Gradient */}
-                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#f7f5ef] bottom-0" />
+                        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center z-10 mt-10">
+                            <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                                <Globe className="w-12 h-12 text-green-600" />
+                            </div>
+                            <h1 className="text-3xl font-black text-gray-800 mb-3">Dehati Sathi</h1>
+                            <p className="text-gray-500 font-medium">{tr.tagline}</p>
                         </div>
 
                         {/* Bottom Sheet for Actions */}
