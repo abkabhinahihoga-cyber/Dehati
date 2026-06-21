@@ -176,7 +176,7 @@ function WelcomePage() {
 
     // Auto-request location on Step 4
     useEffect(() => {
-        if (step === 4 && !session?.user?.address) {
+        if (step === 4 && !(session?.user as any)?.address) {
             handleGPS();
         }
     }, [step]);
