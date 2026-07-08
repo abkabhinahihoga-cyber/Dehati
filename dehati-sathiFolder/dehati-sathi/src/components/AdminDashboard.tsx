@@ -6,7 +6,7 @@ import {
     Menu, X, ChevronLeft, Store, Truck, User, Search, 
     Package, Map, Phone, Bike, FileText,
     Layers, Trash, Image as ImageIcon, 
-    ArrowUp, ArrowDown, ExternalLink, Loader2 
+    ArrowUp, ArrowDown, ExternalLink, Loader2, Briefcase
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import axios from 'axios'
@@ -815,6 +815,9 @@ export default function AdminDashboard() {
                     </Link>
                     <Link href="/admin/stock-requests" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-gray-500 hover:bg-gray-50">
                         <Truck size={20} /> {locale === 'hi' ? 'हब स्टॉक अनुरोध' : 'Hub Stock Requests'}
+                    </Link>
+                    <Link href={`/${locale}/admin/work-management`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-gray-500 hover:bg-gray-50">
+                        <Briefcase size={20} /> {locale === 'hi' ? 'काम प्रबंधन' : 'Work Marketplace'}
                     </Link>
                 </nav>
                 <div className="p-4 border-t border-gray-100">

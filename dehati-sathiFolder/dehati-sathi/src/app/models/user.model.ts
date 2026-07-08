@@ -43,6 +43,17 @@ export interface IUser {
     totalEarnings: number;
     payoutHistory: any[];
     
+    // Worker Fields
+    workerProfile?: {
+        isWorker: boolean;
+        skills: string[];
+        experience: string;
+        availableHours: number;
+        totalEarnings: number;
+        completedJobs: number;
+        ratings: number;
+    };
+    
     // Refer & Earn Fields
     referralCode?: string;
     referredBy?: mongoose.Types.ObjectId;
@@ -126,6 +137,17 @@ const userSchema = new Schema<IUser>(
             vehicleNumber: String,
             drivingLicense: String,
             address: String
+        },
+
+        // Worker Fields
+        workerProfile: {
+            isWorker: { type: Boolean, default: false },
+            skills: [{ type: String }],
+            experience: { type: String },
+            availableHours: { type: Number, default: 0 },
+            totalEarnings: { type: Number, default: 0 },
+            completedJobs: { type: Number, default: 0 },
+            ratings: { type: Number, default: 0 }
         }
     },
     { timestamps: true }

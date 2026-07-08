@@ -2,7 +2,7 @@
 import { 
     LogOut, ShoppingCartIcon, User, X, UserCircle, Store, BookOpen, Briefcase, 
     Bike, Laptop, Share2, ChevronDown, MapPin, Home, LayoutDashboard,
-    ShieldCheck, Tractor, ShoppingBag, Truck, PlayCircle, Wallet, Globe, HelpCircle, Mail, PhoneCall, Instagram, MessageCircle, Loader2
+    ShieldCheck, Tractor, ShoppingBag, Truck, PlayCircle, Wallet, Globe, HelpCircle, Mail, PhoneCall, Instagram, MessageCircle, Loader2, TrendingUp
 } from 'lucide-react'
 import { Link, useRouter, usePathname } from '@/i18n/routing'
 import React, { useEffect, useState } from 'react'
@@ -31,6 +31,7 @@ interface INavUser {
     image?: string;
     sellerStatus?: 'pending' | 'approved' | 'rejected' | 'none';
     connectedHub?: string | null;
+    workerProfile?: { isWorker?: boolean };
 }
 
 function Nav({ user }: { user: INavUser }) {
@@ -164,6 +165,15 @@ function Nav({ user }: { user: INavUser }) {
                                     <UserCircle className='text-gray-400' /> {t('myAccount')}
                                 </Link>
 
+                                <Link href="/work" onClick={close} className='flex items-center gap-4 p-3 mx-2 rounded-lg text-gray-700 hover:bg-gray-50 font-medium'>
+                                    <Briefcase className='text-blue-500' /> {t('workMarketplace')}
+                                </Link>
+
+                                {user.workerProfile?.isWorker && (
+                                    <Link href="/worker/dashboard" onClick={close} className='flex items-center gap-4 p-3 mx-2 rounded-lg text-gray-700 hover:bg-gray-50 font-medium'>
+                                        <TrendingUp className='text-green-500' /> {t('workerDashboard')}
+                                    </Link>
+                                )}
 
 
                                 {(user.role === 'admin') && (
