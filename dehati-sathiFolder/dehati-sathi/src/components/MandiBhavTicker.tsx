@@ -48,12 +48,12 @@ export default function MandiBhavTicker({ hubId }: { hubId: string }) {
     return low === high ? `₹${low}` : `₹${low}-${high}`
   }
 
-  const displayData = data.length > 0 ? data : [
+  const displayData = data.length > 0 ? data : ([
     { _id: 'f1', product: { name: 'Onion', nameHindi: 'प्याज', unit: 'kg' }, retailPrice: 35, wholesalePrice: 28 },
     { _id: 'f2', product: { name: 'Potato', nameHindi: 'आलू', unit: 'kg' }, retailPrice: 25, wholesalePrice: 18 },
     { _id: 'f3', product: { name: 'Tomato', nameHindi: 'टमाटर', unit: 'kg' }, retailPrice: 40, wholesalePrice: 32 },
-    { _id: 'f4', product: { name: 'Garlic', nameHindi: 'लहसुन', unit: 'kg' }, retailPrice: 200, wholesalePrice: 170 },
-  ];
+    { _id: 'f4', product: { name: 'Garlic', nameHindi: 'लहसुन', unit: 'kg', category: '' }, retailPrice: 200, wholesalePrice: 170, price: 200 },
+  ] as any[]) as MandiBhav[];
 
   return (
     <div className="bg-gradient-to-r from-green-50 via-white to-emerald-50 border-y border-green-100 overflow-hidden relative shadow-sm flex items-stretch">
