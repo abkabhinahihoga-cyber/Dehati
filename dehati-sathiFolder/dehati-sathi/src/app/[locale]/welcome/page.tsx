@@ -333,41 +333,13 @@ function WelcomePage() {
                         {/* BOTTOM ACTION AREA */}
                         <div className="absolute bottom-0 left-0 w-full bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] p-6 z-20">
                             
-                            {/* Language Toggle */}
-                            <div className="w-full max-w-sm bg-[#f8f9fa] border border-gray-100 rounded-full p-1.5 flex mb-6 relative">
-                                {isChangingLanguage ? (
-                                    <div className="w-full py-3.5 flex justify-center items-center">
-                                        <Loader2 className="w-5 h-5 text-green-600 animate-spin" />
-                                    </div>
-                                ) : (
-                                    <>
-                                        <button 
-                                            type="button"
-                                            onClick={() => changeLanguage('hi')} 
-                                            className={`flex-1 py-3.5 rounded-full text-[15px] font-bold transition-all z-10 ${language === 'hi' ? 'text-white' : 'text-gray-600'}`}
-                                        >
-                                            हिंदी
-                                        </button>
-                                        <button 
-                                            type="button"
-                                            onClick={() => changeLanguage('en')} 
-                                            className={`flex-1 py-3.5 rounded-full text-[15px] font-bold transition-all z-10 ${language === 'en' ? 'text-white' : 'text-gray-600'}`}
-                                        >
-                                            English
-                                        </button>
-                                        {/* Sliding Background */}
-                                        <div className={`absolute top-1.5 bottom-1.5 w-[calc(50%-0.375rem)] bg-[#0d6938] rounded-full transition-transform duration-300 ease-out shadow-sm ${language === 'en' ? 'translate-x-[calc(100%+0.375rem)] left-1.5' : 'translate-x-0 left-1.5'}`} />
-                                    </>
-                                )}
-                            </div>
-
-                            {/* Get Started Button */}
+                            {/* Next Button */}
                             <motion.button 
                                 whileTap={{ scale: 0.98 }}
                                 onClick={handleLanguageNext} 
-                                className='w-full max-w-sm bg-[#0d6938] hover:bg-[#0a522c] text-white py-4 rounded-3xl font-bold shadow-lg transition-all flex items-center justify-center gap-2 text-lg'
+                                className='w-full max-w-sm bg-[#0d6938] hover:bg-[#0a522c] text-white py-4 rounded-3xl font-bold shadow-lg transition-all flex items-center justify-center gap-2 text-lg mx-auto'
                             >
-                                शुरू करें / Get Started <ArrowRight size={20}/>
+                                {isHindi ? 'आगे बढ़ें' : 'Next'} <ArrowRight size={20}/>
                             </motion.button>
                         </div>
                     </motion.div>
@@ -472,8 +444,8 @@ function WelcomePage() {
                                     {resolvingLocation ? <Loader2 size={22} className="animate-spin" /> : <Navigation size={22} fill="currentColor" />}
                                 </div>
                                 <div className="text-left">
-                                    <h4 className="font-black text-base">{tr.useCurrentLocation}</h4>
-                                    <p className="text-xs text-green-50 mt-0.5">{tr.autoDetect}</p>
+                                    <h4 className="font-black text-base">{resolvingLocation ? (isHindi ? 'कृपया इंतज़ार करें...' : 'Please wait...') : tr.useCurrentLocation}</h4>
+                                    <p className="text-xs text-green-50 mt-0.5">{resolvingLocation ? (isHindi ? 'लोकेशन ले रहे हैं...' : 'Fetching your location...') : tr.autoDetect}</p>
                                 </div>
                                 {resolvingLocation && <span className="ml-auto text-xs text-white font-semibold animate-pulse">{tr.detecting}</span>}
                             </button>
