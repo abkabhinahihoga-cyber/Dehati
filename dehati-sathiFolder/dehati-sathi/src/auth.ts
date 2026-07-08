@@ -123,13 +123,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
       }
 
-      // 2. Token Refresh: Periodically fetch fresh data from DB (every 15 mins)
+      // 2. Token Refresh: Periodically fetch fresh data from DB (every 2 mins)
       const now = Date.now()
       const lastRefresh = (token.lastRefresh as number) || 0
 
       if (
         token.id &&
-        (trigger === "update" || now - lastRefresh > 15 * 60 * 1000)
+        (trigger === "update" || now - lastRefresh > 2 * 60 * 1000)
       ) {
         await connectDb()
         const dbUser = await User.findById(token.id)

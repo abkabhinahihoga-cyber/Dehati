@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 import Image from 'next/image'
-import { Star, Minus, Plus, ShoppingCart, ShieldCheck, Zap, Upload, Book, MapPin, Share2, Check, ArrowRight, Copy, MoreHorizontal, Gift, Wallet, Phone } from 'lucide-react' 
+import { Star, Minus, Plus, ShoppingCart, ShieldCheck, Zap, Upload, Book, MapPin, Share2, Check, ArrowRight, Copy, MoreHorizontal, Gift, Wallet, Phone, Volume2 } from 'lucide-react' 
 import { useDispatch, useSelector } from 'react-redux'
 import { addToCart, decreaseQuantity, increaseQuantity } from '@/redux/cartSlice'
 import { RootState } from '@/redux/store'
@@ -33,7 +33,7 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
         moreOptions: isHindi ? 'और विकल्प' : 'More Options',
         reviews: isHindi ? 'समीक्षाएँ' : 'Reviews',
         away: isHindi ? 'दूर' : 'away',
-        wholesale: isHindi ? 'थोक (3+ इकाइयां)' : 'Wholesale (3+ units)',
+        wholesale: isHindi ? `थोक (${product.retailLimit || 3}+ इकाइयां)` : `Wholesale (${product.retailLimit || 3}+ units)`,
         retail: isHindi ? 'खुदरा (1-2 इकाइयां)' : 'Retail (1-2 units)',
         off: isHindi ? 'छूट' : 'OFF',
         stock: isHindi ? 'स्टॉक' : 'Stock',
@@ -179,8 +179,21 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
         setShowShareMenu(false);
     };
 
+    const handleSpeakName = () => {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(product.name);
+            utterance.lang = isHindi ? 'hi-IN' : 'en-IN';
+            const voices = window.speechSynthesis.getVoices();
+            const hindiVoice = voices.find(v => v.lang.includes('hi') || v.name.includes('Hindi'));
+            if (hindiVoice) utterance.voice = hindiVoice;
+            utterance.rate = 0.9;
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
     const handleAddToCart = () => {
-        const qty = isBook ? 1 : (isWholesale ? 3 : 1)
+        const qty = isBook ? 1 : (isWholesale ? (product.retailLimit || 3) : 1)
         dispatch(addToCart({ 
             ...product, 
             quantity: qty, 
@@ -192,7 +205,7 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
 
     const handleBuyNow = () => {
         if(!cartItem) {
-            const qty = isBook ? 1 : (isWholesale ? 3 : 1)
+            const qty = isBook ? 1 : (isWholesale ? (product.retailLimit || 3) : 1)
             dispatch(addToCart({ 
                 ...product, 
                 quantity: qty, 
@@ -336,7 +349,12 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                         </div>
                     </div>
                     
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mt-1 pr-10">{product.name}</h1>
+                    <div className="flex items-start gap-4 mt-1 pr-10">
+                        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 flex-1">{product.name}</h1>
+                        <button onClick={handleSpeakName} className={`p-2.5 rounded-full shrink-0 mt-1 transition-colors shadow-sm ${isBook ? 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100' : 'bg-green-50 text-green-600 hover:bg-green-100'}`}>
+                            <Volume2 size={24} />
+                        </button>
+                    </div>
                     
                     {isBook && product.bookDetails?.author && (
                         <p className='text-gray-500 text-sm mt-1 font-medium'>
@@ -367,8 +385,8 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                 <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
                     {!isBook && (
                         <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
-                            <button onClick={() => setIsWholesale(true)} className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${isWholesale ? 'bg-white shadow-sm text-green-700' : 'text-gray-500'}`}>{t.wholesale}</button>
-                            <button onClick={() => setIsWholesale(false)} className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${!isWholesale ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}>{t.retail}</button>
+                            <button onClick={() => setIsWholesale(true)} className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${isWholesale ? 'bg-white shadow-sm text-green-700' : 'text-gray-500'}`}>{t.wholesale} ({(product.retailLimit || 3)}+)</button>
+                            <button onClick={() => setIsWholesale(false)} className={`flex-1 py-2.5 text-sm font-bold rounded-lg transition-all ${!isWholesale ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}>{t.retail} (1-{(product.retailLimit || 3) - 1})</button>
                         </div>
                     )}
                     

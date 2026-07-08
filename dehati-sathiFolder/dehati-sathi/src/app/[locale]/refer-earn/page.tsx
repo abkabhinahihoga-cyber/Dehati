@@ -18,6 +18,7 @@ export default function ReferAndEarn() {
         walletBalance: 0
     })
     const [copied, setCopied] = useState(false)
+    const [isSharing, setIsSharing] = useState(false)
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -51,7 +52,8 @@ export default function ReferAndEarn() {
     }
 
     const handleShare = async () => {
-        const shareText = `🌾 देहाती साथी - किसान से सीधे आप के पास! 🌾\n\nदेहाती साथी से जुड़ने और तुरंत अपने वॉलेट में ₹20 पाने के लिए मेरे कोड ${data.referralCode} का उपयोग करें!\n\n✅ खेत-ताज़ा उपज\n✅ बाज़ार से कम कीमत\n✅ सीधे स्थानीय किसानों का समर्थन करें\n\nअभी ऐप डाउनलोड करें और बचत करना शुरू करें! 🚀`
+        setIsSharing(true)
+        const shareText = `🌾 देहाती साथी - किसान से सीधे आप के पास! 🌾\n\nदेहाती साथी से जुड़ने और तुरंत अपने वॉलेट में ₹20 पाने के लिए मेरे कोड ${data.referralCode} का उपयोग करें!\n\n✅ बिना किसी कमीशन के खरीदें और बेचें\n✅ बाज़ार और मंडी से कम कीमत\n✅ सीधे खेत से ताज़ा उपज\n\nअभी ऐप डाउनलोड करें और बचत करना शुरू करें! 🚀\n${window.location.origin}`
         
         try {
             const response = await fetch('/refer_poster.png')
@@ -60,8 +62,7 @@ export default function ReferAndEarn() {
 
             const shareData: any = {
                 title: 'देहाती साथी से जुड़ें',
-                text: shareText,
-                url: window.location.origin
+                text: shareText
             }
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -71,19 +72,20 @@ export default function ReferAndEarn() {
             if (navigator.share) {
                 await navigator.share(shareData)
             } else {
-                window.open(`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + window.location.origin)}`, '_blank')
+                window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank')
             }
         } catch (error) {
             console.error('Error sharing:', error)
             if (navigator.share) {
                 navigator.share({
                     title: 'देहाती साथी से जुड़ें',
-                    text: shareText,
-                    url: window.location.origin
+                    text: shareText
                 }).catch(console.error)
             } else {
-                window.open(`https://wa.me/?text=${encodeURIComponent(shareText + '\n' + window.location.origin)}`, '_blank')
+                window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank')
             }
+        } finally {
+            setIsSharing(false)
         }
     }
 
@@ -168,13 +170,14 @@ export default function ReferAndEarn() {
                         </button>
                     </div>
 
-                    <button 
-                        onClick={handleShare}
-                        className="w-full bg-green-600 text-white font-bold text-lg py-4 rounded-2xl shadow-lg hover:bg-green-700 hover:shadow-green-200 hover:-translate-y-1 transition-all flex items-center justify-center gap-2 active:scale-95"
-                    >
-                        <Share2 className="w-5 h-5" />
-                        दोस्तों के साथ शेयर करें
-                    </button>
+                        <button
+                            onClick={handleShare}
+                            disabled={isSharing}
+                            className="flex-1 w-full bg-green-600 hover:bg-green-700 text-white py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors active:scale-95 shadow-lg shadow-green-200"
+                        >
+                            {isSharing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Share2 className="w-5 h-5" />}
+                            दोस्तों को शेयर करें
+                        </button>
                 </motion.div>
 
                 {/* How it works */}

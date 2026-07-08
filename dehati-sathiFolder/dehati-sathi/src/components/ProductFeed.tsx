@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
 import GroceryItemCard from './GroceryItemCard'
 import HorizontalRail from './HorizontalRail'
+import HorizontalReelsFeed from './HorizontalReelsFeed'
 import CountdownTimer from './CountdownTimer' // Ensure this exists
 import { BookOpen, Store, MapPinOff, Loader2, SearchX, Filter, RefreshCw, X, Sparkles, Compass, Flame, TrendingUp, Tag, Frown, Zap } from 'lucide-react'
 import axios from 'axios'
@@ -295,6 +296,9 @@ export default function ProductFeed({ searchProducts = [], isSearch = false }: P
                             iconColorClass="text-yellow-600" 
                         />
                     )}
+                    
+                    {/* D. REELS FEED */}
+                    <HorizontalReelsFeed />
                 </>
             )}
 

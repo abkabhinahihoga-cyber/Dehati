@@ -195,7 +195,7 @@ function CartPage() {
             <AnimatePresence>
               {cartData.map((item) => {
                 const displayImage = item.images && item.images.length > 0 ? item.images[0] : "/placeholder.png";
-                const isWholesale = item.quantity >= 3;
+                const isWholesale = item.quantity >= (item.retailLimit || 3);
                 const activePrice = item.price; // Already calculated in redux
 
                 return (

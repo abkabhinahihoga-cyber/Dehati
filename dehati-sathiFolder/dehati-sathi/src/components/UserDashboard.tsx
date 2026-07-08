@@ -8,7 +8,6 @@ import { ArrowLeft, SearchX, Mic, MicOff } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import MandiBhavTicker from "./MandiBhavTicker";
-import HorizontalReelsFeed from "./HorizontalReelsFeed";
 
 interface UserDashboardProps {
   user: any;
@@ -127,9 +126,6 @@ function UserDashboard({ user, products, searchQuery }: UserDashboardProps) {
       <div className="pt-6">
          <CategorySlider />
       </div>
-
-      {/* Horizontal Reels Feed */}
-      <HorizontalReelsFeed />
       
       {/* Default Feed (Self-fetching based on Geolocation) */}
       <ProductFeed isSearch={false} />

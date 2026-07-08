@@ -5,6 +5,7 @@ import Image from 'next/image'
 import axios from 'axios'
 import { useRouter, usePathname } from 'next/navigation'
 import { toast } from 'sonner'
+import OnboardingAssistant from '../OnboardingAssistant'
 
 interface MandiBhav {
   retailPrice: number
@@ -37,6 +38,10 @@ function AddGroceryForm() {
   const [loading, setLoading] = useState(false)
   const [description, setDescription] = useState('')
   const [stock, setStock] = useState('')
+  const [maxStock, setMaxStock] = useState('')
+  const [retailLimit, setRetailLimit] = useState('3')
+  const [autoPriceUpdate, setAutoPriceUpdate] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const [retailPrice, setRetailPrice] = useState('')
   const [wholesalePrice, setWholesalePrice] = useState('')
   const [qualityScale, setQualityScale] = useState(5)
@@ -103,6 +108,10 @@ function AddGroceryForm() {
     setWholesalePrice(product.mandiBhav?.wholesalePrice?.toString() || '')
     setQualityScale(5)
     setStock('')
+    setMaxStock('')
+    setRetailLimit('3')
+    setAutoPriceUpdate(false)
+    setTermsAccepted(false)
     setPreviews([])
     setImageFiles([])
   }
@@ -221,6 +230,10 @@ function AddGroceryForm() {
       formData.append('masterProductId', selectedProduct._id)
       formData.append('description', description)
       formData.append('stock', stock)
+      if (maxStock) formData.append('maxStock', maxStock)
+      formData.append('retailLimit', retailLimit)
+      formData.append('autoPriceUpdate', autoPriceUpdate.toString())
+      formData.append('termsAccepted', termsAccepted.toString())
       formData.append('price', retailPrice)
       formData.append('retailPrice', retailPrice)
       formData.append('wholesalePrice', wholesalePrice)
@@ -278,6 +291,7 @@ function AddGroceryForm() {
   if (!selectedProduct) {
     return (
       <div className="space-y-6">
+        <OnboardingAssistant />
         <div className="bg-green-50 rounded-2xl p-5 border border-green-200">
           <h3 className="text-green-800 font-bold text-lg mb-2 flex items-center gap-2">
             <PackageSearch className="w-5 h-5" /> {t.selectProduct}
@@ -327,7 +341,8 @@ function AddGroceryForm() {
 
   // ======== FORM SCREEN (after product selected) ========
   return (
-    <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-8">
+    <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-8 relative">
+      <OnboardingAssistant />
       {/* LEFT COLUMN */}
       <div className="space-y-6">
         {/* Selected Product Card */}
@@ -360,18 +375,30 @@ function AddGroceryForm() {
         </div>
 
         {/* Quality Scale */}
-        <div>
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-3xl border border-green-100 shadow-inner">
           <label className="block text-gray-700 font-semibold mb-2">{t.qualityScale}</label>
-          <div className="bg-gray-50 p-4 rounded-xl border">
-            <input
-              type="range"
-              min="1" max="10"
-              value={qualityScale}
-              onChange={e => setQualityScale(parseInt(e.target.value))}
-              className="w-full accent-green-600 mb-2"
-            />
-            <div className="flex justify-between text-xs text-gray-400 font-bold px-1">
-              <span>1</span><span>5</span><span>10</span>
+          <div className="bg-white p-5 rounded-2xl shadow-sm mb-6">
+            <div className="mb-8 mt-4 px-2">
+                <input 
+                    type="range" 
+                    min="1" max="10" step="1" 
+                    value={qualityScale} 
+                    onChange={e => setQualityScale(parseInt(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600 relative z-10"
+                />
+                <div className="flex justify-between mt-3 -mx-1">
+                    {[1,2,3,4,5,6,7,8,9,10].map(num => (
+                        <div 
+                            key={num}
+                            onClick={() => setQualityScale(num)}
+                            className={`flex flex-col items-center cursor-pointer transition-all ${qualityScale === num ? 'scale-125' : 'hover:scale-110'}`}
+                            style={{ width: '10%' }}
+                        >
+                            <span className={`text-[10px] sm:text-xs font-bold ${qualityScale === num ? 'text-green-600' : 'text-gray-400'}`}>{num}</span>
+                            <div className={`w-1.5 h-1.5 rounded-full mt-1 transition-colors ${qualityScale === num ? 'bg-green-600 shadow-sm shadow-green-300' : 'bg-gray-200'}`} />
+                        </div>
+                    ))}
+                </div>
             </div>
             <div className={`text-center font-bold text-sm mt-3 ${getQualityColor(qualityScale)}`}>
               {t.selected}: {getQualityText(qualityScale)}
@@ -394,18 +421,43 @@ function AddGroceryForm() {
         </div>
 
         {/* Stock */}
-        <div>
-          <label className="block text-gray-700 font-semibold mb-2">
-            {t.stock} ({isHindi ? `प्रति ${selectedProduct.unit}` : `in ${selectedProduct.unit}s`})
+        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+          <label className="block text-gray-700 font-bold mb-3 flex items-center justify-between">
+            <span>{t.stock} ({isHindi ? `प्रति ${selectedProduct.unit}` : `in ${selectedProduct.unit}s`})</span>
           </label>
-          <input
-            type="number"
-            required
-            placeholder="e.g. 100"
-            value={stock}
-            onChange={e => setStock(e.target.value)}
-            className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-green-500 outline-none"
-          />
+          <div className="grid grid-cols-2 gap-3 mb-4">
+              <div>
+                  <div className="text-xs text-gray-500 mb-1">{isHindi ? 'वर्तमान उपलब्ध स्टॉक' : 'Current Available Stock'} *</div>
+                  <input
+                    type="number"
+                    required
+                    placeholder="e.g. 100"
+                    value={stock}
+                    onChange={e => setStock(e.target.value)}
+                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none font-bold"
+                  />
+              </div>
+              <div>
+                  <div className="text-xs text-gray-500 mb-1">{isHindi ? 'अधिकतम संभावित स्टॉक (वैकल्पिक)' : 'Max Possible Stock (Optional)'}</div>
+                  <input
+                    type="number"
+                    placeholder="e.g. 500"
+                    value={maxStock}
+                    onChange={e => setMaxStock(e.target.value)}
+                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none"
+                  />
+              </div>
+          </div>
+          
+          <div className="pt-4 border-t border-gray-100">
+             <div className="text-sm font-bold text-gray-700 mb-2">{isHindi ? 'खुदरा सीमा (प्रति ग्राहक)' : 'Retail Limit (Per Customer)'}</div>
+             <div className="flex items-center gap-3 bg-gray-50 p-2 rounded-xl border border-gray-200 w-max">
+                <button type="button" onClick={() => setRetailLimit(prev => Math.max(1, parseInt(prev || '3') - 1).toString())} className="w-8 h-8 flex items-center justify-center bg-white rounded-lg shadow-sm font-bold text-lg text-red-600 hover:bg-red-50">-</button>
+                <div className="w-12 text-center font-bold text-lg">{retailLimit}</div>
+                <button type="button" onClick={() => setRetailLimit(prev => (parseInt(prev || '3') + 1).toString())} className="w-8 h-8 flex items-center justify-center bg-white rounded-lg shadow-sm font-bold text-lg text-green-600 hover:bg-green-50">+</button>
+             </div>
+             <p className="text-xs text-gray-500 mt-2">{isHindi ? 'इससे अधिक मात्रा थोक मानी जाएगी।' : 'Quantities above this will be considered wholesale.'}</p>
+          </div>
         </div>
       </div>
 
@@ -472,6 +524,17 @@ function AddGroceryForm() {
               </div>
             </div>
           )}
+          
+          {/* Auto Price Update Toggle */}
+          <div className="mt-5 bg-white p-4 rounded-xl border border-emerald-200 flex gap-3 items-start shadow-sm cursor-pointer" onClick={() => setAutoPriceUpdate(!autoPriceUpdate)}>
+             <div className={`mt-1 w-5 h-5 flex items-center justify-center rounded border flex-shrink-0 transition-colors ${autoPriceUpdate ? 'bg-emerald-600 border-emerald-600' : 'bg-white border-gray-300'}`}>
+                {autoPriceUpdate && <CheckCircle className="w-3.5 h-3.5 text-white" />}
+             </div>
+             <div>
+                <p className="font-bold text-sm text-emerald-900">{isHindi ? 'मंडी भाव के अनुसार स्वचालित मूल्य अपडेट' : 'Auto-update price via Mandi Bhav'}</p>
+                <p className="text-xs text-emerald-700 mt-1">{isHindi ? 'आपके उत्पाद की गुणवत्ता के आधार पर, मंडी भाव बदलने पर आपके दाम भी स्वचालित रूप से अपडेट हो जाएंगे।' : 'Based on your quality scale, prices will auto-adjust as Mandi Bhav updates.'}</p>
+             </div>
+          </div>
         </div>
 
         {/* Photos */}
@@ -544,9 +607,22 @@ function AddGroceryForm() {
             </div>
         )}
 
+        {/* Terms & Conditions */}
+        <label className="flex gap-3 items-start bg-gray-50 p-4 rounded-xl border border-gray-200 cursor-pointer mb-6 hover:bg-gray-100 transition-colors">
+            <div className={`mt-0.5 w-5 h-5 flex items-center justify-center rounded border flex-shrink-0 transition-colors ${termsAccepted ? 'bg-green-600 border-green-600' : 'bg-white border-gray-300'}`}>
+                <input type="checkbox" className="hidden" checked={termsAccepted} onChange={e => setTermsAccepted(e.target.checked)} />
+                {termsAccepted && <CheckCircle className="w-3.5 h-3.5 text-white" />}
+            </div>
+            <div className="text-sm text-gray-700">
+                <span className="font-bold">{isHindi ? 'नियम और शर्तें स्वीकार करें' : 'Accept Terms & Conditions'}</span><br/>
+                {isHindi ? 'मैं पुष्टि करता हूँ कि मेरा उत्पाद चयनित गुणवत्ता और अपलोड की गई छवि से मेल खाता है। अन्यथा, मुझे प्लेटफ़ॉर्म के नियमों का पालन करना होगा।' : 'I confirm that my product matches the marked quality and uploaded image. Otherwise, I will abide by the platform rules.'}
+            </div>
+        </label>
+
         <button
-          disabled={loading || imageFiles.length === 0}
-          className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          type="submit"
+          disabled={loading || !termsAccepted}
+          className="w-full bg-green-600 text-white font-bold py-4 rounded-xl hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2 shadow-lg shadow-green-200"
         >
           {loading ? <Loader2 className="animate-spin" /> : <CheckCircle className="w-5 h-5" />}
           {loading ? t.publishing : t.publish}

@@ -23,7 +23,12 @@ export async function POST(req: NextRequest) {
     const name = String(formData.get("name") || "");
     const description = String(formData.get("description") || ""); 
     const category = normalizeCategory(String(formData.get("category") || ""));
-    const stock = Number(formData.get("stock") || 1);
+    const stockRaw = formData.get("stock");
+    const stock = stockRaw ? Number(stockRaw) : 9999;
+    const maxStock = parseInt(formData.get("maxStock") as string) || 9999;
+    const retailLimit = parseInt(formData.get("retailLimit") as string) || 3;
+    const autoPriceUpdate = formData.get("autoPriceUpdate") === "true";
+    const termsAccepted = formData.get("termsAccepted") === "true";
     const masterProductId = formData.get("masterProductId");
     const qualityScale = parseInt((formData.get("qualityScale") as string) || "5");
     const videoUrl = String(formData.get("videoUrl") || "");
@@ -79,6 +84,10 @@ export async function POST(req: NextRequest) {
       category,
       unit,
       stock,
+      maxStock,
+      retailLimit,
+      autoPriceUpdate,
+      termsAccepted,
       wholesalePrice,
       retailPrice,
       price: retailPrice, // Default display price

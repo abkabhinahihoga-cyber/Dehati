@@ -1,8 +1,8 @@
 'use client'
 import React, { useState, useEffect, useTransition } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, Globe, Phone, Store as StoreIcon, Loader2, Search, Check, Milestone, Building2, Flag, LocateFixed, ArrowLeft, MapPin, Navigation } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { ArrowRight, Globe, Phone, Store as StoreIcon, Loader2, Search, Check, Milestone, Building2, Flag, LocateFixed, ArrowLeft, MapPin, Navigation, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useRouter, usePathname } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import axios from 'axios'
 import { useDispatch } from 'react-redux'
@@ -31,7 +31,22 @@ function WelcomePage() {
     const [mobile, setMobile] = useState('')
     const [loading, setLoading] = useState(false)
     const [isPending, startTransition] = useTransition()
+    const [isChangingLanguage, setIsChangingLanguage] = useState(false)
     const [referralInput, setReferralInput] = useState('')
+    const pathname = usePathname()
+    
+    const [currentSlide, setCurrentSlide] = useState(0)
+    
+    // Auto-swipe carousel
+    useEffect(() => {
+        if (step === 1) {
+            const timer = setInterval(() => {
+                setCurrentSlide((prev) => (prev + 1) % 4)
+            }, 4000)
+            return () => clearInterval(timer)
+        }
+    }, [step])
+
 
     useEffect(() => {
         window.dispatchEvent(new CustomEvent('dehati:onboarding-step', { detail: { step, language } }));
@@ -58,7 +73,6 @@ function WelcomePage() {
     const isHindi = language === 'hi'
     const tr = {
         getStarted: isHindi ? 'शुरू करें' : 'Get Started',
-        tagline: isHindi ? 'भारतीय गांवों को वैश्विक बाजारों से जोड़ना। आइए अपनी प्रोफाइल सेटअप करें।' : 'Connecting Indian Villages to Global Markets. Let’s set up your profile.',
         selectLanguage: isHindi ? 'भाषा चुनें' : 'Select Language',
         selectLanguageHint: isHindi ? 'Choose your preferred language' : 'पसंदीदा भाषा चुनें',
         continue: isHindi ? 'आगे बढ़ें' : 'Continue',
@@ -107,6 +121,17 @@ function WelcomePage() {
         } else {
             setStep(3); // Go to Mobile Input
         }
+    }
+
+    const changeLanguage = (lang: 'en'|'hi') => {
+        if(language === lang) return;
+        setIsChangingLanguage(true);
+        setLanguage(lang);
+        const newPath = pathname.replace(/^\/(en|hi)/, `/${lang}`);
+        startTransition(() => {
+            router.replace(newPath);
+            setIsChangingLanguage(false);
+        });
     }
 
     // 2. Backward Logic: Smart Back Button
@@ -257,14 +282,50 @@ function WelcomePage() {
                     <motion.div 
                         key="step1"
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, x: -50 }}
-                        className='flex-1 flex flex-col relative bg-[#f7f5ef]'
+                        className='flex-1 flex flex-col relative bg-gray-50'
                     >
-                        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center z-10 mt-10">
-                            <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6 shadow-inner">
-                                <Globe className="w-12 h-12 text-green-600" />
+                        {/* CAROUSEL SECTION */}
+                        <div className="flex-1 relative overflow-hidden flex flex-col pt-4 pb-48">
+                            <AnimatePresence mode="wait">
+                                <motion.div 
+                                    key={currentSlide}
+                                    initial={{ opacity: 0, x: 50 }} 
+                                    animate={{ opacity: 1, x: 0 }} 
+                                    exit={{ opacity: 0, x: -50 }}
+                                    transition={{ duration: 0.4 }}
+                                    className="absolute inset-0 flex flex-col items-center justify-center p-6"
+                                >
+                                    <div className="w-full max-w-sm aspect-[4/3] relative rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] mb-8 bg-white border border-gray-100">
+                                        <Image 
+                                            src={currentSlide === 0 ? "/farmers_card.png" : currentSlide === 1 ? "/customers_card.png" : currentSlide === 2 ? "/students_card.png" : "/promoters_card.png"} 
+                                            fill 
+                                            className="object-cover" 
+                                            alt="Feature" 
+                                        />
+                                    </div>
+                                    <div className="text-center px-4">
+                                        <h2 className="text-2xl font-black text-gray-900 mb-3">
+                                            {currentSlide === 0 ? (isHindi ? 'किसानों के लिए' : 'For Farmers') : 
+                                             currentSlide === 1 ? (isHindi ? 'ग्राहकों के लिए' : 'For Customers') : 
+                                             currentSlide === 2 ? (isHindi ? 'छात्रों के लिए (स्टडी ज़ोन)' : 'For Students (Study Zone)') : 
+                                             (isHindi ? 'देहाती साथी प्रमोटर' : 'Dehati Sathi Promoters')}
+                                        </h2>
+                                        <p className="text-gray-600 font-medium leading-relaxed">
+                                            {currentSlide === 0 ? (isHindi ? 'अब मंडी में सुबह जल्दी जाने की कोई चिंता नहीं। न ही कोई भारी कमीशन। सीधा खेत से बेचें।' : 'No need to panic early morning for Mandi. Say goodbye to high commissions. Sell directly from farm.') : 
+                                             currentSlide === 1 ? (isHindi ? 'फार्म पिकअप और हब पिकअप की सुविधा। मंडी बाज़ार से भी कम दाम पर, खुदरा और थोक दोनों खरीदारी का आनंद लें।' : 'Farm & Hub pickup options. Enjoy retail & wholesale shopping at prices lower than Mandi Bhav.') : 
+                                             currentSlide === 2 ? (isHindi ? 'अपनी पुरानी किताबें, नोट्स और स्टडी मटेरियल उचित दामों पर खरीदें और बेचें।' : 'Buy and resell your old books, notes, and study material at fair prices.') : 
+                                             (isHindi ? 'अपने दोस्तों और परिवार को रेफर करें और बेहतरीन कमीशन कमाएं। देहाती साथी नेटवर्क से जुड़ें।' : 'Refer friends and family to earn amazing commissions. Join the Dehati Sathi network.')}
+                                        </p>
+                                    </div>
+                                </motion.div>
+                            </AnimatePresence>
+
+                            {/* Indicators */}
+                            <div className="absolute bottom-40 left-0 w-full flex justify-center gap-2 z-20">
+                                {[0,1,2,3].map((i) => (
+                                    <div key={i} className={`h-1.5 rounded-full transition-all duration-300 ${currentSlide === i ? 'w-6 bg-green-600' : 'w-2 bg-gray-300'}`} />
+                                ))}
                             </div>
-                            <h1 className="text-3xl font-black text-gray-800 mb-3">Dehati Sathi</h1>
-                            <p className="text-gray-500 font-medium">{tr.tagline}</p>
                         </div>
 
                         {/* Bottom Sheet for Actions */}
@@ -272,20 +333,30 @@ function WelcomePage() {
                             
                             {/* Language Toggle */}
                             <div className="w-full max-w-sm bg-[#f8f9fa] border border-gray-100 rounded-full p-1.5 flex mb-6 relative">
-                                <button 
-                                    onClick={() => setLanguage('hi')} 
-                                    className={`flex-1 py-3.5 rounded-full text-[15px] font-bold transition-all z-10 ${language === 'hi' ? 'text-white' : 'text-gray-600'}`}
-                                >
-                                    हिंदी
-                                </button>
-                                <button 
-                                    onClick={() => setLanguage('en')} 
-                                    className={`flex-1 py-3.5 rounded-full text-[15px] font-bold transition-all z-10 ${language === 'en' ? 'text-white' : 'text-gray-600'}`}
-                                >
-                                    English
-                                </button>
-                                {/* Sliding Background */}
-                                <div className={`absolute top-1.5 bottom-1.5 w-[calc(50%-0.375rem)] bg-[#0d6938] rounded-full transition-transform duration-300 ease-out shadow-sm ${language === 'en' ? 'translate-x-[calc(100%+0.375rem)] left-1.5' : 'translate-x-0 left-1.5'}`} />
+                                {isChangingLanguage ? (
+                                    <div className="w-full py-3.5 flex justify-center items-center">
+                                        <Loader2 className="w-5 h-5 text-green-600 animate-spin" />
+                                    </div>
+                                ) : (
+                                    <>
+                                        <button 
+                                            type="button"
+                                            onClick={() => changeLanguage('hi')} 
+                                            className={`flex-1 py-3.5 rounded-full text-[15px] font-bold transition-all z-10 ${language === 'hi' ? 'text-white' : 'text-gray-600'}`}
+                                        >
+                                            हिंदी
+                                        </button>
+                                        <button 
+                                            type="button"
+                                            onClick={() => changeLanguage('en')} 
+                                            className={`flex-1 py-3.5 rounded-full text-[15px] font-bold transition-all z-10 ${language === 'en' ? 'text-white' : 'text-gray-600'}`}
+                                        >
+                                            English
+                                        </button>
+                                        {/* Sliding Background */}
+                                        <div className={`absolute top-1.5 bottom-1.5 w-[calc(50%-0.375rem)] bg-[#0d6938] rounded-full transition-transform duration-300 ease-out shadow-sm ${language === 'en' ? 'translate-x-[calc(100%+0.375rem)] left-1.5' : 'translate-x-0 left-1.5'}`} />
+                                    </>
+                                )}
                             </div>
 
                             {/* Get Started Button */}

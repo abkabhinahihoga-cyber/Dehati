@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef, useTransition } from 'react';
 import { motion } from "framer-motion"
 import Image from 'next/image';
-import { Star, Zap, MapPin, Heart, Clock, Share2, Copy, MoreHorizontal, Loader2 } from 'lucide-react';
+import { Star, Zap, MapPin, Heart, Clock, Share2, Copy, MoreHorizontal, Loader2, Volume2 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { useSelector } from 'react-redux';
@@ -190,6 +190,24 @@ function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
       setShowShareMenu(!showShareMenu);
   }
 
+  const handleSpeakName = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      trackInteraction('click'); // Or a new 'audio' event if available
+      if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel(); // Cancel any ongoing speech
+          const utterance = new SpeechSynthesisUtterance(item.name);
+          utterance.lang = isHindi ? 'hi-IN' : 'en-IN';
+          
+          // Try to find a good quality Hindi voice if available
+          const voices = window.speechSynthesis.getVoices();
+          const hindiVoice = voices.find(v => v.lang.includes('hi') || v.name.includes('Hindi'));
+          if (hindiVoice) utterance.voice = hindiVoice;
+          
+          utterance.rate = 0.9;
+          window.speechSynthesis.speak(utterance);
+      }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -314,8 +332,13 @@ function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
             </div>
         )}
         
-        {/* Product Name */}
-        <h3 className={`font-bold text-gray-800 line-clamp-2 text-sm md:text-base mb-1 transition-colors ${isBook ? 'group-hover:text-indigo-700' : 'group-hover:text-green-700'}`}>{item.name}</h3>
+        {/* Product Name & Audio */}
+        <div className="flex items-start justify-between gap-2 mb-1">
+            <h3 className={`font-bold text-gray-800 line-clamp-2 text-sm md:text-base transition-colors flex-1 ${isBook ? 'group-hover:text-indigo-700' : 'group-hover:text-green-700'}`}>{item.name}</h3>
+            <button onClick={handleSpeakName} className={`p-1.5 rounded-full shrink-0 mt-0.5 transition-colors ${isBook ? 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100' : 'bg-green-50 text-green-600 hover:bg-green-100'}`}>
+                <Volume2 size={14} />
+            </button>
+        </div>
 
         {isBook && item.bookDetails?.author ? (
             <p className='text-xs text-gray-500 mb-3 line-clamp-1'>{isHindi ? 'द्वारा ' : 'by '}{item.bookDetails.author}</p>
@@ -325,8 +348,8 @@ function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
         
         {!isBook ? (
             <div className='flex bg-gray-100 p-1 rounded-lg mb-3 mt-auto'>
-                <button onClick={(e) => handleToggle(e, true)} className={`flex-1 text-[10px] font-bold py-1.5 rounded-md transition-all ${isWholesale ? 'bg-white text-green-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>{isHindi ? 'थोक (3+)' : 'Wholesale (3+)'}</button>
-                <button onClick={(e) => handleToggle(e, false)} className={`flex-1 text-[10px] font-bold py-1.5 rounded-md transition-all ${!isWholesale ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>{isHindi ? 'फुटकर (1-2)' : 'Retail (1-2)'}</button>
+                <button onClick={(e) => handleToggle(e, true)} className={`flex-1 text-[10px] font-bold py-1.5 rounded-md transition-all ${isWholesale ? 'bg-white text-green-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>{isHindi ? `थोक (${item.retailLimit || 3}+)` : `Wholesale (${item.retailLimit || 3}+)`}</button>
+                <button onClick={(e) => handleToggle(e, false)} className={`flex-1 text-[10px] font-bold py-1.5 rounded-md transition-all ${!isWholesale ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>{isHindi ? `फुटकर (1-${(item.retailLimit || 3) - 1})` : `Retail (1-${(item.retailLimit || 3) - 1})`}</button>
             </div>
         ) : (
             <div className="mt-auto h-2"></div>

@@ -21,6 +21,10 @@ export interface IGrocery {
     category: string;
     unit: string;
     stock: number;
+    maxStock?: number;
+    retailLimit?: number;
+    autoPriceUpdate?: boolean;
+    termsAccepted?: boolean;
     images: string[];
     videoUrl?: string;
     seller: mongoose.Types.ObjectId;
@@ -63,7 +67,11 @@ const grocerySchema = new Schema<IGrocery>(
             index: true
          },
         unit: { type: String, required: true },
-        stock: { type: Number, default: 0 },
+        stock: { type: Number, required: true },
+        maxStock: { type: Number, default: 9999 },
+        retailLimit: { type: Number, default: 3 },
+        autoPriceUpdate: { type: Boolean, default: false },
+        termsAccepted: { type: Boolean, default: false },
         images: [{ type: String }],
         videoUrl: { type: String },
         seller: { type: Schema.Types.ObjectId, ref: "User", required: true },

@@ -15,6 +15,7 @@ export interface IGrocery {
   
   // 👇 CRITICAL FIX: Add this line so TypeScript knows 'seller' exists
   seller: any; 
+  retailLimit?: number; 
   
   // Optional location if you use it for distance calc
   location?: {
@@ -55,14 +56,14 @@ const cartSlice = createSlice({
       
       if (existingItem) {
         existingItem.quantity += action.payload.quantity;
-        if (existingItem.quantity >= 3) {
+        if (existingItem.quantity >= (existingItem.retailLimit || 3)) {
             existingItem.price = existingItem.wholesalePrice;
         } else {
             existingItem.price = existingItem.retailPrice;
         }
       } else {
         const newItem = action.payload;
-        if (newItem.quantity >= 3) {
+        if (newItem.quantity >= (newItem.retailLimit || 3)) {
             newItem.price = newItem.wholesalePrice;
         } else {
             newItem.price = newItem.retailPrice;
@@ -76,7 +77,7 @@ const cartSlice = createSlice({
       const item = state.cartData.find((i) => i._id === action.payload);
       if (item) {
         item.quantity += 1;
-        if (item.quantity >= 3) {
+        if (item.quantity >= (item.retailLimit || 3)) {
             item.price = item.wholesalePrice;
         }
       }
@@ -88,7 +89,7 @@ const cartSlice = createSlice({
       if (item) {
         if (item.quantity > 1) {
           item.quantity -= 1;
-          if (item.quantity < 3) {
+          if (item.quantity < (item.retailLimit || 3)) {
               item.price = item.retailPrice;
           }
         } else {
