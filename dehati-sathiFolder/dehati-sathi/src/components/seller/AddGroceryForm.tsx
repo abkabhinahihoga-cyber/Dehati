@@ -5,7 +5,7 @@ import Image from 'next/image'
 import axios from 'axios'
 import { useRouter, usePathname } from 'next/navigation'
 import { toast } from 'sonner'
-import OnboardingAssistant from '../OnboardingAssistant'
+
 
 interface MandiBhav {
   retailPrice: number
@@ -291,7 +291,7 @@ function AddGroceryForm() {
   if (!selectedProduct) {
     return (
       <div className="space-y-6">
-        <OnboardingAssistant />
+
         <div className="bg-green-50 rounded-2xl p-5 border border-green-200">
           <h3 className="text-green-800 font-bold text-lg mb-2 flex items-center gap-2">
             <PackageSearch className="w-5 h-5" /> {t.selectProduct}
@@ -342,7 +342,7 @@ function AddGroceryForm() {
   // ======== FORM SCREEN (after product selected) ========
   return (
     <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-8 relative">
-      <OnboardingAssistant />
+
       {/* LEFT COLUMN */}
       <div className="space-y-6">
         {/* Selected Product Card */}

@@ -282,10 +282,12 @@ function WelcomePage() {
                     <motion.div 
                         key="step1"
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, x: -50 }}
-                        className='flex-1 flex flex-col relative bg-gray-50'
+                        className='flex-1 flex flex-col relative bg-cover bg-center bg-no-repeat'
+                        style={{ backgroundImage: 'url("/welcome_bg.png")' }}
                     >
+                        <div className="absolute inset-0 bg-white/75 md:bg-white/60 backdrop-blur-[2px]"></div>
                         {/* CAROUSEL SECTION */}
-                        <div className="flex-1 relative overflow-hidden flex flex-col pt-4 pb-48">
+                        <div className="flex-1 relative overflow-hidden flex flex-col pt-4 pb-48 z-10">
                             <AnimatePresence mode="wait">
                                 <motion.div 
                                     key={currentSlide}
@@ -304,13 +306,13 @@ function WelcomePage() {
                                         />
                                     </div>
                                     <div className="text-center px-4">
-                                        <h2 className="text-2xl font-black text-gray-900 mb-3">
+                                        <h2 className="text-2xl font-black text-green-900 mb-3 drop-shadow-sm">
                                             {currentSlide === 0 ? (isHindi ? 'किसानों के लिए' : 'For Farmers') : 
                                              currentSlide === 1 ? (isHindi ? 'ग्राहकों के लिए' : 'For Customers') : 
                                              currentSlide === 2 ? (isHindi ? 'छात्रों के लिए (स्टडी ज़ोन)' : 'For Students (Study Zone)') : 
                                              (isHindi ? 'देहाती साथी प्रमोटर' : 'Dehati Sathi Promoters')}
                                         </h2>
-                                        <p className="text-gray-600 font-medium leading-relaxed">
+                                        <p className="text-gray-800 font-bold leading-relaxed drop-shadow-sm bg-white/50 inline-block px-4 py-2 rounded-xl">
                                             {currentSlide === 0 ? (isHindi ? 'अब मंडी में सुबह जल्दी जाने की कोई चिंता नहीं। न ही कोई भारी कमीशन। सीधा खेत से बेचें।' : 'No need to panic early morning for Mandi. Say goodbye to high commissions. Sell directly from farm.') : 
                                              currentSlide === 1 ? (isHindi ? 'फार्म पिकअप और हब पिकअप की सुविधा। मंडी बाज़ार से भी कम दाम पर, खुदरा और थोक दोनों खरीदारी का आनंद लें।' : 'Farm & Hub pickup options. Enjoy retail & wholesale shopping at prices lower than Mandi Bhav.') : 
                                              currentSlide === 2 ? (isHindi ? 'अपनी पुरानी किताबें, नोट्स और स्टडी मटेरियल उचित दामों पर खरीदें और बेचें।' : 'Buy and resell your old books, notes, and study material at fair prices.') : 
@@ -328,8 +330,8 @@ function WelcomePage() {
                             </div>
                         </div>
 
-                        {/* Bottom Sheet for Actions */}
-                        <div className="absolute bottom-0 left-0 w-full bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-10 px-6 pt-8 pb-10 flex flex-col items-center">
+                        {/* BOTTOM ACTION AREA */}
+                        <div className="absolute bottom-0 left-0 w-full bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] p-6 z-20">
                             
                             {/* Language Toggle */}
                             <div className="w-full max-w-sm bg-[#f8f9fa] border border-gray-100 rounded-full p-1.5 flex mb-6 relative">

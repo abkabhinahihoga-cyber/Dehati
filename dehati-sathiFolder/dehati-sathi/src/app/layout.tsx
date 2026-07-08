@@ -11,7 +11,7 @@ import { SidebarProvider } from "@/context/SidebarContext";
 import { auth } from "@/auth"; 
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
-import OnboardingAssistant from "@/components/OnboardingAssistant";
+
 
 export const metadata: Metadata = {
   title: "Dehati Sathi | Direct Farm To Home",
@@ -51,7 +51,7 @@ export default async function RootLayout({
               <InitUser/>
               <SidebarProvider>
                 <NextIntlClientProvider locale={locale} messages={messages}>
-                <OnboardingAssistant />
+
                 <div className="flex min-h-screen">
                   
                   {/* Desktop Sidebar (Left) */}

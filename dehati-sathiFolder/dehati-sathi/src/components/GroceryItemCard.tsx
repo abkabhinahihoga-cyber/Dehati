@@ -195,7 +195,10 @@ function GroceryItemCard({ item, showTimer = false }: GroceryItemCardProps) {
       trackInteraction('click'); // Or a new 'audio' event if available
       if ('speechSynthesis' in window) {
           window.speechSynthesis.cancel(); // Cancel any ongoing speech
-          const utterance = new SpeechSynthesisUtterance(item.name);
+          const speechText = isHindi 
+              ? `${item.name}. खुदरा दाम ${item.retailPrice} रुपये प्रति ${item.unit}. थोक दाम ${item.wholesalePrice} रुपये प्रति ${item.unit}.`
+              : `${item.name}. Retail price ${item.retailPrice} rupees per ${item.unit}. Wholesale price ${item.wholesalePrice} rupees per ${item.unit}.`;
+          const utterance = new SpeechSynthesisUtterance(speechText);
           utterance.lang = isHindi ? 'hi-IN' : 'en-IN';
           
           // Try to find a good quality Hindi voice if available

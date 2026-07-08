@@ -262,8 +262,8 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
                                                 {resolving ? <Loader2 size={20} className="animate-spin"/> : <Navigation size={20} fill="currentColor" />}
                                             </div>
                                             <div>
-                                                <h4 className={`font-black text-base ${themeColor}`}>वर्तमान लोकेशन इस्तेमाल करें</h4>
-                                                <p className="text-xs text-gray-600 mt-0.5">GPS से अपने-आप पता भर जाएगा</p>
+                                                <h4 className={`font-black text-base ${themeColor}`}>{resolving ? (isHindi ? 'कृपया इंतज़ार करें...' : 'Please wait...') : (isHindi ? 'वर्तमान लोकेशन इस्तेमाल करें' : 'Use Current Location')}</h4>
+                                                <p className="text-xs text-gray-600 mt-0.5">{resolving ? (isHindi ? 'लोकेशन ले रहे हैं' : 'Fetching location') : (isHindi ? 'GPS से अपने-आप पता भर जाएगा' : 'Auto-fill using GPS')}</p>
                                             </div>
                                         </button>
 
@@ -352,7 +352,19 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
                                 </AnimatePresence>
 
                                 <div className="flex-1 overflow-y-auto pb-24">
-                                    
+                                    {resolving ? (
+                                        <>
+                                            <Loader2 className="w-5 h-5 animate-spin mx-auto text-green-600 mb-2" />
+                                            <span className="block text-green-600 font-bold text-sm">
+                                                {isHindi ? 'कृपया इंतज़ार करें, लोकेशन ले रहे हैं...' : 'Please wait, fetching live location...'}
+                                            </span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <LocateFixed className="w-5 h-5 mx-auto text-blue-600 mb-1" />
+                                            <span className="font-bold text-blue-700">{tr.useCurrentLocation}</span>
+                                        </>
+                                    )}
                                     {/* MAP — Prominent, takes up most of the screen */}
                                     <div className="relative h-[45vh] w-full border-b border-gray-200 shrink-0">
                                         <CheckoutMap position={mapPos} setPosition={handleMapDrag} />

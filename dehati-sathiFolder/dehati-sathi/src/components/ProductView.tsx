@@ -182,7 +182,10 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
     const handleSpeakName = () => {
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(product.name);
+            const speechText = isHindi 
+                ? `${product.name}. खुदरा दाम ${product.retailPrice} रुपये प्रति ${product.unit}. थोक दाम ${product.wholesalePrice} रुपये प्रति ${product.unit}.`
+                : `${product.name}. Retail price ${product.retailPrice} rupees per ${product.unit}. Wholesale price ${product.wholesalePrice} rupees per ${product.unit}.`;
+            const utterance = new SpeechSynthesisUtterance(speechText);
             utterance.lang = isHindi ? 'hi-IN' : 'en-IN';
             const voices = window.speechSynthesis.getVoices();
             const hindiVoice = voices.find(v => v.lang.includes('hi') || v.name.includes('Hindi'));
