@@ -362,7 +362,7 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
                                     ) : (
                                         <>
                                             <LocateFixed className="w-5 h-5 mx-auto text-blue-600 mb-1" />
-                                            <span className="font-bold text-blue-700">{tr.useCurrentLocation}</span>
+                                            <span className="font-bold text-blue-700">{isHindi ? 'वर्तमान स्थान उपयोग करें' : 'Use Current Location'}</span>
                                         </>
                                     )}
                                     {/* MAP — Prominent, takes up most of the screen */}
