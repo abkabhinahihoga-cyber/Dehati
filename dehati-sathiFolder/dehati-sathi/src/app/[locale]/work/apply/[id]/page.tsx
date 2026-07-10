@@ -1,14 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, use } from 'react';
 import { useLocale } from 'next-intl';
 import axios from 'axios';
 import { ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
-export default function ApplyJob({ params }: { params: { locale: string; id: string } }) {
-    const isHindi = params.locale === 'hi';
+export default function ApplyJob({ params }: { params: Promise<{ locale: string; id: string }> }) {
+    const resolvedParams = use(params);
+    const isHindi = resolvedParams.locale === 'hi';
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -41,7 +42,7 @@ export default function ApplyJob({ params }: { params: { locale: string; id: str
         try {
             const formData = new FormData();
             Object.keys(form).forEach(key => formData.append(key, (form as any)[key]));
-            formData.append('workOpportunityId', params.id);
+            formData.append('workOpportunityId', resolvedParams.id);
             formData.append('aadhaarCard', aadhaarFile);
             
             const res = await axios.post('/api/work/apply', formData, {

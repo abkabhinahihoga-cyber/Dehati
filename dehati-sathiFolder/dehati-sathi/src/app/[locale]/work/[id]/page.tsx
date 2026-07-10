@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, use } from 'react';
 import { useLocale } from 'next-intl';
 import axios from 'axios';
 import { Loader2, ArrowLeft, ShieldCheck, MapPin, Briefcase, CheckCircle2, PlayCircle, Share2, Bookmark, Phone, MessageCircle, AlertTriangle, Clock, Star, Users, Package, ChevronDown, ChevronUp, IndianRupee } from 'lucide-react';
@@ -9,8 +9,9 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
-export default function JobDetails({ params }: { params: { locale: string; id: string } }) {
-    const isHindi = params.locale === 'hi';
+export default function JobDetails({ params }: { params: Promise<{ locale: string; id: string }> }) {
+    const resolvedParams = use(params);
+    const isHindi = resolvedParams.locale === 'hi';
     const router = useRouter();
     const [job, setJob] = useState<any>(null);
     const [user, setUser] = useState<any>(null);
@@ -25,7 +26,7 @@ export default function JobDetails({ params }: { params: { locale: string; id: s
     useEffect(() => {
         const fetchJob = async () => {
             try {
-                const res = await axios.get(`/api/work/${params.id}`);
+                const res = await axios.get(`/api/work/${resolvedParams.id}`);
                 if (res.data.success) {
                     setJob(res.data.data);
                 }
@@ -36,7 +37,7 @@ export default function JobDetails({ params }: { params: { locale: string; id: s
             }
         };
         fetchJob();
-    }, [params.id]);
+    }, [resolvedParams.id]);
 
     const handleShare = async () => {
         const shareData = {
