@@ -18,7 +18,7 @@ export async function GET(request: Request) {
 
         if (action === 'applications') {
             const apps = await WorkApplication.find()
-                .populate('userId', 'name mobile')
+                .populate('userId', 'name mobile location')
                 .populate('workOpportunityId', 'title companyName')
                 .sort({ createdAt: -1 })
                 .lean();

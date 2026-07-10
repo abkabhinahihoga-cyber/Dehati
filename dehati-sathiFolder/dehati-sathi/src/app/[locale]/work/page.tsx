@@ -58,10 +58,16 @@ export default function WorkMarketplace() {
     const [category, setCategory] = useState('All');
     const [search, setSearch] = useState('');
     const [user, setUser] = useState<any>(null);
+    const [myApplications, setMyApplications] = useState<any[]>([]);
     const [showSeasonalCalendar, setShowSeasonalCalendar] = useState(false);
 
     useEffect(() => {
         axios.get('/api/me').then(res => { if (res.data?.user) setUser(res.data.user); }).catch(() => {});
+        axios.get('/api/work/dashboard').then(res => {
+            if (res.data.success && res.data.data.applications) {
+                setMyApplications(res.data.data.applications);
+            }
+        }).catch(() => {});
     }, []);
 
     useEffect(() => {
@@ -135,7 +141,25 @@ export default function WorkMarketplace() {
                 </div>
             </div>
 
-
+            {/* MY JOBS BANNER (If exists) */}
+            {myApplications.length > 0 && (
+                <div className="max-w-md mx-auto px-5 -mt-6 relative z-20 mb-6">
+                    <Link href={`/${locale}/worker/dashboard`} className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                <Briefcase className="w-6 h-6 text-green-600" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-gray-900">{isHindi ? 'मेरे काम / आवेदन' : 'My Jobs & Applications'}</h3>
+                                <p className="text-sm text-gray-500 font-medium">
+                                    {isHindi ? `आपके ${myApplications.length} आवेदन हैं` : `You have ${myApplications.length} applications`}
+                                </p>
+                            </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-gray-400" />
+                    </Link>
+                </div>
+            )}
 
             {/* CATEGORIES SCROLL */}
             <div className="max-w-md mx-auto px-5 mt-6 mb-2">

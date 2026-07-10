@@ -276,11 +276,11 @@ export default function AdminWorkManagement() {
                             {(applications || []).map((app: any) => (
                                 <tr key={app._id} className="border-b border-gray-100 hover:bg-gray-50">
                                     <td className="p-4">
-                                        <p className="font-bold text-gray-900">{app.fullName}</p>
-                                        <p className="text-xs text-gray-500">{app.mobileNumber} • Age: {app.age}</p>
+                                        <p className="font-bold text-gray-900">{app.userId?.name || 'N/A'}</p>
+                                        <p className="text-xs text-gray-500">{app.userId?.mobile || 'N/A'} • Members: {app.familyMembersInterested || 1}</p>
                                     </td>
                                     <td className="p-4 text-sm font-medium">{app.workOpportunityId?.title || 'N/A'}</td>
-                                    <td className="p-4 text-sm text-gray-600">{app.village}, {app.district}, {app.state}</td>
+                                    <td className="p-4 text-sm text-gray-600">{app.userId?.location?.address || 'N/A'}</td>
                                     <td className="p-4">
                                         <select 
                                             value={app.status} 
@@ -331,10 +331,10 @@ export default function AdminWorkManagement() {
                         </div>
                         <div className="p-6 space-y-4">
                             <div className="grid grid-cols-2 gap-4">
-                                <div><p className="text-xs text-gray-500 font-medium">Name</p><p className="font-bold">{showDetailModal.fullName}</p></div>
-                                <div><p className="text-xs text-gray-500 font-medium">Mobile</p><p className="font-bold">{showDetailModal.mobileNumber}</p></div>
-                                <div><p className="text-xs text-gray-500 font-medium">Age</p><p className="font-bold">{showDetailModal.age}</p></div>
-                                <div><p className="text-xs text-gray-500 font-medium">Village</p><p className="font-bold">{showDetailModal.village}</p></div>
+                                <div><p className="text-xs text-gray-500 font-medium">Name</p><p className="font-bold">{showDetailModal.userId?.name || 'N/A'}</p></div>
+                                <div><p className="text-xs text-gray-500 font-medium">Mobile</p><p className="font-bold">{showDetailModal.userId?.mobile || 'N/A'}</p></div>
+                                <div className="col-span-2"><p className="text-xs text-gray-500 font-medium">Location</p><p className="font-bold">{showDetailModal.userId?.location?.address || 'N/A'}</p></div>
+                                <div><p className="text-xs text-gray-500 font-medium">Members Ready</p><p className="font-bold">{showDetailModal.familyMembersInterested || 1}</p></div>
                             </div>
                         </div>
                     </div>

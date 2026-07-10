@@ -240,6 +240,18 @@ export default function WorkerDashboard() {
                                 );
                             })
                         )}
+                        
+                        {applications.length > 0 && (
+                            <div className="pt-4 pb-8">
+                                <button 
+                                    onClick={() => router.push(`/${locale}/work`)}
+                                    className="w-full bg-green-600 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-green-700 transition-all shadow-lg shadow-green-200 active:scale-95"
+                                >
+                                    <Briefcase className="w-5 h-5" />
+                                    {isHindi ? 'और काम खोजें' : 'Find More Work'}
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
                 
