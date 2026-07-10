@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useLocale } from 'next-intl';
 import axios from 'axios';
-import { Loader2, Search, Briefcase, ShieldCheck, Filter, ChevronRight, Calendar, Star, Home, Users, GraduationCap, Sparkles, Package, Flower2, Heart, Scissors, UtensilsCrossed, Gem, TreePine, Leaf, Gift, MoreHorizontal, BookOpen } from 'lucide-react';
+import { Loader2, Search, Briefcase, ShieldCheck, Filter, ChevronRight, ChevronDown, Calendar, Star, Home, Users, GraduationCap, Sparkles, Package, Flower2, Heart, Scissors, UtensilsCrossed, Gem, TreePine, Leaf, Gift, MoreHorizontal, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import JobCard from '@/components/work/JobCard';
 import Nav from '@/components/Nav';
