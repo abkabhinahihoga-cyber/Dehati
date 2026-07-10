@@ -25,7 +25,10 @@ export async function GET(request: Request) {
             return NextResponse.json({ success: true, data: apps });
         }
 
-        const opportunities = await WorkOpportunity.find().sort({ createdAt: -1 }).lean();
+        const opportunities = await WorkOpportunity.find()
+            .populate('assignedHub', 'name managerPhone')
+            .sort({ createdAt: -1 })
+            .lean();
         return NextResponse.json({ success: true, data: opportunities });
 
     } catch (error: any) {
@@ -73,6 +76,18 @@ export async function POST(request: Request) {
             qualityGuidelines: formData.get('qualityGuidelines') || undefined,
             pickupProcess: formData.get('pickupProcess') || undefined,
             nearestPickupCenter: formData.get('nearestPickupCenter') || undefined,
+            assignedHub: formData.get('assignedHub') || undefined,
+            adminContactPhone: formData.get('adminContactPhone') || undefined,
+            adminContactWhatsApp: formData.get('adminContactWhatsApp') || undefined,
+            location: formData.get('location') || undefined,
+            womenFriendly: formData.get('womenFriendly') === 'true',
+            studentFriendly: formData.get('studentFriendly') === 'true',
+            seniorCitizenFriendly: formData.get('seniorCitizenFriendly') === 'true',
+            noExperienceRequired: formData.get('noExperienceRequired') === 'true',
+            isSeasonal: formData.get('isSeasonal') === 'true',
+            workAvailability: formData.get('workAvailability') || 'High Demand',
+            minimumQuantity: Number(formData.get('minimumQuantity')) || 1,
+            estimatedMonthlyIncome: Number(formData.get('estimatedMonthlyIncome')) || undefined,
             isActive: true,
             ...(imageUrl && { productImages: [imageUrl] })
         };
@@ -89,6 +104,18 @@ export async function POST(request: Request) {
         
         const commonMistakes = formData.get('commonMistakes') as string;
         if (commonMistakes) data.commonMistakes = commonMistakes.split('\n').map((s: string) => s.trim()).filter(Boolean);
+        
+        const seasonMonths = formData.get('seasonMonths') as string;
+        if (seasonMonths) data.seasonMonths = seasonMonths.split(',').map((s: string) => s.trim()).filter(Boolean);
+        
+        const faqsStr = formData.get('faqs') as string;
+        if (faqsStr) {
+            try {
+                data.faqs = JSON.parse(faqsStr);
+            } catch (e) {
+                console.error("Failed to parse faqs");
+            }
+        }
         
         const id = formData.get('_id');
         if (id) {

@@ -9,7 +9,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         await connectDb();
         const { id } = await params;
         
-        const opportunity = await WorkOpportunity.findById(id).lean();
+        const opportunity = await WorkOpportunity.findById(id).populate('assignedHub', 'name managerPhone').lean();
         
         if (!opportunity) {
             return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });

@@ -37,16 +37,31 @@ const workOpportunitySchema = new mongoose.Schema({
     whoCanApply: { type: String },
     requiredTools: [{ type: String }],
     
+    // Filters & Tags
+    womenFriendly: { type: Boolean, default: false },
+    studentFriendly: { type: Boolean, default: false },
+    seniorCitizenFriendly: { type: Boolean, default: false },
+    noExperienceRequired: { type: Boolean, default: false },
+
     // Training Materials
     trainingVideoUrl: { type: String },
     imageTutorials: [{ type: String }],
     stepByStepProcess: [{ type: String }],
     qualityGuidelines: { type: String },
     commonMistakes: [{ type: String }],
+    faqs: [{
+        question: { type: String },
+        answer: { type: String }
+    }],
     
     // Pickup & Delivery
     pickupProcess: { type: String },
-    nearestPickupCenter: { type: String }, // can be linked to Hub
+    nearestPickupCenter: { type: String }, // Can be linked to Hub name/address
+    
+    // Assignment & Contact
+    assignedHub: { type: mongoose.Schema.Types.ObjectId, ref: 'Hub' },
+    adminContactPhone: { type: String }, // Defaults to Hub manager phone
+    adminContactWhatsApp: { type: String },
     
     isActive: { type: Boolean, default: true },
     createdByAdmin: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }

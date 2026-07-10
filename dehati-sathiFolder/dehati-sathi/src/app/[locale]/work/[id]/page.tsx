@@ -68,12 +68,18 @@ export default function JobDetails({ params }: { params: { locale: string; id: s
         );
     }
 
-    const faqs = [
+    const defaultFaqs = [
         { q: isHindi ? 'क्या कोई शुल्क देना होगा?' : 'Do I need to pay any fee?', a: isHindi ? 'नहीं, कोई भी शुल्क नहीं देना होगा। सारा काम मुफ्त में मिलता है।' : 'No, you don\'t need to pay any fee. All work is provided free of cost.' },
         { q: isHindi ? 'कच्चा माल कैसे मिलेगा?' : 'How will I get raw material?', a: isHindi ? 'कंपनी या नजदीकी पिकअप सेंटर से कच्चा माल दिया जाएगा।' : 'Raw material will be provided by the company or nearest pickup center.' },
         { q: isHindi ? 'पैसे कब मिलेंगे?' : 'When will I get paid?', a: isHindi ? 'क्वालिटी चेक के बाद 7 दिन के अंदर भुगतान किया जाएगा।' : 'Payment will be made within 7 days after quality check.' },
         { q: isHindi ? 'कितने लोग काम कर सकते हैं?' : 'How many people can work?', a: isHindi ? 'आपके परिवार के सदस्य भी साथ में काम कर सकते हैं।' : 'Your family members can also work together.' },
     ];
+    
+    const faqs = (job.faqs && job.faqs.length > 0) ? job.faqs.map((f: any) => ({ q: f.question, a: f.answer })) : defaultFaqs;
+    
+    const whatsappContact = job.adminContactWhatsApp || job.assignedHub?.managerPhone || "917565089255";
+    const phoneContact = job.adminContactPhone || job.assignedHub?.managerPhone || "+917565089255";
+    const cleanWhatsapp = whatsappContact.replace(/\D/g, '');
 
     return (
         <main className="min-h-screen bg-[#f4f7f6] pb-28">
@@ -324,10 +330,10 @@ export default function JobDetails({ params }: { params: { locale: string; id: s
             {/* Bottom Action Bar */}
             <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-6 z-50">
                 <div className="flex gap-3 max-w-md mx-auto">
-                    <a href="https://wa.me/917565089255" target="_blank" rel="noopener noreferrer" className="w-14 h-14 bg-green-50 border border-green-200 rounded-2xl flex items-center justify-center text-green-600 shrink-0 hover:bg-green-100 transition-colors">
+                    <a href={`https://wa.me/${cleanWhatsapp}`} target="_blank" rel="noopener noreferrer" className="w-14 h-14 bg-green-50 border border-green-200 rounded-2xl flex items-center justify-center text-green-600 shrink-0 hover:bg-green-100 transition-colors">
                         <MessageCircle className="w-6 h-6" />
                     </a>
-                    <a href="tel:+917565089255" className="w-14 h-14 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-center text-blue-600 shrink-0 hover:bg-blue-100 transition-colors">
+                    <a href={`tel:${phoneContact}`} className="w-14 h-14 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-center text-blue-600 shrink-0 hover:bg-blue-100 transition-colors">
                         <Phone className="w-6 h-6" />
                     </a>
                     <Link 
