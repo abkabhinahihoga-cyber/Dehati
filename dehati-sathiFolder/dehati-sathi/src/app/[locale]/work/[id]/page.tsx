@@ -20,7 +20,7 @@ export default function JobDetails({ params }: { params: Promise<{ locale: strin
     const [showFAQ, setShowFAQ] = useState<number | null>(null);
 
     useEffect(() => {
-        axios.get('/api/me').then(res => { if (res.data?.user) setUser(res.data.user); }).catch(() => {});
+        axios.get('/api/me').then(res => { if (res.data?._id) setUser(res.data); }).catch(() => {});
     }, []);
 
     useEffect(() => {
@@ -328,7 +328,7 @@ export default function JobDetails({ params }: { params: Promise<{ locale: strin
             {/* Bottom Action Bar */}
             <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-6 z-50">
                 <div className="flex flex-col gap-2 max-w-md mx-auto">
-                    {job.assignedHub && (!user || user.hubId !== job.assignedHub._id) && (
+                    {job.assignedHub && (!user || user.connectedHub !== job.assignedHub._id) && (
                         <div className="text-center px-4 py-2 bg-red-50 text-red-600 font-medium text-xs rounded-lg border border-red-100">
                             {isHindi ? `यह काम केवल ${job.assignedHub.name} के सदस्यों के लिए है।` : `This job is restricted to members of ${job.assignedHub.name}.`}
                         </div>
@@ -340,9 +340,9 @@ export default function JobDetails({ params }: { params: Promise<{ locale: strin
                         <a href={`tel:${phoneContact}`} className="w-14 h-14 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-center text-blue-600 shrink-0 hover:bg-blue-100 transition-colors">
                             <Phone className="w-6 h-6" />
                         </a>
-                        {(!job.assignedHub || (user && user.hubId === job.assignedHub._id)) ? (
+                        {(!job.assignedHub || (user && user.connectedHub === job.assignedHub._id)) ? (
                             <Link 
-                                href={`/${params.locale}/work/apply/${job._id}`}
+                                href={`/${resolvedParams.locale}/work/apply/${job._id}`}
                                 className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold text-lg py-4 rounded-2xl flex items-center justify-center transition-all shadow-[0_8px_20px_rgba(22,163,74,0.3)] active:scale-95"
                             >
                                 {isHindi ? 'अभी अप्लाई करें' : 'Apply Now'}
