@@ -43,3 +43,42 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
+
+export async function GET(request: Request) {
+    try {
+        const session = await auth() as any;
+        if (session?.user?.role !== 'admin') {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        }
+        await connectDb();
+        const reports = await Report.find()
+            .populate('userId', 'name mobile')
+            .populate('workOpportunityId', 'title companyName isVerified')
+            .sort({ createdAt: -1 })
+            .lean();
+            
+        return NextResponse.json({ success: true, data: reports });
+    } catch (error: any) {
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+}
+
+export async function PATCH(request: Request) {
+    try {
+        const session = await auth() as any;
+        if (session?.user?.role !== 'admin') {
+            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+        }
+        await connectDb();
+        const { id, status } = await request.json();
+        
+        if (!id || !status) {
+            return NextResponse.json({ success: false, error: 'Missing id or status' }, { status: 400 });
+        }
+
+        const updated = await Report.findByIdAndUpdate(id, { status }, { new: true });
+        return NextResponse.json({ success: true, data: updated });
+    } catch (error: any) {
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+}

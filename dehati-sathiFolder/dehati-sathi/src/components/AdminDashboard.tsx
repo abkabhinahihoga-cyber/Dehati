@@ -819,6 +819,9 @@ export default function AdminDashboard() {
                     <Link href={`/${locale}/admin/work-management`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-gray-500 hover:bg-gray-50">
                         <Briefcase size={20} /> {locale === 'hi' ? 'काम प्रबंधन' : 'Work Marketplace'}
                     </Link>
+                    <Link href={`/${locale}/admin/reports`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-red-500 hover:bg-red-50 bg-red-50/50">
+                        <Shield size={20} /> {locale === 'hi' ? 'ट्रस्ट और सुरक्षा' : 'Trust & Safety'}
+                    </Link>
                 </nav>
                 <div className="p-4 border-t border-gray-100">
                     <button onClick={() => signOut()} className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl font-bold transition-all"><LogOut size={20}/> {locale === 'hi' ? 'लॉगआउट' : 'Logout'}</button>
