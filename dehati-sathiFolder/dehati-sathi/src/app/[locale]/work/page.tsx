@@ -159,7 +159,7 @@ export default function WorkMarketplace() {
                             </button>
                         )}
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex overflow-x-auto hide-scrollbar gap-2 pb-1">
                         {QUICK_FILTERS.map((f) => {
                             const Icon = f.icon;
                             const active = activeFilters.includes(f.key);

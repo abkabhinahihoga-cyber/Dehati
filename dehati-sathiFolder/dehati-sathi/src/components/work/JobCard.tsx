@@ -22,7 +22,7 @@ export default function JobCard({ job }: { job: any }) {
                             src={job.productImages[0]} 
                             alt={job.title} 
                             fill 
-                            className="object-contain p-2 mix-blend-multiply" 
+                            className="object-cover" 
                         />
                     ) : (
                         <div className="w-full h-full bg-gray-100 rounded-2xl flex items-center justify-center">
