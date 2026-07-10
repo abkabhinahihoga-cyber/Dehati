@@ -1,0 +1,14 @@
+{
+  "name": "dehati-sathi-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npm run build --prefix dehati-sathiFolder/dehati-sathi",
+    "install": "npm install --prefix dehati-sathiFolder/dehati-sathi"
+  },
+  "dependencies": {
+    "next": "^14.2.0",
+    "react": "^18",
+    "react-dom": "^18"
+  }
+}
