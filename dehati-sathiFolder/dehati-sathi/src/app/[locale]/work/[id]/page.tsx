@@ -13,9 +13,14 @@ export default function JobDetails({ params }: { params: { locale: string; id: s
     const isHindi = params.locale === 'hi';
     const router = useRouter();
     const [job, setJob] = useState<any>(null);
+    const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [saved, setSaved] = useState(false);
     const [showFAQ, setShowFAQ] = useState<number | null>(null);
+
+    useEffect(() => {
+        axios.get('/api/me').then(res => { if (res.data?.user) setUser(res.data.user); }).catch(() => {});
+    }, []);
 
     useEffect(() => {
         const fetchJob = async () => {
@@ -319,29 +324,37 @@ export default function JobDetails({ params }: { params: { locale: string; id: s
                 </div>
             </div>
 
-            {/* Report */}
-            <div className="mx-5 mb-6">
-                <button className="w-full bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 font-bold text-sm flex items-center justify-center gap-2 hover:bg-red-100 transition-colors">
-                    <AlertTriangle className="w-4 h-4" />
-                    {isHindi ? '🚨 नकली काम की रिपोर्ट करें' : '🚨 Report Fake Job'}
-                </button>
-            </div>
-
             {/* Bottom Action Bar */}
             <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-6 z-50">
-                <div className="flex gap-3 max-w-md mx-auto">
-                    <a href={`https://wa.me/${cleanWhatsapp}`} target="_blank" rel="noopener noreferrer" className="w-14 h-14 bg-green-50 border border-green-200 rounded-2xl flex items-center justify-center text-green-600 shrink-0 hover:bg-green-100 transition-colors">
-                        <MessageCircle className="w-6 h-6" />
-                    </a>
-                    <a href={`tel:${phoneContact}`} className="w-14 h-14 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-center text-blue-600 shrink-0 hover:bg-blue-100 transition-colors">
-                        <Phone className="w-6 h-6" />
-                    </a>
-                    <Link 
-                        href={`/${params.locale}/work/apply/${job._id}`}
-                        className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold text-lg py-4 rounded-2xl flex items-center justify-center transition-all shadow-[0_8px_20px_rgba(22,163,74,0.3)] active:scale-95"
-                    >
-                        {isHindi ? 'अभी अप्लाई करें' : 'Apply Now'}
-                    </Link>
+                <div className="flex flex-col gap-2 max-w-md mx-auto">
+                    {job.assignedHub && (!user || user.hubId !== job.assignedHub._id) && (
+                        <div className="text-center px-4 py-2 bg-red-50 text-red-600 font-medium text-xs rounded-lg border border-red-100">
+                            {isHindi ? `यह काम केवल ${job.assignedHub.name} के सदस्यों के लिए है।` : `This job is restricted to members of ${job.assignedHub.name}.`}
+                        </div>
+                    )}
+                    <div className="flex gap-3 w-full">
+                        <a href={`https://wa.me/${cleanWhatsapp}`} target="_blank" rel="noopener noreferrer" className="w-14 h-14 bg-green-50 border border-green-200 rounded-2xl flex items-center justify-center text-green-600 shrink-0 hover:bg-green-100 transition-colors">
+                            <MessageCircle className="w-6 h-6" />
+                        </a>
+                        <a href={`tel:${phoneContact}`} className="w-14 h-14 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-center text-blue-600 shrink-0 hover:bg-blue-100 transition-colors">
+                            <Phone className="w-6 h-6" />
+                        </a>
+                        {(!job.assignedHub || (user && user.hubId === job.assignedHub._id)) ? (
+                            <Link 
+                                href={`/${params.locale}/work/apply/${job._id}`}
+                                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold text-lg py-4 rounded-2xl flex items-center justify-center transition-all shadow-[0_8px_20px_rgba(22,163,74,0.3)] active:scale-95"
+                            >
+                                {isHindi ? 'अभी अप्लाई करें' : 'Apply Now'}
+                            </Link>
+                        ) : (
+                            <button 
+                                disabled
+                                className="flex-1 bg-gray-300 text-gray-500 font-bold text-lg py-4 rounded-2xl flex items-center justify-center cursor-not-allowed"
+                            >
+                                {isHindi ? 'अप्लाई नहीं कर सकते' : 'Cannot Apply'}
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
         </main>

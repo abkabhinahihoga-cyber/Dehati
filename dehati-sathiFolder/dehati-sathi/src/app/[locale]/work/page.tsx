@@ -232,19 +232,18 @@ export default function WorkMarketplace() {
                 <AnimatePresence>
                     {showSeasonalCalendar && (
                         <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="overflow-hidden"
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="bg-white rounded-xl shadow-lg border border-amber-100 p-4 mt-3"
                         >
-                            <div className="grid grid-cols-2 gap-2 mt-3">
+                            <h3 className="font-bold text-amber-900 mb-3 text-center">{isHindi ? 'सीजन का कैलेंडर' : 'Seasonal Calendar'}</h3>
+                            <div className="space-y-2">
                                 {SEASONAL_CALENDAR.map((s, i) => (
-                                    <div key={i} className="bg-white rounded-xl p-3 border border-gray-100 flex items-center gap-3 shadow-sm">
-                                        <span className="text-2xl">{s.emoji}</span>
-                                        <div>
-                                            <p className="text-[10px] font-bold text-gray-400 uppercase">{isHindi ? s.monthHi : s.month}</p>
-                                            <p className="font-bold text-gray-800 text-sm">{isHindi ? s.workHi : s.work}</p>
-                                        </div>
+                                    <div key={i} className="flex items-center gap-3 bg-amber-50/50 p-2 rounded-lg">
+                                        <div className="w-12 text-center text-xs font-bold text-amber-600 bg-amber-100 py-1 rounded">{isHindi ? s.monthHi : s.month}</div>
+                                        <div className="flex-1 font-medium text-sm text-gray-800">{isHindi ? s.workHi : s.work}</div>
+                                        <div className="text-xl">{s.emoji}</div>
                                     </div>
                                 ))}
                             </div>
@@ -312,24 +311,6 @@ export default function WorkMarketplace() {
                 )}
             </div>
 
-            {/* Trust Banner */}
-            <div className="max-w-md mx-auto px-5 mt-8">
-                <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-2xl p-5">
-                    <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                            <ShieldCheck className="w-5 h-5 text-red-600" />
-                        </div>
-                        <div>
-                            <h3 className="font-bold text-red-900 mb-1">{isHindi ? '⚠️ कभी पैसे न दें!' : '⚠️ Never Pay for Jobs!'}</h3>
-                            <p className="text-sm text-red-700 leading-relaxed">
-                                {isHindi 
-                                    ? 'कोई भी असली कंपनी काम देने के लिए पैसे नहीं मांगती। अगर कोई पैसे मांगे, तो तुरंत रिपोर्ट करें।' 
-                                    : 'No genuine company asks for money to provide work. If anyone asks for payment, report immediately.'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </main>
     );
 }
