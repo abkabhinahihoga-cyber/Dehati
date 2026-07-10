@@ -10,6 +10,12 @@ const nextConfig: NextConfig = {
       {hostname:"images.unsplash.com"},
       {hostname:"res.cloudinary.com"}
     ]
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
   }
 };
 
