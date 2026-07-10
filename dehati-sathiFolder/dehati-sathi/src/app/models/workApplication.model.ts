@@ -5,16 +5,16 @@ const workApplicationSchema = new mongoose.Schema({
     workOpportunityId: { type: mongoose.Schema.Types.ObjectId, ref: 'WorkOpportunity', required: true },
     
     // Application Form Details
-    fullName: { type: String, required: true },
-    mobileNumber: { type: String, required: true },
-    village: { type: String, required: true },
-    district: { type: String, required: true },
-    state: { type: String, required: true },
-    age: { type: Number, required: true },
+    fullName: { type: String },
+    mobileNumber: { type: String },
+    village: { type: String },
+    district: { type: String },
+    state: { type: String },
+    age: { type: Number },
     gender: { type: String, enum: ['Male', 'Female', 'Other', 'Prefer not to say'] },
     occupation: { type: String },
     experience: { type: String },
-    workingHoursPerDay: { type: Number, required: true },
+    workingHoursPerDay: { type: Number },
     familyMembersInterested: { type: Number, default: 1 },
     aadhaarUrl: { type: String }, // Saved during application process
     

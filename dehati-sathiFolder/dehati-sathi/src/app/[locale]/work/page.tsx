@@ -58,8 +58,6 @@ export default function WorkMarketplace() {
     const [category, setCategory] = useState('All');
     const [search, setSearch] = useState('');
     const [user, setUser] = useState<any>(null);
-    const [activeFilters, setActiveFilters] = useState<string[]>([]);
-    const [showFilters, setShowFilters] = useState(false);
     const [showSeasonalCalendar, setShowSeasonalCalendar] = useState(false);
 
     useEffect(() => {
@@ -89,20 +87,11 @@ export default function WorkMarketplace() {
     };
 
     const filteredJobs = useMemo(() => {
-        let result = jobs.filter((j: any) => {
+        return jobs.filter((j: any) => {
             const query = search.toLowerCase();
             return j.title.toLowerCase().includes(query) || (j.titleHindi && j.titleHindi.toLowerCase().includes(query)) || j.companyName.toLowerCase().includes(query);
         });
-
-        // Apply quick filters
-        if (activeFilters.includes('homeBased')) result = result.filter((j: any) => j.workType === 'Home Based');
-        if (activeFilters.includes('trainingAvailable')) result = result.filter((j: any) => j.trainingAvailable);
-        if (activeFilters.includes('rawMaterial')) result = result.filter((j: any) => j.rawMaterialProvided);
-        if (activeFilters.includes('verified')) result = result.filter((j: any) => j.isVerified);
-        if (activeFilters.includes('noExperience')) result = result.filter((j: any) => j.skillLevel === 'Beginner');
-
-        return result;
-    }, [jobs, search, activeFilters]);
+    }, [jobs, search]);
 
     return (
         <main className="min-h-screen bg-[#f4f7f6] pb-24">
@@ -146,71 +135,7 @@ export default function WorkMarketplace() {
                 </div>
             </div>
 
-            {/* QUICK FILTERS */}
-            <div className="max-w-md mx-auto px-5 -mt-6 relative z-20">
-                <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-                    <button 
-                        onClick={() => setShowFilters(!showFilters)}
-                        className="w-full p-4 flex items-center justify-between bg-white hover:bg-gray-50 transition-colors"
-                    >
-                        <h3 className="font-bold text-gray-800 text-sm flex items-center gap-2">
-                            <Filter className="w-4 h-4 text-green-600" />
-                            {isHindi ? 'फिल्टर' : 'Filters'}
-                            {activeFilters.length > 0 && (
-                                <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs ml-1">
-                                    {activeFilters.length}
-                                </span>
-                            )}
-                        </h3>
-                        <div className="flex items-center gap-3">
-                            {activeFilters.length > 0 && (
-                                <span 
-                                    onClick={(e) => { e.stopPropagation(); setActiveFilters([]); }} 
-                                    className="text-xs text-red-500 font-bold hover:underline"
-                                >
-                                    {isHindi ? 'हटाएं' : 'Clear'}
-                                </span>
-                            )}
-                            <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-                        </div>
-                    </button>
-                    
-                    <AnimatePresence>
-                        {showFilters && (
-                            <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                className="px-4 pb-4 border-t border-gray-50"
-                            >
-                                <div className="flex overflow-x-auto hide-scrollbar gap-2 pt-3 pb-1">
-                                    {QUICK_FILTERS.map((f) => {
-                                        const Icon = f.icon;
-                                        const active = activeFilters.includes(f.key);
-                                        return (
-                                            <button
-                                                key={f.key}
-                                                onClick={() => {
-                                                    if (active) setActiveFilters(activeFilters.filter(k => k !== f.key));
-                                                    else setActiveFilters([...activeFilters, f.key]);
-                                                }}
-                                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-sm font-medium whitespace-nowrap transition-all shrink-0
-                                                    ${active 
-                                                        ? 'bg-green-50 border-green-200 text-green-700' 
-                                                        : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
-                                                    }`}
-                                            >
-                                                <Icon className={`w-3.5 h-3.5 ${active ? 'text-green-600' : 'text-gray-400'}`} />
-                                                {isHindi ? f.labelHi : f.label}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-            </div>
+
 
             {/* CATEGORIES SCROLL */}
             <div className="max-w-md mx-auto px-5 mt-6 mb-2">

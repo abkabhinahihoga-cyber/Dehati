@@ -326,7 +326,7 @@ export default function JobDetails({ params }: { params: Promise<{ locale: strin
             </div>
 
             {/* Bottom Action Bar */}
-            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-6 z-50">
+            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-24 md:pb-6 z-40">
                 <div className="flex flex-col gap-2 max-w-md mx-auto">
                     {job.assignedHub && (!user || user.connectedHub !== job.assignedHub._id) && (
                         <div className="text-center px-4 py-2 bg-red-50 text-red-600 font-medium text-xs rounded-lg border border-red-100">

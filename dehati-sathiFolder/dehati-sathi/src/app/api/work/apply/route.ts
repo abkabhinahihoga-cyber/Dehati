@@ -36,14 +36,7 @@ export async function POST(request: Request) {
 
         const data = {
             workOpportunityId,
-            fullName: formData.get('fullName'),
-            mobileNumber: formData.get('mobileNumber'),
-            village: formData.get('village'),
-            district: formData.get('district'),
-            state: formData.get('state'),
-            age: Number(formData.get('age')),
-            occupation: formData.get('occupation'),
-            workingHoursPerDay: Number(formData.get('workingHoursPerDay')),
+            familyMembersInterested: Number(formData.get('familyMembersInterested')) || 1,
             aadhaarUrl
         };
 

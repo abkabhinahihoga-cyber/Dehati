@@ -13,17 +13,15 @@ export default function ApplyJob({ params }: { params: Promise<{ locale: string;
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [user, setUser] = useState<any>(null);
 
     const [form, setForm] = useState({
-        fullName: '',
-        mobileNumber: '',
-        village: '',
-        district: '',
-        state: '',
-        age: '',
-        occupation: '',
-        workingHoursPerDay: ''
+        familyMembersInterested: '1'
     });
+    
+    React.useEffect(() => {
+        axios.get('/api/me').then(res => { if (res.data?._id) setUser(res.data); }).catch(() => {});
+    }, []);
     const [aadhaarFile, setAadhaarFile] = useState<File | null>(null);
 
     const handleChange = (e: any) => {
@@ -33,7 +31,7 @@ export default function ApplyJob({ params }: { params: Promise<{ locale: string;
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         
-        if (!aadhaarFile) {
+        if (!user?.workerProfile?.aadhaarUrl && !aadhaarFile) {
             toast.error(isHindi ? 'कृपया आधार कार्ड की फोटो अपलोड करें' : 'Please upload Aadhaar Card photo');
             return;
         }
@@ -43,7 +41,8 @@ export default function ApplyJob({ params }: { params: Promise<{ locale: string;
             const formData = new FormData();
             Object.keys(form).forEach(key => formData.append(key, (form as any)[key]));
             formData.append('workOpportunityId', resolvedParams.id);
-            formData.append('aadhaarCard', aadhaarFile);
+            formData.append('familyMembersInterested', form.familyMembersInterested);
+            if (aadhaarFile) formData.append('aadhaarCard', aadhaarFile);
             
             const res = await axios.post('/api/work/apply', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
@@ -94,63 +93,29 @@ export default function ApplyJob({ params }: { params: Promise<{ locale: string;
 
             <form onSubmit={handleSubmit} className="p-5 max-w-md mx-auto space-y-4">
                 <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">{isHindi ? 'पूरा नाम' : 'Full Name'}</label>
-                    <input required name="fullName" value={form.fullName} onChange={handleChange} type="text" className="w-full bg-gray-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-green-500" placeholder={isHindi ? 'अपना नाम लिखें' : 'Enter your name'} />
+                    <label className="block text-sm font-bold text-gray-700 mb-1">{isHindi ? 'आपके परिवार के कितने लोग यह काम करेंगे?' : 'How many family members will work?'}</label>
+                    <input required name="familyMembersInterested" value={form.familyMembersInterested} onChange={handleChange} type="number" min="1" className="w-full bg-gray-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-green-500" placeholder="e.g., 1, 2, 3" />
                 </div>
                 
-                <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">{isHindi ? 'मोबाइल नंबर' : 'Mobile Number'}</label>
-                    <input required name="mobileNumber" value={form.mobileNumber} onChange={handleChange} type="tel" className="w-full bg-gray-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-green-500" placeholder="10 digit number" />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
+                {user && !user.workerProfile?.aadhaarUrl && (
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-1">{isHindi ? 'गाँव' : 'Village'}</label>
-                        <input required name="village" value={form.village} onChange={handleChange} type="text" className="w-full bg-gray-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-green-500" />
+                        <label className="block text-sm font-bold text-gray-700 mb-1">{isHindi ? 'आधार कार्ड की फोटो' : 'Aadhaar Card Photo'}</label>
+                        <div className="flex items-center justify-center w-full">
+                            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-green-300 rounded-xl cursor-pointer bg-green-50 hover:bg-green-100 transition">
+                                <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
+                                    <svg className="w-8 h-8 mb-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                    <p className="mb-2 text-sm text-gray-700 font-medium">{aadhaarFile ? aadhaarFile.name : (isHindi ? 'फोटो अपलोड करने के लिए क्लिक करें' : 'Click to upload photo')}</p>
+                                    <p className="text-xs text-gray-500">{isHindi ? 'केवल इमेज (JPG, PNG)' : 'Images only (JPG, PNG)'}</p>
+                                </div>
+                                <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                        setAadhaarFile(e.target.files[0]);
+                                    }
+                                }} />
+                            </label>
+                        </div>
                     </div>
-                    <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-1">{isHindi ? 'उम्र' : 'Age'}</label>
-                        <input required name="age" value={form.age} onChange={handleChange} type="number" className="w-full bg-gray-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-green-500" />
-                    </div>
-                </div>
-
-                <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">{isHindi ? 'जिला' : 'District'}</label>
-                    <input required name="district" value={form.district} onChange={handleChange} type="text" className="w-full bg-gray-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-green-500" />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">{isHindi ? 'राज्य' : 'State'}</label>
-                    <input required name="state" value={form.state} onChange={handleChange} type="text" className="w-full bg-gray-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-green-500" />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">{isHindi ? 'वर्तमान काम' : 'Current Occupation'}</label>
-                    <input required name="occupation" value={form.occupation} onChange={handleChange} type="text" className="w-full bg-gray-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-green-500" placeholder={isHindi ? 'उदा. खेती, गृहिणी, छात्र' : 'e.g., Farming, Housewife, Student'} />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">{isHindi ? 'रोजाना कितने घंटे काम कर सकते हैं?' : 'How many hours can you work daily?'}</label>
-                    <input required name="workingHoursPerDay" value={form.workingHoursPerDay} onChange={handleChange} type="number" className="w-full bg-gray-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-green-500" placeholder="e.g., 4" />
-                </div>
-                
-                <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">{isHindi ? 'आधार कार्ड की फोटो' : 'Aadhaar Card Photo'}</label>
-                    <div className="flex items-center justify-center w-full">
-                        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-green-300 rounded-xl cursor-pointer bg-green-50 hover:bg-green-100 transition">
-                            <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
-                                <svg className="w-8 h-8 mb-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                                <p className="mb-2 text-sm text-gray-700 font-medium">{aadhaarFile ? aadhaarFile.name : (isHindi ? 'फोटो अपलोड करने के लिए क्लिक करें' : 'Click to upload photo')}</p>
-                                <p className="text-xs text-gray-500">{isHindi ? 'केवल इमेज (JPG, PNG)' : 'Images only (JPG, PNG)'}</p>
-                            </div>
-                            <input type="file" className="hidden" accept="image/*" onChange={(e) => {
-                                if (e.target.files && e.target.files[0]) {
-                                    setAadhaarFile(e.target.files[0]);
-                                }
-                            }} />
-                        </label>
-                    </div>
-                </div>
+                )}
 
                 <div className="pt-6">
                     <button 
