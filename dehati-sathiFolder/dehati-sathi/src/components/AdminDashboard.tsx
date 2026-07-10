@@ -6,7 +6,7 @@ import {
     Menu, X, ChevronLeft, Store, Truck, User, Search, 
     Package, Map, Phone, Bike, FileText,
     Layers, Trash, Image as ImageIcon, 
-    ArrowUp, ArrowDown, ExternalLink, Loader2, Briefcase
+    ArrowUp, ArrowDown, ExternalLink, Loader2, Briefcase, BellRing
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import axios from 'axios'
@@ -821,6 +821,9 @@ export default function AdminDashboard() {
                     </Link>
                     <Link href={`/${locale}/admin/reports`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-red-500 hover:bg-red-50 bg-red-50/50">
                         <Shield size={20} /> {locale === 'hi' ? 'ट्रस्ट और सुरक्षा' : 'Trust & Safety'}
+                    </Link>
+                    <Link href={`/${locale}/admin/push-notifications`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-purple-600 hover:bg-purple-50 bg-purple-50/50 mt-2 border border-purple-100">
+                        <BellRing size={20} /> {locale === 'hi' ? 'पुश नोटिफिकेशन्स' : 'Push Notifications'}
                     </Link>
                 </nav>
                 <div className="p-4 border-t border-gray-100">

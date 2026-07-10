@@ -29,6 +29,7 @@ import { useSidebar } from '@/context/SidebarContext'
 import axios from 'axios'
 import NotificationBell from './NotificationBell'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
+import PushNotificationManager from './PushNotificationManager'
 
 interface INavUser {
     _id?: string;
@@ -170,11 +171,13 @@ function Nav({ user }: { user: INavUser }) {
                                             }
                                             close();
                                         }} 
-                                        className='flex w-full items-center gap-4 p-3 mx-2 rounded-lg text-green-700 hover:bg-green-50 font-medium bg-green-50/50'
+                                        className='flex w-full items-center gap-4 p-3 mx-2 rounded-lg text-green-700 hover:bg-green-50 font-medium bg-green-50/50 mb-2'
                                     >
                                         <Download className='text-green-600' /> {locale === 'hi' ? 'ऐप इंस्टॉल करें' : 'Install App'}
                                     </button>
                                 )}
+
+                                <PushNotificationManager />
                                 
                                 {/* --- SELLER / BECOME SELLER OPTIONS MOVED UP --- */}
                                 {(user.role === 'seller' || user.sellerStatus === 'approved') && (
