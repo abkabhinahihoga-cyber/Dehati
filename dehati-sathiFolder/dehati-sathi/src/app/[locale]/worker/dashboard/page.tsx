@@ -175,7 +175,7 @@ export default function WorkerDashboard() {
                                                 : (isHindi ? 'आपने अभी तक किसी काम के लिए आवेदन नहीं किया है।' : 'You haven\'t applied for any work yet.')}
                                         </p>
                                         <button 
-                                            onClick={() => router.push(`/${locale}/work`)}
+                                            onClick={() => router.push(`/${locale}/work?feed=true`)}
                                             className="bg-green-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-green-700 transition"
                                         >
                                             {isHindi ? 'काम खोजें' : 'Find Work'}
@@ -264,7 +264,7 @@ export default function WorkerDashboard() {
                         {applications.length > 0 && (
                             <div className="pt-4 pb-8">
                                 <button 
-                                    onClick={() => router.push(`/${locale}/work`)}
+                                    onClick={() => router.push(`/${locale}/work?feed=true`)}
                                     className="w-full bg-green-600 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-green-700 transition-all shadow-lg shadow-green-200 active:scale-95"
                                 >
                                     <Briefcase className="w-5 h-5" />
@@ -380,7 +380,7 @@ export default function WorkerDashboard() {
 
                         {/* Find More Work Button */}
                         <button 
-                            onClick={() => router.push(`/${locale}/work`)}
+                            onClick={() => router.push(`/${locale}/work?feed=true`)}
                             className="w-full bg-green-600 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-green-700 transition-all shadow-lg shadow-green-200 active:scale-95"
                         >
                             <Briefcase className="w-5 h-5" />

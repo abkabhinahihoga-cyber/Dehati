@@ -65,10 +65,16 @@ export default function WorkMarketplace() {
         axios.get('/api/me').then(res => { if (res.data?.user) setUser(res.data.user); }).catch(() => {});
         axios.get('/api/work/dashboard').then(res => {
             if (res.data.success && res.data.data.applications) {
-                setMyApplications(res.data.data.applications);
+                const apps = res.data.data.applications;
+                setMyApplications(apps);
+                
+                const params = new URLSearchParams(window.location.search);
+                if (apps.length > 0 && params.get('feed') !== 'true') {
+                    router.push(`/${locale}/worker/dashboard`);
+                }
             }
         }).catch(() => {});
-    }, []);
+    }, [locale, router]);
 
     useEffect(() => {
         const fetchJobs = async () => {
