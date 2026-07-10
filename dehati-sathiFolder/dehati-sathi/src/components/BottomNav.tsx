@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { Home, PlayCircle, ShoppingBag, User, Store, Plus } from 'lucide-react'
+import { Home, PlayCircle, ShoppingBag, User, Store, Plus, DollarSign } from 'lucide-react'
 import { Link, usePathname } from '@/i18n/routing'
 import { useSidebar } from '@/context/SidebarContext'
 import Image from 'next/image'
@@ -65,9 +65,9 @@ export default function BottomNav({ user: propUser }: { user: any }) {
                     </Link>
                 </div>
 
-                <Link href="/user/my-orders" className={`flex flex-col items-center gap-1 w-1/5 ${isActive('/user/my-orders') ? 'text-green-600' : 'text-gray-500'}`}>
-                    <ShoppingBag size={22} strokeWidth={isActive('/user/my-orders') ? 2.5 : 2} />
-                    <span className="text-[10px] font-medium">{t('orders')}</span>
+                <Link href="/work" className={`flex flex-col items-center gap-1 w-1/5 ${isActive('/work') ? 'text-green-600' : 'text-gray-500'}`}>
+                    <DollarSign size={22} strokeWidth={isActive('/work') ? 2.5 : 2} />
+                    <span className="text-[10px] font-medium">{t('earn') || 'Earn'}</span>
                 </Link>
 
                 <button onClick={toggle} className={`flex flex-col items-center gap-1 w-1/5 text-gray-500`}>

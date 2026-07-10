@@ -16,6 +16,7 @@ const workApplicationSchema = new mongoose.Schema({
     experience: { type: String },
     workingHoursPerDay: { type: Number, required: true },
     familyMembersInterested: { type: Number, default: 1 },
+    aadhaarUrl: { type: String }, // Saved during application process
     
     // Status
     status: { 

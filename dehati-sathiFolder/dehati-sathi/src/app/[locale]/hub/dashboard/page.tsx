@@ -61,9 +61,9 @@ export default function HubDashboard() {
             <h1 className="text-3xl font-black text-gray-800 mb-8">{locale === 'hi' ? 'हब डैशबोर्ड' : 'Hub Dashboard'}</h1>
 
             {/* AUTO ASSIGN CARD */}
-            <div className="bg-gradient-to-r from-purple-50 to-white p-6 rounded-2xl shadow-sm border border-purple-100 mb-8">
+            <div className="bg-gradient-to-r from-green-50 to-white p-6 rounded-2xl shadow-sm border border-green-100 mb-8">
                 <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-purple-600 text-white rounded-lg shadow-md"><Clock size={20}/></div>
+                    <div className="p-2 bg-green-600 text-white rounded-lg shadow-md"><Clock size={20}/></div>
                     <div>
                         <h3 className="font-bold text-gray-800 text-lg">{locale === 'hi' ? 'ऑटो-असाइनमेंट शेड्यूलर' : 'Auto-Assignment Scheduler'}</h3>
                         <p className="text-xs text-gray-500">{locale === 'hi' ? 'सभी उपलब्ध ड्राइवरों को स्वचालित रूप से लंबित ऑर्डर पेश करें।' : 'Automatically offer pending orders to all available drivers.'}</p>
@@ -75,15 +75,15 @@ export default function HubDashboard() {
                         <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">{locale === 'hi' ? 'दैनिक रिलीज़ का समय' : 'Daily Release Time'}</label>
                         <input 
                             type="time" 
-                            className="w-full p-3 border border-gray-300 rounded-xl font-bold text-gray-800 outline-none focus:ring-2 focus:ring-purple-500"
+                            className="w-full p-3 border border-gray-300 rounded-xl font-bold text-gray-800 outline-none focus:ring-2 focus:ring-green-500"
                             value={autoTime}
                             onChange={(e) => setAutoTime(e.target.value)}
                         />
                     </div>
-                    <button onClick={saveAutoTime} disabled={loading} className="w-full md:w-auto bg-purple-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-purple-700 transition-colors shadow-lg shadow-purple-200">
+                    <button onClick={saveAutoTime} disabled={loading} className="w-full md:w-auto bg-green-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-green-700 transition-colors shadow-lg shadow-green-200">
                         {loading ? (locale === 'hi' ? "सेव हो रहा है..." : "Saving...") : (locale === 'hi' ? "समय सहेजें" : "Save Time")}
                     </button>
-                    <button onClick={triggerManualAutoAssign} className="w-full md:w-auto flex items-center justify-center gap-2 bg-white text-purple-700 border border-purple-200 font-bold py-3 px-6 rounded-xl hover:bg-purple-50 transition-colors">
+                    <button onClick={triggerManualAutoAssign} className="w-full md:w-auto flex items-center justify-center gap-2 bg-white text-green-700 border border-green-200 font-bold py-3 px-6 rounded-xl hover:bg-green-50 transition-colors">
                         <Zap size={18} fill="currentColor"/> {locale === 'hi' ? 'अभी रिलीज़ करें' : 'Release Now'}
                     </button>
                 </div>
@@ -95,9 +95,9 @@ export default function HubDashboard() {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-xs font-bold text-gray-400 uppercase">{locale === 'hi' ? 'कुल आय' : 'Total Revenue'}</p>
-                            <h3 className="text-3xl font-black text-indigo-600 mt-1">₹{stats.revenue}</h3>
+                            <h3 className="text-3xl font-black text-green-600 mt-1">₹{stats.revenue}</h3>
                         </div>
-                        <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl"><Store size={24}/></div>
+                        <div className="p-3 bg-green-50 text-green-600 rounded-xl"><Store size={24}/></div>
                     </div>
                 </div>
                
@@ -120,12 +120,12 @@ export default function HubDashboard() {
                     </div>
                 </div>
                 <Link href="/hub/delivery-requests" className="group">
-                    <div className="bg-indigo-600 p-6 rounded-2xl shadow-lg shadow-indigo-200 transition-transform hover:scale-105 cursor-pointer relative overflow-hidden">
+                    <div className="bg-green-600 p-6 rounded-2xl shadow-lg shadow-green-200 transition-transform hover:scale-105 cursor-pointer relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-4 opacity-10"><Bike size={80} className="text-white"/></div>
                         <div className="relative z-10 text-white">
                             <p className="text-xs font-bold uppercase opacity-80">{locale === 'hi' ? 'नौकरी के आवेदन' : 'Job Applications'}</p>
                             <h3 className="text-3xl font-black mt-1">{stats.pendingDeliveryReqs}</h3>
-                            <div className="mt-4 flex items-center gap-2 text-sm font-bold bg-white/20 w-fit px-3 py-1 rounded-lg backdrop-blur-sm group-hover:bg-white group-hover:text-indigo-600 transition-colors">
+                            <div className="mt-4 flex items-center gap-2 text-sm font-bold bg-white/20 w-fit px-3 py-1 rounded-lg backdrop-blur-sm group-hover:bg-white group-hover:text-green-600 transition-colors">
                                 {locale === 'hi' ? 'अनुरोधों की समीक्षा करें' : 'Review Requests'} <ChevronRight size={16}/>
                             </div>
                         </div>
@@ -135,8 +135,8 @@ export default function HubDashboard() {
             
             <h2 className="text-xl font-bold text-gray-800 mb-6">{locale === 'hi' ? 'त्वरित प्रबंधन' : 'Quick Management'}</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                 <Link href="/hub/orders" className="flex items-center gap-4 p-5 bg-white border border-gray-200 rounded-xl hover:border-indigo-500 hover:shadow-md transition-all group">
-                    <div className="w-12 h-12 bg-gray-50 text-gray-600 rounded-full flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                 <Link href="/hub/orders" className="flex items-center gap-4 p-5 bg-white border border-gray-200 rounded-xl hover:border-green-500 hover:shadow-md transition-all group">
+                    <div className="w-12 h-12 bg-gray-50 text-gray-600 rounded-full flex items-center justify-center group-hover:bg-green-600 group-hover:text-white transition-colors">
                         <Package size={20}/>
                     </div>
                     <div>

@@ -52,6 +52,12 @@ export interface IUser {
         totalEarnings: number;
         completedJobs: number;
         ratings: number;
+        aadhaarUrl?: string;
+        bankDetails?: {
+            accountNumber: string;
+            ifsc: string;
+            bankName: string;
+        };
     };
     
     // Refer & Earn Fields
@@ -147,7 +153,13 @@ const userSchema = new Schema<IUser>(
             availableHours: { type: Number, default: 0 },
             totalEarnings: { type: Number, default: 0 },
             completedJobs: { type: Number, default: 0 },
-            ratings: { type: Number, default: 0 }
+            ratings: { type: Number, default: 0 },
+            aadhaarUrl: { type: String },
+            bankDetails: {
+                accountNumber: { type: String },
+                ifsc: { type: String },
+                bankName: { type: String }
+            }
         }
     },
     { timestamps: true }

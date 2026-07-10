@@ -3,6 +3,7 @@ import connectDb from '@/lib/db';
 import WorkApplication from '@/app/models/workApplication.model';
 import { auth } from '@/auth';
 import User from '@/app/models/user.model';
+import uploadOnCloudinary from "@/lib/cloudinary";
 
 export async function POST(request: Request) {
     try {
@@ -12,17 +13,39 @@ export async function POST(request: Request) {
         }
 
         await connectDb();
-        const data = await request.json();
+        const formData = await request.formData();
+        
+        const workOpportunityId = formData.get('workOpportunityId');
         
         // Check if already applied
         const existing = await WorkApplication.findOne({ 
             userId: session.user.id, 
-            workOpportunityId: data.workOpportunityId 
+            workOpportunityId: workOpportunityId 
         });
         
         if (existing) {
             return NextResponse.json({ success: false, error: 'Already applied' }, { status: 400 });
         }
+
+        let aadhaarUrl = '';
+        const aadhaarFile = formData.get('aadhaarCard') as File | null;
+        if (aadhaarFile) {
+            const uploadedUrl = await uploadOnCloudinary(aadhaarFile);
+            if (uploadedUrl) aadhaarUrl = uploadedUrl;
+        }
+
+        const data = {
+            workOpportunityId,
+            fullName: formData.get('fullName'),
+            mobileNumber: formData.get('mobileNumber'),
+            village: formData.get('village'),
+            district: formData.get('district'),
+            state: formData.get('state'),
+            age: Number(formData.get('age')),
+            occupation: formData.get('occupation'),
+            workingHoursPerDay: Number(formData.get('workingHoursPerDay')),
+            aadhaarUrl
+        };
 
         const application = new WorkApplication({
             ...data,
@@ -30,9 +53,10 @@ export async function POST(request: Request) {
         });
         await application.save();
         
-        // Update user to be a worker if they aren't already
+        // Update user to be a worker if they aren't already, and save aadhaar URL to profile
         await User.findByIdAndUpdate(session.user.id, {
             'workerProfile.isWorker': true,
+            ...(aadhaarUrl && { 'workerProfile.aadhaarUrl': aadhaarUrl }),
             $addToSet: {
                 'workerProfile.skills': data.occupation || 'General Work'
             }

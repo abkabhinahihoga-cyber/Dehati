@@ -77,7 +77,7 @@ export default function JobCard({ job }: { job: any }) {
                             <div className="flex items-center gap-1 text-green-700">
                                 <IndianRupee className="w-4 h-4" strokeWidth={3} />
                                 <span className="font-black text-xl">{job.paymentPerPiece}</span>
-                                <span className="text-xs font-bold mt-1 text-green-600/70">/ {isHindi ? 'पीस' : 'piece'}</span>
+                                <span className="text-xs font-bold mt-1 text-green-600/70">/ {job.paymentUnit || (isHindi ? 'पीस' : 'piece')}</span>
                             </div>
                         </div>
                         <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-colors">

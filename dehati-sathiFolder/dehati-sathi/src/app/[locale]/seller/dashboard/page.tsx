@@ -379,7 +379,7 @@ function SellerDashboard() {
                     <div className="flex gap-2">
                         <button 
                             onClick={() => setShowUploadModal(true)} 
-                            className='bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-purple-200 transition-all flex items-center gap-2'
+                            className='bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-teal-200 transition-all flex items-center gap-2'
                         >
                             <Video className='w-5 h-5 text-white' /> 
                             <span className="text-white">{t.addReel}</span>

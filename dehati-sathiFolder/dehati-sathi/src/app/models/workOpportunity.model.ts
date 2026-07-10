@@ -19,6 +19,7 @@ const workOpportunitySchema = new mongoose.Schema({
     // Earnings & Quantities
     estimatedTimePerPieceMinutes: { type: Number },
     paymentPerPiece: { type: Number, required: true },
+    paymentUnit: { type: String, default: 'piece' },
     estimatedDailyIncome: { type: Number },
     estimatedMonthlyIncome: { type: Number },
     minimumQuantity: { type: Number, default: 1 },

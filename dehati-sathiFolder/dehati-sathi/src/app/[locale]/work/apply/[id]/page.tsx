@@ -23,6 +23,7 @@ export default function ApplyJob({ params }: { params: { locale: string; id: str
         occupation: '',
         workingHoursPerDay: ''
     });
+    const [aadhaarFile, setAadhaarFile] = useState<File | null>(null);
 
     const handleChange = (e: any) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -30,13 +31,21 @@ export default function ApplyJob({ params }: { params: { locale: string; id: str
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
+        
+        if (!aadhaarFile) {
+            toast.error(isHindi ? 'कृपया आधार कार्ड की फोटो अपलोड करें' : 'Please upload Aadhaar Card photo');
+            return;
+        }
+        
         setLoading(true);
         try {
-            const res = await axios.post('/api/work/apply', {
-                ...form,
-                workOpportunityId: params.id,
-                age: Number(form.age),
-                workingHoursPerDay: Number(form.workingHoursPerDay)
+            const formData = new FormData();
+            Object.keys(form).forEach(key => formData.append(key, (form as any)[key]));
+            formData.append('workOpportunityId', params.id);
+            formData.append('aadhaarCard', aadhaarFile);
+            
+            const res = await axios.post('/api/work/apply', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
             if (res.data.success) {
                 setSuccess(true);
@@ -122,6 +131,24 @@ export default function ApplyJob({ params }: { params: { locale: string; id: str
                 <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">{isHindi ? 'रोजाना कितने घंटे काम कर सकते हैं?' : 'How many hours can you work daily?'}</label>
                     <input required name="workingHoursPerDay" value={form.workingHoursPerDay} onChange={handleChange} type="number" className="w-full bg-gray-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-green-500" placeholder="e.g., 4" />
+                </div>
+                
+                <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">{isHindi ? 'आधार कार्ड की फोटो' : 'Aadhaar Card Photo'}</label>
+                    <div className="flex items-center justify-center w-full">
+                        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-green-300 rounded-xl cursor-pointer bg-green-50 hover:bg-green-100 transition">
+                            <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
+                                <svg className="w-8 h-8 mb-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                <p className="mb-2 text-sm text-gray-700 font-medium">{aadhaarFile ? aadhaarFile.name : (isHindi ? 'फोटो अपलोड करने के लिए क्लिक करें' : 'Click to upload photo')}</p>
+                                <p className="text-xs text-gray-500">{isHindi ? 'केवल इमेज (JPG, PNG)' : 'Images only (JPG, PNG)'}</p>
+                            </div>
+                            <input type="file" className="hidden" accept="image/*" onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                    setAadhaarFile(e.target.files[0]);
+                                }
+                            }} />
+                        </label>
+                    </div>
                 </div>
 
                 <div className="pt-6">
