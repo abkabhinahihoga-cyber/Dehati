@@ -297,10 +297,10 @@ export default function AdminWorkManagement() {
                                         </select>
                                     </td>
                                     <td className="p-4">
-                                        {app.aadhaarUrl ? (
-                                            <button onClick={() => setShowDetailModal(app)} className="text-blue-600 hover:bg-blue-50 p-2 rounded transition-colors flex items-center gap-1 text-xs font-bold" title="View Aadhaar">
+                                        {(app.aadhaarUrl || app.userId?.workerProfile?.aadhaarUrl) ? (
+                                            <a href={app.aadhaarUrl || app.userId?.workerProfile?.aadhaarUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:bg-blue-50 p-2 rounded transition-colors flex items-center gap-1 text-xs font-bold" title="View Aadhaar">
                                                 <Eye className="w-4 h-4" /> View
-                                            </button>
+                                            </a>
                                         ) : (
                                             <span className="text-gray-400 text-xs">Not uploaded</span>
                                         )}

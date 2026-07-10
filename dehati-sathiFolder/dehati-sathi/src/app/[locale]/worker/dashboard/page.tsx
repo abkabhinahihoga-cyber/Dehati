@@ -29,7 +29,7 @@ export default function WorkerDashboard() {
     const [profile, setProfile] = useState<any>({});
     const [applications, setApplications] = useState<any[]>([]);
     
-    const [activeTab, setActiveTab] = useState<'applications' | 'calculator' | 'profile'>('applications');
+    const [activeTab, setActiveTab] = useState<'work' | 'applications' | 'calculator' | 'profile'>('work');
     
     // Earnings calculator state
     const [calcPieces, setCalcPieces] = useState('50');
@@ -122,22 +122,28 @@ export default function WorkerDashboard() {
 
             {/* Tabs */}
             <div className="max-w-md mx-auto px-5 mt-6 mb-4">
-                <div className="flex bg-white rounded-xl shadow-sm border border-gray-100 p-1">
+                <div className="flex overflow-x-auto hide-scrollbar bg-white rounded-xl shadow-sm border border-gray-100 p-1 gap-1">
+                    <button 
+                        onClick={() => setActiveTab('work')}
+                        className={`px-4 py-2.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${activeTab === 'work' ? 'bg-green-100 text-green-700' : 'text-gray-500'}`}
+                    >
+                        {isHindi ? 'मेरे काम' : 'My Work'}
+                    </button>
                     <button 
                         onClick={() => setActiveTab('applications')}
-                        className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all ${activeTab === 'applications' ? 'bg-green-100 text-green-700' : 'text-gray-500'}`}
+                        className={`px-4 py-2.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${activeTab === 'applications' ? 'bg-green-100 text-green-700' : 'text-gray-500'}`}
                     >
                         {isHindi ? 'मेरे आवेदन' : 'Applications'}
                     </button>
                     <button 
                         onClick={() => setActiveTab('calculator')}
-                        className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all ${activeTab === 'calculator' ? 'bg-green-100 text-green-700' : 'text-gray-500'}`}
+                        className={`px-4 py-2.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${activeTab === 'calculator' ? 'bg-green-100 text-green-700' : 'text-gray-500'}`}
                     >
                         {isHindi ? 'कमाई कैलकुलेटर' : 'Calculator'}
                     </button>
                     <button 
                         onClick={() => setActiveTab('profile')}
-                        className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition-all ${activeTab === 'profile' ? 'bg-green-100 text-green-700' : 'text-gray-500'}`}
+                        className={`px-4 py-2.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${activeTab === 'profile' ? 'bg-green-100 text-green-700' : 'text-gray-500'}`}
                     >
                         {isHindi ? 'प्रोफ़ाइल' : 'Profile'}
                     </button>
@@ -146,25 +152,39 @@ export default function WorkerDashboard() {
 
             {/* Content */}
             <div className="max-w-md mx-auto px-5">
-                {/* === APPLICATIONS TAB === */}
-                {activeTab === 'applications' && (
+                {/* === MY WORK & APPLICATIONS TAB === */}
+                {(activeTab === 'work' || activeTab === 'applications') && (
                     <div className="space-y-4">
-                        {applications.length === 0 ? (
-                            <div className="bg-white rounded-2xl p-8 text-center border border-gray-100 shadow-sm">
-                                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <FileText className="w-8 h-8 text-gray-300" />
-                                </div>
-                                <h3 className="font-bold text-gray-800 mb-2">{isHindi ? 'कोई आवेदन नहीं' : 'No Applications'}</h3>
-                                <p className="text-sm text-gray-500 mb-6">{isHindi ? 'आपने अभी तक किसी काम के लिए आवेदन नहीं किया है।' : 'You haven\'t applied for any work yet.'}</p>
-                                <button 
-                                    onClick={() => router.push(`/${locale}/work`)}
-                                    className="bg-green-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-green-700 transition"
-                                >
-                                    {isHindi ? 'काम खोजें' : 'Find Work'}
-                                </button>
-                            </div>
-                        ) : (
-                            applications.map((app, idx) => {
+                        {(() => {
+                            const list = activeTab === 'work' 
+                                ? applications.filter(a => a.status !== 'Pending' && a.status !== 'Rejected')
+                                : applications.filter(a => a.status === 'Pending' || a.status === 'Rejected');
+                                
+                            if (list.length === 0) {
+                                return (
+                                    <div className="bg-white rounded-2xl p-8 text-center border border-gray-100 shadow-sm">
+                                        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <FileText className="w-8 h-8 text-gray-300" />
+                                        </div>
+                                        <h3 className="font-bold text-gray-800 mb-2">
+                                            {activeTab === 'work' ? (isHindi ? 'कोई सक्रिय काम नहीं' : 'No Active Work') : (isHindi ? 'कोई आवेदन नहीं' : 'No Applications')}
+                                        </h3>
+                                        <p className="text-sm text-gray-500 mb-6">
+                                            {activeTab === 'work' 
+                                                ? (isHindi ? 'आपके पास अभी तक कोई स्वीकृत काम नहीं है।' : 'You have no approved work yet.')
+                                                : (isHindi ? 'आपने अभी तक किसी काम के लिए आवेदन नहीं किया है।' : 'You haven\'t applied for any work yet.')}
+                                        </p>
+                                        <button 
+                                            onClick={() => router.push(`/${locale}/work`)}
+                                            className="bg-green-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-green-700 transition"
+                                        >
+                                            {isHindi ? 'काम खोजें' : 'Find Work'}
+                                        </button>
+                                    </div>
+                                );
+                            }
+
+                            return list.map((app, idx) => {
                                 const currentStepIndex = getStatusIndex(app.status);
                                 return (
                                     <motion.div 
@@ -238,8 +258,8 @@ export default function WorkerDashboard() {
                                         </div>
                                     </motion.div>
                                 );
-                            })
-                        )}
+                            });
+                        })()}
                         
                         {applications.length > 0 && (
                             <div className="pt-4 pb-8">
