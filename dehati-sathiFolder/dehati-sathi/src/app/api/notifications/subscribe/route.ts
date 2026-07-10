@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { connectDB } from '@/lib/db';
+import connectDb from '@/lib/db';
 import PushSubscription from '@/app/models/PushSubscription.model';
 
 export async function POST(req: NextRequest) {
     try {
-        await connectDB();
+        await connectDb();
         const session = await auth();
         
         const subscription = await req.json();
