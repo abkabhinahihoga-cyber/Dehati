@@ -259,25 +259,7 @@ export default function WorkMarketplace() {
                 </AnimatePresence>
             </div>
 
-            {/* TRAINING CENTER BANNER */}
-            <div className="max-w-md mx-auto px-5 mb-4">
-                <button
-                    onClick={() => router.push(`/${locale}/work/training`)}
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden group text-left"
-                >
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
-                    <div className="relative z-10 flex items-center gap-4">
-                        <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 shrink-0">
-                            <BookOpen className="w-6 h-6 text-white" />
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="font-black text-lg mb-1 leading-tight">{isHindi ? 'ट्रेनिंग सेंटर' : 'Training Center'}</h3>
-                            <p className="text-blue-100 text-xs font-medium">{isHindi ? 'मुफ्त वीडियो देखें और काम सीखें' : 'Watch free videos and learn work'}</p>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-white/70 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                </button>
-            </div>
+
 
             {/* JOB LISTINGS */}
             <div className="max-w-md mx-auto px-5 mt-4">
