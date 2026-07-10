@@ -457,6 +457,10 @@ export default function AdminWorkManagement() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div><label className="block text-sm font-bold text-gray-700 mb-1">Required Skills</label><input className="w-full p-3 bg-gray-50 border rounded-xl" value={formData.requiredSkills} onChange={e => setFormData({...formData, requiredSkills: e.target.value})} placeholder="Comma separated" /></div>
                                     <div><label className="block text-sm font-bold text-gray-700 mb-1">Required Tools</label><input className="w-full p-3 bg-gray-50 border rounded-xl" value={formData.requiredTools} onChange={e => setFormData({...formData, requiredTools: e.target.value})} placeholder="Comma separated" /></div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-sm font-bold text-gray-700 mb-1">Training Video URL (Optional)</label>
+                                        <input type="url" className="w-full p-3 bg-gray-50 border rounded-xl" value={formData.trainingVideoUrl} onChange={e => setFormData({...formData, trainingVideoUrl: e.target.value})} placeholder="https://youtube.com/..." />
+                                    </div>
                                     <div><label className="block text-sm font-bold text-gray-700 mb-1">Step-by-Step Process</label><textarea rows={3} className="w-full p-3 bg-gray-50 border rounded-xl" value={formData.stepByStepProcess} onChange={e => setFormData({...formData, stepByStepProcess: e.target.value})} placeholder="One step per line"></textarea></div>
                                     <div><label className="block text-sm font-bold text-gray-700 mb-1">Common Mistakes</label><textarea rows={3} className="w-full p-3 bg-gray-50 border rounded-xl" value={formData.commonMistakes} onChange={e => setFormData({...formData, commonMistakes: e.target.value})} placeholder="One per line"></textarea></div>
                                 </div>

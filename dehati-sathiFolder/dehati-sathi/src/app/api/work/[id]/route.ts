@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDb from '@/lib/db';
 import WorkOpportunity from '@/app/models/workOpportunity.model';
+import Hub from '@/app/models/hub.model';
 
 export const dynamic = 'force-dynamic';
 
