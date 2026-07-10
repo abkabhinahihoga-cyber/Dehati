@@ -11,15 +11,26 @@ import { SidebarProvider } from "@/context/SidebarContext";
 import { auth } from "@/auth"; 
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
+import PwaInstallPrompt from '@/components/PwaInstallPrompt';
 
 
 export const metadata: Metadata = {
   title: "Dehati Sathi | Direct Farm To Home",
   description: "Direct Farm To Home",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Dehati Sathi",
+  },
   icons: {
     icon: '/icon.png?v=4',
     apple: '/icon.png?v=4',
   }
+};
+
+export const viewport = {
+  themeColor: "#15803d",
 };
 
 export default async function RootLayout({
@@ -51,6 +62,7 @@ export default async function RootLayout({
               <InitUser/>
               <SidebarProvider>
                 <NextIntlClientProvider locale={locale} messages={messages}>
+                  <PwaInstallPrompt isAuthorized={!!session?.user} />
 
                 <div className="flex min-h-screen">
                   

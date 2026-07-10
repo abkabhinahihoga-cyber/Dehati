@@ -2,7 +2,7 @@
 import { 
     LogOut, ShoppingCartIcon, User, X, UserCircle, Store, BookOpen, Briefcase, 
     Bike, Laptop, Share2, ChevronDown, MapPin, Home, LayoutDashboard,
-    ShieldCheck, Tractor, ShoppingBag, Truck, PlayCircle, Wallet, Globe, HelpCircle, Mail, PhoneCall, Instagram, MessageCircle, Loader2, TrendingUp
+    ShieldCheck, Tractor, ShoppingBag, Truck, PlayCircle, Wallet, Globe, HelpCircle, Mail, PhoneCall, Instagram, MessageCircle, Loader2, TrendingUp, Download
 } from 'lucide-react'
 import { Link, useRouter, usePathname } from '@/i18n/routing'
 import React, { useEffect, useState } from 'react'
@@ -10,8 +10,16 @@ import Image from 'next/image'
 import { AnimatePresence, motion } from 'framer-motion'
 import { signOut } from 'next-auth/react'
 import { createPortal } from 'react-dom'
+import { useLocale, useTranslations } from 'next-intl';
 import { useSelector, useDispatch } from 'react-redux' 
 import { RootState } from '@/redux/store'
+
+declare global {
+  interface Window {
+    deferredInstallPrompt: any;
+  }
+}
+
 import { toggleMode } from '@/redux/modeSlice'
 import LocationModal from './LocationModal'
 import HubSelectorModal from './HubSelectorModal'
@@ -21,7 +29,6 @@ import { useSidebar } from '@/context/SidebarContext'
 import axios from 'axios'
 import NotificationBell from './NotificationBell'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
-import { useTranslations } from 'next-intl'
 
 interface INavUser {
     _id?: string;
@@ -39,6 +46,7 @@ function Nav({ user }: { user: INavUser }) {
     const router = useRouter();
     const t = useTranslations('Nav');
     const common = useTranslations('Common');
+    const locale = useLocale();
     
     // 👇 FIX: Destructure toggle from context
     const { isOpen, close, toggle } = useSidebar(); 
@@ -50,6 +58,7 @@ function Nav({ user }: { user: INavUser }) {
     const [isHubModalOpen, setIsHubModalOpen] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const [connections, setConnections] = useState<any[]>([]);
+    const [installPrompt, setInstallPrompt] = useState<any>(null);
     
     const dispatch = useDispatch();
     const { cartData } = useSelector((state: RootState) => state.cart)
@@ -77,7 +86,15 @@ function Nav({ user }: { user: INavUser }) {
                 setIsHubModalOpen(true);
             }
         }
-    }, [user._id, user.connectedHub, user.role]);
+        
+        // Check for install prompt periodically in case it was set globally
+        const checkPrompt = setInterval(() => {
+            if (window.deferredInstallPrompt && !installPrompt) {
+                setInstallPrompt(window.deferredInstallPrompt);
+            }
+        }, 1000);
+        return () => clearInterval(checkPrompt);
+    }, [user._id, user.connectedHub, user.role, installPrompt]);
 
     const authRoutes = ['/login', '/signup', '/register', '/welcome', '/forgot-password', '/onboarding', '/landing'];
     if (authRoutes.includes(pathname)) return null;
@@ -141,6 +158,23 @@ function Nav({ user }: { user: INavUser }) {
                                 <Link href="/" onClick={close} className='flex items-center gap-4 p-3 mx-2 rounded-lg text-gray-700 hover:bg-gray-50 font-medium'>
                                     {isGrocery ? <Store className='text-green-500' /> : <BookOpen className='text-blue-500' />} {t('home')}
                                 </Link>
+
+                                {installPrompt && (
+                                    <button 
+                                        onClick={async () => {
+                                            installPrompt.prompt();
+                                            const { outcome } = await installPrompt.userChoice;
+                                            if (outcome === 'accepted') {
+                                                setInstallPrompt(null);
+                                                window.deferredInstallPrompt = null;
+                                            }
+                                            close();
+                                        }} 
+                                        className='flex w-full items-center gap-4 p-3 mx-2 rounded-lg text-green-700 hover:bg-green-50 font-medium bg-green-50/50'
+                                    >
+                                        <Download className='text-green-600' /> {locale === 'hi' ? 'ऐप इंस्टॉल करें' : 'Install App'}
+                                    </button>
+                                )}
                                 
                                 {/* --- SELLER / BECOME SELLER OPTIONS MOVED UP --- */}
                                 {(user.role === 'seller' || user.sellerStatus === 'approved') && (
