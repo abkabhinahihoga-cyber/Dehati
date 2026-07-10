@@ -53,7 +53,7 @@ export default function AdminWorkManagement() {
     const fetchHubs = async () => {
         try {
             const res = await axios.get('/api/hub/all');
-            if (res.data.success) setHubs(res.data.data);
+            if (res.data.success) setHubs(res.data.hubs || []);
         } catch (e) {
             console.error(e);
         }
@@ -64,10 +64,10 @@ export default function AdminWorkManagement() {
         try {
             if (view === 'jobs') {
                 const res = await axios.get('/api/admin/work');
-                setJobs(res.data.data);
+                setJobs(res.data.data || []);
             } else {
                 const res = await axios.get('/api/admin/work?action=applications');
-                setApplications(res.data.data);
+                setApplications(res.data.data || []);
             }
         } catch (error) {
             console.error(error);
@@ -172,7 +172,7 @@ export default function AdminWorkManagement() {
         }
     };
 
-    const pendingCount = applications.filter((a: any) => a.status === 'Pending').length;
+    const pendingCount = (applications || []).filter((a: any) => a.status === 'Pending').length;
 
     const addFaq = () => setFormData({...formData, faqs: [...formData.faqs, {question: '', answer: ''}]});
     const updateFaq = (index: number, field: 'question'|'answer', value: string) => {
@@ -226,7 +226,7 @@ export default function AdminWorkManagement() {
                             </tr>
                         </thead>
                         <tbody>
-                            {jobs.map((job: any) => (
+                            {(jobs || []).map((job: any) => (
                                 <tr key={job._id} className="border-b border-gray-100 hover:bg-gray-50">
                                     <td className="p-4 font-medium flex items-center gap-3">
                                         {job.productImages?.[0] ? (
@@ -253,7 +253,7 @@ export default function AdminWorkManagement() {
                                     </td>
                                 </tr>
                             ))}
-                            {jobs.length === 0 && (
+                            {(!jobs || jobs.length === 0) && (
                                 <tr><td colSpan={6} className="p-10 text-center text-gray-500">{isHindi ? 'कोई काम नहीं मिला। नया जोड़ें!' : 'No jobs found. Add a new one!'}</td></tr>
                             )}
                         </tbody>
@@ -273,7 +273,7 @@ export default function AdminWorkManagement() {
                             </tr>
                         </thead>
                         <tbody>
-                            {applications.map((app: any) => (
+                            {(applications || []).map((app: any) => (
                                 <tr key={app._id} className="border-b border-gray-100 hover:bg-gray-50">
                                     <td className="p-4">
                                         <p className="font-bold text-gray-900">{app.fullName}</p>
