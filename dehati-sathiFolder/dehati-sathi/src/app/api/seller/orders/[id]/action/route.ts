@@ -5,7 +5,7 @@ import User from "@/app/models/user.model";
 import { auth } from "@/auth";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         await connectDb();
         const session = await auth();
@@ -13,16 +13,18 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
         const userId = session.user.id;
-        const { id } = params;
+        const { id } = await params;
         const { action, reason, otp } = await req.json();
 
         const order = await Order.findById(id).populate("items.product");
         if (!order) return NextResponse.json({ message: "Order not found" }, { status: 404 });
 
         // Ensure the seller is actually part of this order
-        const isSellerInvolved = order.items.some((i: any) => i.product?.seller?.toString() === userId);
+        const sellerIds = order.items.map((i: any) => i.product?.seller?.toString());
+        const isSellerInvolved = sellerIds.includes(userId);
+        
         if (!isSellerInvolved && session.user.role !== "admin") {
-            return NextResponse.json({ message: "Not your order" }, { status: 403 });
+            return NextResponse.json({ message: "Not your order", debug: { userId, sellerIds } }, { status: 403 });
         }
 
         const logEntry = (status: string) => ({

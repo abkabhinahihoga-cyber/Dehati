@@ -214,11 +214,9 @@ export async function POST(req: NextRequest) {
         // Send Notification to all involved sellers
         for (const sellerId of Array.from(sellerIds)) {
             await createNotification({
-                userId: sellerId,
-                title: "New Order Received! 📦",
-                message: "You have received a new order. Please check your seller dashboard.",
-                type: "order",
-                link: "/seller/dashboard"
+                recipientId: sellerId,
+                message: "📦 New Order Received! Please check your seller dashboard.",
+                type: "order"
             });
         }
 

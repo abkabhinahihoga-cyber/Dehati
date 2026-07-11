@@ -6,13 +6,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const session = await auth();
         if (session?.user?.role !== 'admin') return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
         const { action, favor } = await req.json();
-        const orderId = params.id;
+        const { id: orderId } = await params;
         await connectDb();
 
         const order = await Order.findById(orderId).populate('sellerId');

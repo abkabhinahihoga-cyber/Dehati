@@ -3,16 +3,16 @@ import Order from "@/app/models/order.model";
 import { auth } from "@/auth";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         await connectDb();
         const session = await auth();
+        const { id } = await params;
         if (!session?.user?.id || (session.user.role !== "deliveryBoy" && session.user.role !== "admin")) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
         
         const userId = session.user.id;
-        const { id } = params;
         const { action, otp } = await req.json();
 
         const order = await Order.findById(id);

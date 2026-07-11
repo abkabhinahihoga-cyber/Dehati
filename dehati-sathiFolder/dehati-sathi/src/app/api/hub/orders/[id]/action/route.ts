@@ -4,7 +4,7 @@ import Hub from "@/app/models/hub.model";
 import { auth } from "@/auth";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         await connectDb();
         const session = await auth();
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
             return NextResponse.json({ message: "No hub found for this user" }, { status: 403 });
         }
 
-        const { id } = params;
+        const { id } = await params;
         const { action, otp, reason, images } = await req.json();
 
         const order = await Order.findById(id);
