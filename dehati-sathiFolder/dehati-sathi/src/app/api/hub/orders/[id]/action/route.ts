@@ -2,6 +2,7 @@ import connectDb from "@/lib/db";
 import Order from "@/app/models/order.model";
 import Hub from "@/app/models/hub.model";
 import User from "@/app/models/user.model";
+import Grocery from "@/app/models/grocery.model";
 import { createNotification } from "@/lib/notify";
 import { auth } from "@/auth";
 import { NextRequest, NextResponse } from "next/server";
@@ -46,7 +47,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
                 await order.save();
 
                 // Notify seller with the code
-                const sellerId = order.items && order.items.length > 0 ? order.items[0].seller?.toString() : null;
+                let sellerId = order.items && order.items.length > 0 ? order.items[0].seller?.toString() : null;
+                
+                if (!sellerId) {
+                    const productList = await Grocery.find({ _id: { $in: order.items.map((i: any) => i.product) } });
+                    sellerId = productList.length > 0 ? productList[0].seller?.toString() : null;
+                }
                 
                 if (sellerId) {
                     await createNotification({
