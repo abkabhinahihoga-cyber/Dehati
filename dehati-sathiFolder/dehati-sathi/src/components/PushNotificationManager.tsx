@@ -64,15 +64,26 @@ export default function PushNotificationManager() {
     const ensureSubscribed = async () => {
         try {
             const reg = await navigator.serviceWorker.ready;
-            const existing = await reg.pushManager.getSubscription();
-            if (existing) {
+            let subscription = await reg.pushManager.getSubscription();
+            
+            if (!subscription && Notification.permission === 'granted') {
+                // Subscription was lost/purged (e.g. user toggled settings off then on)
+                subscription = await reg.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+                });
+            }
+
+            if (subscription) {
                 await fetch('/api/notifications/subscribe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(existing)
+                    body: JSON.stringify(subscription)
                 });
             }
-        } catch { /* silent */ }
+        } catch (err) { 
+            console.error('Silent subscription check failed:', err);
+        }
     };
 
     const handleAllow = async () => {
