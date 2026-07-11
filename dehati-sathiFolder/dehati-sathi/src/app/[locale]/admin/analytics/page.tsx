@@ -1,13 +1,11 @@
-import { getTranslations } from 'next-intl/server';
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
-export async function generateMetadata({ params: { locale } }: { params: { locale: string } }) {
-    const t = await getTranslations({ locale, namespace: 'Admin' });
-    return { title: `Analytics | ${t('title')}` };
+export async function generateMetadata() {
+    return { title: `Admin Analytics | Dehati Sathi` };
 }
 
 export default async function AdminAnalyticsPage({ params: { locale } }: { params: { locale: string } }) {
