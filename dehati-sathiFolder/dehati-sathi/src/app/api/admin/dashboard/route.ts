@@ -4,7 +4,7 @@ import User from "@/app/models/user.model";
 import Order from "@/app/models/order.model";
 import Hub from "@/app/models/hub.model";
 import "@/app/models/grocery.model"; 
-import PushSubscription from "@/app/models/pushSubscription.model";
+import PushSubscription from "@/app/models/PushSubscription.model";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs"; 
 
