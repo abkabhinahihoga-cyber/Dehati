@@ -298,8 +298,38 @@ export default function AdminDashboard() {
 
     const renderSettings = () => (
         <div className="space-y-6">
+            {/* Auto-Approve Toggle Card */}
             <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                <h3 className="font-bold text-gray-800 text-lg mb-4">{locale === 'hi' ? 'वैश्विक सेटिंग्स' : 'Global Settings'}</h3>
+                <h3 className="font-bold text-gray-800 text-lg mb-2 flex items-center gap-2">
+                    <Shield size={20} className="text-green-600" />
+                    {locale === 'hi' ? 'विक्रेता आवेदन नियंत्रण' : 'Seller Application Control'}
+                </h3>
+                <p className="text-sm text-gray-500 mb-4">
+                    {locale === 'hi'
+                        ? 'यदि ऑटो-अप्रूव चालू है, तो नए विक्रेता आवेदन स्वचालित रूप से स्वीकृत हो जाएंगे।'
+                        : 'If auto-approve is ON, new seller applications will be automatically approved without manual review.'}
+                </p>
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border">
+                    <div>
+                        <p className="font-bold text-gray-800">{locale === 'hi' ? 'विक्रेता ऑटो-अप्रूव' : 'Auto-Approve Sellers'}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                            {globalSettings.autoApproveSellers
+                                ? (locale === 'hi' ? '✅ चालू – आवेदन तुरंत स्वीकृत होंगे' : '✅ ON – Applications approved instantly')
+                                : (locale === 'hi' ? '⏳ बंद – मैनुअल रिव्यू ज़रूरी' : '⏳ OFF – Manual review required')}
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => setGlobalSettings({...globalSettings, autoApproveSellers: !globalSettings.autoApproveSellers})}
+                        className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus:outline-none ${globalSettings.autoApproveSellers ? 'bg-green-500' : 'bg-gray-300'}`}
+                    >
+                        <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform ${globalSettings.autoApproveSellers ? 'translate-x-8' : 'translate-x-1'}`} />
+                    </button>
+                </div>
+            </div>
+
+            {/* Fee Settings */}
+            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                <h3 className="font-bold text-gray-800 text-lg mb-4">{locale === 'hi' ? 'वैश्विक शुल्क सेटिंग्स' : 'Global Fee Settings'}</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label className="text-xs font-bold text-gray-700 block mb-1">Base Delivery Fee (₹)</label>
@@ -327,11 +357,12 @@ export default function AdminDashboard() {
                     </div>
                 </div>
                 <button onClick={handleSaveSettings} className="mt-6 bg-indigo-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-indigo-700 w-full md:w-auto">
-                    {locale === 'hi' ? 'सेटिंग्स सेव करें' : 'Save Settings'}
+                    {locale === 'hi' ? 'सभी सेटिंग्स सेव करें' : 'Save All Settings'}
                 </button>
             </div>
         </div>
     )
+
 
     // --- RENDERERS ---
 

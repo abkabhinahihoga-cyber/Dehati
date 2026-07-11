@@ -1,7 +1,8 @@
 import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import User from "@/app/models/user.model";
-import Hub from "@/app/models/hub.model"; // Import Hub
+import Hub from "@/app/models/hub.model";
+import Settings from "@/app/models/settings.model";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -55,12 +56,17 @@ export async function POST(req: NextRequest) {
             hubName = nearbyHub.name;
         }
 
-        // 4. APPROVE and Link to Hub
+        // Check auto-approve setting
+        const settings = await Settings.findOne();
+        const autoApprove = settings?.autoApproveSellers === true;
+
+        // 4. Update user with seller application
         const updatedUser = await User.findByIdAndUpdate(
             session.user.id,
             {
-                sellerStatus: 'pending',
-                connectedHub: hubId, // Link seller to this Hub
+                sellerStatus: autoApprove ? 'approved' : 'pending',
+                role: autoApprove ? 'seller' : user.role,
+                connectedHub: hubId,
                 sellerDetails: {
                     shopName,
                     shopAddress,

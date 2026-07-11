@@ -2,6 +2,8 @@ import connectDb from "@/lib/db";
 import Order from "@/app/models/order.model";
 import Grocery from "@/app/models/grocery.model";
 import User from "@/app/models/user.model";
+import Hub from "@/app/models/hub.model";
+import { createNotification } from "@/lib/notify";
 import { auth } from "@/auth";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -39,6 +41,30 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
                 order.status = "processing";
                 order.trackingLogs.push(logEntry("processing"));
                 await order.save();
+
+                // Notify buyer
+                await createNotification({
+                    recipientId: order.user.toString(),
+                    type: "order",
+                    title: "Order Accepted! ✅",
+                    message: `Your order has been accepted by the seller and is now being prepared. Your pickup code is: ${order.pickupOtp}`,
+                    url: `/user/order/${order._id}`
+                });
+
+                // Notify connected hub
+                if (order.connectedHub) {
+                    const hubManager = await User.findOne({ role: 'hub', connectedHub: order.connectedHub });
+                    if (hubManager) {
+                        await createNotification({
+                            recipientId: hubManager._id.toString(),
+                            type: "order",
+                            title: "New Order In Progress 📦",
+                            message: `An order has been accepted by a seller and is being prepared for pickup/delivery.`,
+                            url: `/hub/orders`
+                        });
+                    }
+                }
+
                 return NextResponse.json({ success: true, message: "Order accepted" });
 
             case "reject":
@@ -53,6 +79,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
                 }
                 
                 await order.save();
+
+                // Notify buyer about rejection
+                await createNotification({
+                    recipientId: order.user.toString(),
+                    type: "order",
+                    title: "Order Rejected ❌",
+                    message: `Your order was rejected by the seller. Reason: ${order.rejectedReason}. Your stock has been refunded.`,
+                    url: `/user/order/${order._id}`
+                });
+
                 return NextResponse.json({ success: true, message: "Order rejected and stock refunded" });
 
             case "ready":

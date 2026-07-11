@@ -88,6 +88,8 @@ function SellerDashboard() {
     
     // --- REJECT MODAL STATE ---
     const [rejectOrderState, setRejectOrderState] = useState<{isOpen: boolean, orderId: string, reason: string}>({ isOpen: false, orderId: "", reason: "" });
+    // --- VERIFY PICKUP MODAL STATE ---
+    const [verifyPickupState, setVerifyPickupState] = useState<{isOpen: boolean, orderId: string, otp: string}>({ isOpen: false, orderId: "", otp: "" });
     const [videoFile, setVideoFile] = useState<File | null>(null);
     const [reelDesc, setReelDesc] = useState("");
     const [selectedProductId, setSelectedProductId] = useState("");
@@ -219,10 +221,16 @@ function SellerDashboard() {
     }
 
     const handleVerifyPickup = (orderId: string) => {
-        const otp = prompt("Enter pickup verification code provided by the customer/hub:");
-        if (otp) {
-            handleOrderAction(orderId, "verify_pickup", { otp });
+        setVerifyPickupState({ isOpen: true, orderId, otp: "" });
+    }
+
+    const submitVerifyPickup = () => {
+        if (!verifyPickupState.otp || verifyPickupState.otp.length < 4) {
+            toast.error(isHindi ? 'कृपया सही पिकअप कोड दर्ज करें' : 'Please enter the valid pickup code');
+            return;
         }
+        handleOrderAction(verifyPickupState.orderId, 'verify_pickup', { otp: verifyPickupState.otp });
+        setVerifyPickupState({ isOpen: false, orderId: "", otp: "" });
     }
 
     // --- ACTION: INVENTORY EDITING ---
@@ -728,6 +736,43 @@ function SellerDashboard() {
                                 className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl transition-all"
                             >
                                 {isHindi ? 'ऑर्डर अस्वीकार करें' : 'Confirm Rejection'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* --- VERIFY PICKUP MODAL --- */}
+            {verifyPickupState.isOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                <CheckCircle className="text-green-600 w-6 h-6" />
+                                {isHindi ? 'पिकअप सत्यापित करें' : 'Verify Pickup'}
+                            </h2>
+                            <button onClick={() => setVerifyPickupState({ isOpen: false, orderId: "", otp: "" })} className="text-gray-400 hover:text-gray-600"><X /></button>
+                        </div>
+                        <div className="space-y-4">
+                            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-800">
+                                {isHindi
+                                    ? 'ग्राहक के पास एक 4-अंकीय पिकअप कोड है जो उनके ऑर्डर पेज पर दिखाई देता है। नीचे वह कोड दर्ज करें।'
+                                    : 'The customer has a 4-digit pickup code shown on their order page. Enter that code below to confirm handover.'}
+                            </div>
+                            <input
+                                type="number"
+                                maxLength={4}
+                                placeholder={isHindi ? 'ग्राहक का 4-अंकीय कोड' : "Customer's 4-digit code"}
+                                className="w-full p-4 border-2 border-gray-200 rounded-xl text-2xl font-bold text-center tracking-widest focus:border-green-500 focus:outline-none"
+                                value={verifyPickupState.otp}
+                                onChange={(e) => setVerifyPickupState(prev => ({ ...prev, otp: e.target.value.slice(0, 4) }))}
+                            />
+                            <button
+                                onClick={submitVerifyPickup}
+                                className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2"
+                            >
+                                <CheckCircle className="w-5 h-5" />
+                                {isHindi ? 'पिकअप की पुष्टि करें' : 'Confirm Pickup'}
                             </button>
                         </div>
                     </div>

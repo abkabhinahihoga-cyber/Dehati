@@ -12,6 +12,7 @@ export interface ISettings extends Document {
   baseDeliveryFee: number;
   deliveryFeePerKm: number;
   hubCoverageRadiusKm: number;
+  autoApproveSellers: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -31,6 +32,7 @@ const settingsSchema = new Schema<ISettings>(
     baseDeliveryFee: { type: Number, default: 0 },
     deliveryFeePerKm: { type: Number, default: 0 },
     hubCoverageRadiusKm: { type: Number, default: 3.5 },
+    autoApproveSellers: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
