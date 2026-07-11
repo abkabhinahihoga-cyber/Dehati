@@ -6,15 +6,15 @@ import User from '@/app/models/user.model';
 import webpush from 'web-push';
 import mongoose from 'mongoose';
 
-// Configure Web Push
-webpush.setVapidDetails(
-    'mailto:support@dehatisathi.com',
-    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '',
-    process.env.VAPID_PRIVATE_KEY || ''
-);
-
 export async function POST(req: NextRequest) {
     try {
+        // Configure Web Push inside handler so env vars are available at runtime
+        webpush.setVapidDetails(
+            'mailto:support@dehatisathi.com',
+            process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+            process.env.VAPID_PRIVATE_KEY!
+        );
+
         await connectDb();
         const session = await auth();
         
