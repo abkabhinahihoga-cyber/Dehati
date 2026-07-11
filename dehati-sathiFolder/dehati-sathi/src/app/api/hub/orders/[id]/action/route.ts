@@ -38,10 +38,33 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         });
 
         switch (action) {
+            case "generate_seller_handover_code":
+                if (order.status !== "ready") return NextResponse.json({ message: "Order not ready for pickup" }, { status: 400 });
+                
+                // Generate a secure 4-digit code
+                order.sellerHandoverCode = Math.floor(1000 + Math.random() * 9000).toString();
+                await order.save();
+
+                // Notify seller with the code
+                const productList = await Grocery.find({ _id: { $in: order.items.map((i: any) => i.product) } });
+                const sellerId = productList.length > 0 ? productList[0].seller.toString() : null;
+                
+                if (sellerId) {
+                    await createNotification({
+                        recipientId: sellerId,
+                        type: "order",
+                        title: "Hub arrived for pickup! 🚚",
+                        message: `The Hub Manager is here to pick up the order. Please verify and provide this code to them: ${order.sellerHandoverCode}`,
+                        url: `/seller/dashboard`
+                    });
+                }
+
+                return NextResponse.json({ success: true, message: "Code generated and sent to seller" });
+
             case "verify_pickup_from_seller": // Hub/DeliveryBoy collects from Seller
                 if (order.status !== "ready") return NextResponse.json({ message: "Order not ready for pickup" }, { status: 400 });
                 // Hub shows their sellerHandoverCode to seller; seller enters it in app to confirm
-                if (order.sellerHandoverCode !== otp) return NextResponse.json({ message: "Invalid Handover Code. Check the code from your hub notification." }, { status: 400 });
+                if (!order.sellerHandoverCode || order.sellerHandoverCode !== otp) return NextResponse.json({ message: "Invalid Handover Code. Please ask the seller for the correct code." }, { status: 400 });
                 
                 order.status = "picked_up";
                 order.trackingLogs.push(logEntry("picked_up"));

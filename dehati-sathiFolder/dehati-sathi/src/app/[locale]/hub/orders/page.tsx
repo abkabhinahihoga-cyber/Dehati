@@ -216,7 +216,13 @@ export default function HubOrdersPage() {
                                     <label className="text-xs font-bold text-gray-700 block mb-1.5">Hub Actions</label>
                                     <div className="flex flex-col gap-2">
                                         {activeTab === 'seller' && selectedOrder.status === 'ready' && (
-                                            <button onClick={() => handleVerifyPickup(selectedOrder._id)} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-lg text-sm">Verify Pickup from Seller</button>
+                                            <>
+                                                {!selectedOrder.sellerHandoverCode ? (
+                                                    <button onClick={() => handleHubAction(selectedOrder._id, 'generate_seller_handover_code')} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-3 rounded-lg text-sm transition-colors">{locale === 'hi' ? 'पिकअप कोड जनरेट करें' : 'Generate Pickup Code'}</button>
+                                                ) : (
+                                                    <button onClick={() => handleVerifyPickup(selectedOrder._id)} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-lg text-sm transition-colors">{locale === 'hi' ? 'पिकअप सत्यापित करें' : 'Verify Pickup from Seller'}</button>
+                                                )}
+                                            </>
                                         )}
                                         {activeTab === 'seller' && selectedOrder.status === 'picked_up' && (
                                             <div className="flex gap-2">

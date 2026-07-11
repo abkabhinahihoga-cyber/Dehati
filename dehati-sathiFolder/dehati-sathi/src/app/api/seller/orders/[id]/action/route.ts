@@ -40,11 +40,6 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
                 if (order.status !== "pending") return NextResponse.json({ message: "Can only accept pending orders" }, { status: 400 });
                 order.status = "processing";
                 order.trackingLogs.push(logEntry("processing"));
-
-                // Generate a handover code for hub/delivery boy to show the seller when collecting
-                if (order.deliveryType !== "farm-pickup") {
-                    order.sellerHandoverCode = Math.floor(1000 + Math.random() * 9000).toString();
-                }
                 await order.save();
 
                 // Notify buyer with their pickup code
@@ -58,15 +53,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
                     url: `/user/order/${order._id}`
                 });
 
-                // If hub/home delivery — notify hub manager with the SELLER HANDOVER CODE
+                // If hub/home delivery — notify hub manager that order is accepted
                 if (order.connectedHub && order.deliveryType !== "farm-pickup") {
                     const hubManager = await User.findOne({ role: 'hub', connectedHub: order.connectedHub });
                     if (hubManager) {
                         await createNotification({
                             recipientId: hubManager._id.toString(),
                             type: "order",
-                            title: "New Order Ready for Collection 📦",
-                            message: `Order accepted by seller. Show this code to the seller to collect the order: ${order.sellerHandoverCode}`,
+                            title: "New Order Processing 📦",
+                            message: `Order accepted by seller. Prepare for pickup.`,
                             url: `/hub/orders`
                         });
                     }
