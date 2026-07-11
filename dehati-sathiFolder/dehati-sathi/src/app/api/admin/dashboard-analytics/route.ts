@@ -5,6 +5,7 @@ import User from "@/app/models/user.model";
 import Order from "@/app/models/order.model";
 import MasterProduct from "@/app/models/masterProduct.model";
 import WorkOpportunity from "@/app/models/workOpportunity.model";
+import WorkApplication from "@/app/models/workApplication.model";
 import { subDays, startOfDay, endOfDay, subMinutes } from "date-fns";
 
 export const dynamic = "force-dynamic";
@@ -53,10 +54,11 @@ export async function GET(req: NextRequest) {
         // --- JOB ANALYTICS ---
         const totalJobs = await WorkOpportunity.countDocuments();
         const jobsToday = await WorkOpportunity.countDocuments({ createdAt: { $gte: startOfToday, $lte: endOfToday } });
-        const activeJobs = await WorkOpportunity.countDocuments({ status: "open" });
-        const completedJobsDocs = await WorkOpportunity.find({ status: "completed" }, "budget").lean();
+        const activeJobs = await WorkOpportunity.countDocuments({ isActive: true });
+        
+        const completedJobsDocs = await WorkApplication.find({ status: "Payment Released" }, "earnedAmount").lean();
         const completedJobs = completedJobsDocs.length;
-        const totalEarningsFromJobs = completedJobsDocs.reduce((acc: number, job: any) => acc + (job.budget || 0), 0);
+        const totalEarningsFromJobs = completedJobsDocs.reduce((acc: number, job: any) => acc + (job.earnedAmount || 0), 0);
 
         // --- MARKETPLACE ANALYTICS ---
         const totalProducts = await MasterProduct.countDocuments();
@@ -88,7 +90,7 @@ export async function GET(req: NextRequest) {
             .lean();
 
         const recentJobs = await WorkOpportunity.find({})
-            .populate("postedBy", "name mobile")
+            .populate("createdByAdmin", "name mobile")
             .sort({ createdAt: -1 })
             .limit(5)
             .lean();
