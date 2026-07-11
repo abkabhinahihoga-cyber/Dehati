@@ -8,7 +8,8 @@ export async function generateMetadata() {
     return { title: `Admin Analytics | Dehati Sathi` };
 }
 
-export default async function AdminAnalyticsPage({ params: { locale } }: { params: { locale: string } }) {
+export default async function AdminAnalyticsPage({ params }: { params: Promise<{ locale: string }> }) {
+    const { locale } = await params;
     const session = await auth();
 
     if (!session || session.user.role !== 'admin') {
