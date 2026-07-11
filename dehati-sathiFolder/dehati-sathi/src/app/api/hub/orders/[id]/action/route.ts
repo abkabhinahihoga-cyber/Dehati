@@ -46,8 +46,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
                 await order.save();
 
                 // Notify seller with the code
-                const productList = await Grocery.find({ _id: { $in: order.items.map((i: any) => i.product) } });
-                const sellerId = productList.length > 0 ? productList[0].seller.toString() : null;
+                const sellerId = order.items && order.items.length > 0 ? order.items[0].seller?.toString() : null;
                 
                 if (sellerId) {
                     await createNotification({
