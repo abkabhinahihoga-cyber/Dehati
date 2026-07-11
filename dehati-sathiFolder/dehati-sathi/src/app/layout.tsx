@@ -12,6 +12,7 @@ import { auth } from "@/auth";
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import PwaInstallPrompt from '@/components/PwaInstallPrompt';
+import PushNotificationManager from '@/components/PushNotificationManager';
 
 
 export const metadata: Metadata = {
@@ -63,6 +64,7 @@ export default async function RootLayout({
               <SidebarProvider>
                 <NextIntlClientProvider locale={locale} messages={messages}>
                   <PwaInstallPrompt isAuthorized={!!session?.user} />
+                  <PushNotificationManager />
 
                 <div className="flex min-h-screen">
                   
