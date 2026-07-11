@@ -6,7 +6,7 @@ import {
     Menu, X, ChevronLeft, Store, Truck, User, Search, 
     Package, Map, Phone, Bike, FileText,
     Layers, Trash, Image as ImageIcon, 
-    ArrowUp, ArrowDown, ExternalLink, Loader2, Briefcase, BellRing, Activity
+    ArrowUp, ArrowDown, ExternalLink, Loader2, Briefcase, BellRing, Activity, Settings
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import axios from 'axios'
@@ -34,7 +34,15 @@ export default function AdminDashboard() {
     })
 
     const [loading, setLoading] = useState(true)
-    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'orders' | 'hubs' | 'delivery' | 'content'>('overview')
+    const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'orders' | 'hubs' | 'delivery' | 'content' | 'settings'>('overview')
+    const [globalSettings, setGlobalSettings] = useState<any>({
+        deliveryFeeBase: 0,
+        deliveryFeePerKm: 0,
+        platformFeeWholesale: 0,
+        platformFeeRetail: 0,
+        gstRate: 0,
+        maxDeliveryRadiusKm: 0
+    })
     
     // Mobile State
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -93,10 +101,33 @@ export default function AdminDashboard() {
 
     useEffect(() => { fetchDashboardData() }, [])
     
-    // Refresh slides when content tab is active or mode changes
     useEffect(() => { 
         if (activeTab === 'content') fetchHeroSlides() 
+        if (activeTab === 'settings') fetchSettings()
     }, [activeTab, cmsMode])
+
+    const fetchSettings = async () => {
+        try {
+            const res = await axios.get('/api/admin/settings')
+            if (res.data.success) {
+                setGlobalSettings(res.data.settings)
+            }
+        } catch (error) {
+            console.error("Settings fetch error", error)
+        }
+    }
+
+    const handleSaveSettings = async () => {
+        const toastId = toast.loading(locale === 'hi' ? 'सेव हो रहा है...' : 'Saving...');
+        try {
+            const res = await axios.put('/api/admin/settings', globalSettings)
+            if (res.data.success) {
+                toast.success(locale === 'hi' ? 'सेटिंग्स सेव हो गईं' : 'Settings saved', { id: toastId })
+            }
+        } catch (error) {
+            toast.error(locale === 'hi' ? 'विफल' : 'Failed', { id: toastId })
+        }
+    }
 
     // --- ACTIONS ---
     const handleUserAction = async (userId: string, action: string) => {
@@ -264,6 +295,43 @@ export default function AdminDashboard() {
     // Hub Helpers
     const getHubUsers = (role: string) => selectedHub ? users.filter(u => u.connectedHub === selectedHub._id && u.role === role) : [];
     const getHubSellers = () => selectedHub ? users.filter(u => u.connectedHub === selectedHub._id && (u.sellerStatus === 'approved' || u.sellerStatus === 'pending')) : [];
+
+    const renderSettings = () => (
+        <div className="space-y-6">
+            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                <h3 className="font-bold text-gray-800 text-lg mb-4">{locale === 'hi' ? 'वैश्विक सेटिंग्स' : 'Global Settings'}</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label className="text-xs font-bold text-gray-700 block mb-1">Base Delivery Fee (₹)</label>
+                        <input type="number" className="w-full p-3 border rounded-lg" value={globalSettings.deliveryFeeBase} onChange={(e) => setGlobalSettings({...globalSettings, deliveryFeeBase: Number(e.target.value)})} />
+                    </div>
+                    <div>
+                        <label className="text-xs font-bold text-gray-700 block mb-1">Delivery Fee per Km (₹)</label>
+                        <input type="number" className="w-full p-3 border rounded-lg" value={globalSettings.deliveryFeePerKm} onChange={(e) => setGlobalSettings({...globalSettings, deliveryFeePerKm: Number(e.target.value)})} />
+                    </div>
+                    <div>
+                        <label className="text-xs font-bold text-gray-700 block mb-1">Wholesale Platform Fee (%)</label>
+                        <input type="number" className="w-full p-3 border rounded-lg" value={globalSettings.platformFeeWholesale} onChange={(e) => setGlobalSettings({...globalSettings, platformFeeWholesale: Number(e.target.value)})} />
+                    </div>
+                    <div>
+                        <label className="text-xs font-bold text-gray-700 block mb-1">Retail Platform Fee (%)</label>
+                        <input type="number" className="w-full p-3 border rounded-lg" value={globalSettings.platformFeeRetail} onChange={(e) => setGlobalSettings({...globalSettings, platformFeeRetail: Number(e.target.value)})} />
+                    </div>
+                    <div>
+                        <label className="text-xs font-bold text-gray-700 block mb-1">GST Rate (%)</label>
+                        <input type="number" className="w-full p-3 border rounded-lg" value={globalSettings.gstRate} onChange={(e) => setGlobalSettings({...globalSettings, gstRate: Number(e.target.value)})} />
+                    </div>
+                    <div>
+                        <label className="text-xs font-bold text-gray-700 block mb-1">Max Delivery Radius (Km)</label>
+                        <input type="number" className="w-full p-3 border rounded-lg" value={globalSettings.maxDeliveryRadiusKm} onChange={(e) => setGlobalSettings({...globalSettings, maxDeliveryRadiusKm: Number(e.target.value)})} />
+                    </div>
+                </div>
+                <button onClick={handleSaveSettings} className="mt-6 bg-indigo-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-indigo-700 w-full md:w-auto">
+                    {locale === 'hi' ? 'सेटिंग्स सेव करें' : 'Save Settings'}
+                </button>
+            </div>
+        </div>
+    )
 
     // --- RENDERERS ---
 
@@ -595,6 +663,42 @@ export default function AdminDashboard() {
                             <span className="text-gray-500 font-medium">Total Amount</span>
                             <span className="text-2xl font-black text-green-600">₹{o.totalAmount}</span>
                         </div>
+                        {o.status === 'under_review' && (
+                            <div className="mt-6 pt-4 border-t border-red-100 bg-red-50 p-4 rounded-xl">
+                                <h4 className="font-bold text-red-800 mb-2">Dispute Resolution Needed</h4>
+                                <p className="text-sm text-red-600 mb-4">The hub rejected the quality of this order but the seller has disputed it. Please resolve the dispute.</p>
+                                <div className="flex gap-4">
+                                    <button 
+                                        onClick={async () => {
+                                            const toastId = toast.loading('Resolving in favor of seller...');
+                                            try {
+                                                const res = await axios.post(`/api/admin/orders/${o._id}/action`, { action: 'resolve_dispute', favor: 'seller' });
+                                                toast.success(res.data.message, { id: toastId });
+                                                fetchDashboardData();
+                                                setSelectedOrder(null);
+                                            } catch (e: any) { toast.error(e.response?.data?.message || 'Failed', { id: toastId }); }
+                                        }} 
+                                        className="bg-green-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-green-700"
+                                    >
+                                        Favor Seller (Reverse Penalty)
+                                    </button>
+                                    <button 
+                                        onClick={async () => {
+                                            const toastId = toast.loading('Resolving in favor of hub...');
+                                            try {
+                                                const res = await axios.post(`/api/admin/orders/${o._id}/action`, { action: 'resolve_dispute', favor: 'hub' });
+                                                toast.success(res.data.message, { id: toastId });
+                                                fetchDashboardData();
+                                                setSelectedOrder(null);
+                                            } catch (e: any) { toast.error(e.response?.data?.message || 'Failed', { id: toastId }); }
+                                        }} 
+                                        className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-red-700"
+                                    >
+                                        Favor Hub (Keep Penalty & Cancel)
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -603,7 +707,14 @@ export default function AdminDashboard() {
 
     const renderOrdersList = () => (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-6 border-b border-gray-100"><h3 className="font-bold text-gray-800 text-lg">{locale === 'hi' ? 'वैश्विक ऑर्डर इतिहास' : 'Global Order History'}</h3></div>
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                <h3 className="font-bold text-gray-800 text-lg">{locale === 'hi' ? 'वैश्विक ऑर्डर इतिहास' : 'Global Order History'}</h3>
+                {orders.some(o => o.status === 'under_review') && (
+                    <span className="bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-full animate-pulse">
+                        Disputes Pending!
+                    </span>
+                )}
+            </div>
             {orders.length === 0 ? (
                 <div className="p-12 text-center text-gray-400">{locale === 'hi' ? 'अभी तक कोई ऑर्डर नहीं।' : 'No orders placed yet.'}</div>
             ) : (
@@ -629,6 +740,7 @@ export default function AdminDashboard() {
                                     <td className="p-4">
                                         <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase
                                             ${order.status === 'delivered' ? 'bg-green-100 text-green-700' : 
+                                              order.status === 'under_review' ? 'bg-red-100 text-red-700' :
                                               order.status === 'cancelled' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
                                             {order.status}
                                         </span>
@@ -817,6 +929,7 @@ export default function AdminDashboard() {
                     <SidebarItem icon={<Users/>} label={`${locale === 'hi' ? 'वैश्विक उपयोगकर्ता' : 'Global Users'}${users.filter((u: any) => u.sellerStatus === 'pending').length > 0 ? ` (${users.filter((u: any) => u.sellerStatus === 'pending').length}⏳)` : ''}`} active={activeTab === 'users'} onClick={() => { setActiveTab('users'); setUserFilter('pending'); }} />
                     <SidebarItem icon={<ShoppingBag/>} label={locale === 'hi' ? 'वैश्विक ऑर्डर' : 'Global Orders'} active={activeTab === 'orders'} onClick={() => setActiveTab('orders')} />
                     <SidebarItem icon={<Layers/>} label={locale === 'hi' ? 'सामग्री और हीरो' : 'Content & Hero'} active={activeTab === 'content'} onClick={() => setActiveTab('content')} />
+                    <SidebarItem icon={<Settings/>} label={locale === 'hi' ? 'सेटिंग्स' : 'Global Settings'} active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
                     <Link href="/admin/catalog" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-gray-500 hover:bg-gray-50">
                         <Package size={20} /> {locale === 'hi' ? 'उत्पाद कैटलॉग' : 'Product Catalog'}
                     </Link>
@@ -861,6 +974,7 @@ export default function AdminDashboard() {
                         {activeTab === 'orders' && renderOrdersList()} 
                         {activeTab === 'delivery' && renderDeliveryRequests()}
                         {activeTab === 'content' && renderContentManagement()}
+                        {activeTab === 'settings' && renderSettings()}
                     </>
                 )}
 

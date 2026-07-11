@@ -61,8 +61,19 @@ function Checkout() {
     }
     
     const { userData } = useSelector((state: RootState) => state.user)
-    const { subTotal, deliveryFee, platformFee, finalTotal, cartData, deliveryType } = useSelector((state: RootState) => state.cart)
+    const { cartData, deliveryType } = useSelector((state: RootState) => state.cart)
     const { latitude, longitude } = useSelector((state: RootState) => state.location);
+
+    const [fees, setFees] = useState({
+        subTotal: 0,
+        platformFee: 0,
+        deliveryFee: 0,
+        gstAmount: 0,
+        finalTotal: 0
+    });
+    const [previewLoading, setPreviewLoading] = useState(false);
+    const [outOfRadius, setOutOfRadius] = useState(false);
+    const [radiusErrorMsg, setRadiusErrorMsg] = useState("");
 
     const [orderLoading, setOrderLoading] = useState(false)
     
@@ -74,7 +85,7 @@ function Checkout() {
         return false;
     })
     const walletBalance = userData?.walletBalance || 0
-    const maxWalletDiscount = Math.min(5, walletBalance, finalTotal) // Can't exceed order total or ₹5
+    const maxWalletDiscount = Math.min(5, walletBalance, fees.finalTotal) // Can't exceed order total or ₹5
     
     // Address Form State (Only for Home Delivery)
     const [address, setAddress] = useState({
@@ -140,6 +151,48 @@ function Checkout() {
         }
     }, [deliveryType, latitude, longitude, cartData]);
 
+    // Fetch order preview
+    useEffect(() => {
+        const fetchPreview = async () => {
+            if (cartData.length === 0) return;
+            // Wait for position to be available if doing home delivery
+            if (deliveryType === 'home-delivery' && !position) return;
+            // Wait for pickup location if doing pickup
+            if (deliveryType !== 'home-delivery' && !pickupLocation) return;
+
+            setPreviewLoading(true);
+            setOutOfRadius(false);
+            setRadiusErrorMsg("");
+            try {
+                const payload = {
+                    items: cartData.map(item => ({
+                        product: item._id,
+                        quantity: item.quantity,
+                    })),
+                    address: deliveryType === 'home-delivery' ? { latitude: position?.[0], longitude: position?.[1] } : { latitude: pickupLocation?.lat, longitude: pickupLocation?.lng },
+                    deliveryType,
+                    // If they have a connected hub, pass it. Wait, it's easier to just pass coordinates and let backend decide nearest hub.
+                };
+                const res = await axios.post('/api/user/order/preview', payload);
+                if (res.data.success) {
+                    setFees(res.data.preview);
+                } else if (res.data.isOutOfRadius) {
+                    setOutOfRadius(true);
+                    setRadiusErrorMsg(res.data.message);
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setPreviewLoading(false);
+            }
+        };
+
+        const timeout = setTimeout(() => {
+            fetchPreview();
+        }, 800); // debounce fetching preview
+        return () => clearTimeout(timeout);
+    }, [cartData, position, pickupLocation, deliveryType]);
+
     // 2. Prefill User Data
     useEffect(() => {
         if (userData) {
@@ -195,10 +248,15 @@ function Checkout() {
     }, [position, deliveryType])
 
     const handlePlaceOrder = async () => {
+        if (outOfRadius) {
+            toast.error(radiusErrorMsg);
+            return;
+        }
+
         // Validation based on Delivery Type
         if (deliveryType === 'home-delivery') {
             if (!position || !address.fullName || !address.mobile || !address.fullAddress) {
-                alert("Please fill in all delivery details.");
+                toast.error("Please fill in all delivery details.");
                 return;
             }
         }
@@ -218,7 +276,6 @@ function Checkout() {
                     // @ts-ignore
                     seller: item.seller?._id || item.seller // Pass seller ID for Farm Pickup logic
                 })),
-                totalAmount: finalTotal,
                 address: deliveryType === 'home-delivery' ? {
                     ...address,
                     latitude: position![0],
@@ -384,18 +441,26 @@ function Checkout() {
                     </div>
 
                     <div className='border-t pt-4 text-gray-700 space-y-2 text-sm sm:text-base'>
-                        <div className='flex justify-between'><span className='font-semibold'>{t.subtotal}</span><span className='font-semibold text-green-600'>₹{subTotal}</span></div>
+                        <div className='flex justify-between'><span className='font-semibold'>{t.subtotal}</span><span className='font-semibold text-green-600'>₹{fees.subTotal}</span></div>
                         <div className='flex justify-between'>
                             <span className='font-semibold'>{t.deliveryFee}</span>
-                            <span className={`${deliveryFee === 0 ? 'text-gray-400 line-through' : 'text-green-600 font-semibold'}`}>₹{deliveryFee}</span>
+                            <span className={`${fees.deliveryFee === 0 ? 'text-gray-400 line-through' : 'text-green-600 font-semibold'}`}>₹{fees.deliveryFee}</span>
                         </div>
                         <div className='flex justify-between'>
                             <span className='font-semibold'>{t.platformFee}</span>
-                            <span className={`${platformFee === 0 ? 'text-gray-400 line-through' : 'text-green-600 font-semibold'}`}>₹{platformFee}</span>
+                            <span className={`${fees.platformFee === 0 ? 'text-gray-400 line-through' : 'text-green-600 font-semibold'}`}>₹{fees.platformFee}</span>
                         </div>
+                        {fees.gstAmount > 0 && (
+                            <div className='flex justify-between'>
+                                <span className='font-semibold'>GST</span>
+                                <span className={`text-green-600 font-semibold`}>₹{fees.gstAmount.toFixed(2)}</span>
+                            </div>
+                        )}
                         <div className='flex justify-between font-bold text-lg border-t pt-3'>
                             <span className='font-semibold'>{t.finalTotal}</span>
-                            <span className='font-semibold text-green-600'>₹{useWallet ? Math.max(0, finalTotal - maxWalletDiscount) : finalTotal}</span>
+                            <span className='font-semibold text-green-600'>
+                                {previewLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : `₹${useWallet ? Math.max(0, fees.finalTotal - maxWalletDiscount).toFixed(2) : fees.finalTotal.toFixed(2)}`}
+                            </span>
                         </div>
                     </div>
 
@@ -423,11 +488,11 @@ function Checkout() {
                     
                     <motion.button 
                         whileTap={{ scale: 0.93 }}
-                        disabled={orderLoading}
-                        className='w-full mt-6 bg-green-600 text-white py-3 rounded-full hover:bg-green-700 transition-all font-semibold disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center'
+                        disabled={orderLoading || previewLoading || outOfRadius}
+                        className={`w-full mt-6 text-white py-3 rounded-full transition-all font-semibold flex items-center justify-center ${outOfRadius ? 'bg-red-500 hover:bg-red-600' : 'bg-green-600 hover:bg-green-700 disabled:opacity-70 disabled:cursor-not-allowed'}`}
                         onClick={handlePlaceOrder}
                     >
-                        {orderLoading ? <Loader2 className="animate-spin" /> : t.confirmOrder}
+                        {orderLoading ? <Loader2 className="animate-spin" /> : (outOfRadius ? radiusErrorMsg : t.confirmOrder)}
                     </motion.button>
                 </motion.div>
             </div>

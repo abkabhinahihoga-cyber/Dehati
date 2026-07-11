@@ -36,7 +36,7 @@ export interface IUser {
 
     // Seller Fields
     sellerStatus: 'none' | 'pending' | 'approved' | 'rejected';
-    sellerDetails?: { shopName: string; shopAddress: string; gstin?: string };
+    sellerDetails?: { shopName: string; shopAddress: string; gstin?: string; penaltyBalance?: number; disputeCases?: number };
     
     isBlocked: boolean;
     walletBalance: number;
@@ -115,7 +115,13 @@ const userSchema = new Schema<IUser>(
         followersCount: { type: Number, default: 0 },
 
         sellerStatus: { type: String, enum: ['none', 'pending', 'approved', 'rejected'], default: 'none' },
-        sellerDetails: { shopName: String, shopAddress: String, gstin: String },
+        sellerDetails: { 
+            shopName: String, 
+            shopAddress: String, 
+            gstin: String,
+            penaltyBalance: { type: Number, default: 0 },
+            disputeCases: { type: Number, default: 0 }
+        },
 
         isBlocked: { type: Boolean, default: false },
         walletBalance: { type: Number, default: 0 },

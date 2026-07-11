@@ -189,22 +189,29 @@ function SellerDashboard() {
         }
     }
 
-    // --- ACTION: UPDATE ORDER STATUS ---
-    const handleStatusUpdate = async (orderId: string, newStatus: string) => {
+    // --- ACTION: NEW SELLER ORDER ACTIONS ---
+    const handleOrderAction = async (orderId: string, action: string, extraData: any = {}) => {
         try {
-            // Optimistic update
-            setOrders(prev => prev.map(o => o._id === orderId ? { ...o, status: newStatus } : o))
-            
-            const res = await axios.put('/api/seller/orders', { orderId, status: newStatus })
+            const res = await axios.post(`/api/seller/orders/${orderId}/action`, { action, ...extraData });
             if(res.data.success) {
-                toast.success(`${t.statusUpdated} ${newStatus}`)
-                // Refresh stats to keep "Pending" count accurate
-                const resOrd = await axios.get('/api/seller/orders')
-                if(resOrd.data.success) setStats(resOrd.data.stats)
+                toast.success(res.data.message || t.updatedSuccess);
+                fetchAllData(); // Refresh to get latest state
             }
-        } catch (error) {
-            toast.error(t.updateFailed)
-            fetchAllData() // Revert on error
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || t.updateFailed);
+        }
+    }
+
+    const handleRejectOrder = (orderId: string) => {
+        const reason = prompt("Enter reason for rejection:");
+        if (reason === null) return;
+        handleOrderAction(orderId, "reject", { reason });
+    }
+
+    const handleVerifyPickup = (orderId: string) => {
+        const otp = prompt("Enter pickup verification code provided by the customer/hub:");
+        if (otp) {
+            handleOrderAction(orderId, "verify_pickup", { otp });
         }
     }
 
@@ -546,23 +553,38 @@ function SellerDashboard() {
                                             </div>
 
                                             <div className="pt-4 border-t border-gray-100 pl-3">
-                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Update Status</p>
-                                                <div className="relative">
-                                                    <select 
-                                                        value={order.status} 
-                                                        onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
-                                                        className={`w-full text-sm sm:text-base font-black p-3.5 rounded-xl outline-none cursor-pointer border-2 appearance-none text-center shadow-sm transition-all ${
-                                                            order.status === 'delivered' ? 'bg-green-50 text-green-800 border-green-400 hover:bg-green-100' :
-                                                            order.status === 'cancelled' ? 'bg-red-50 text-red-800 border-red-400 hover:bg-red-100' :
-                                                            'bg-yellow-50 text-yellow-800 border-yellow-400 hover:bg-yellow-100'
-                                                        }`}
-                                                    >
-                                                        <option value="pending">⏳ Pending (पेंडिंग)</option>
-                                                        <option value="processing">⚙️ Processing (तैयार हो रहा है)</option>
-                                                        <option value="out for delivery">🚚 Out for Delivery (रास्ते में)</option>
-                                                        <option value="delivered">✅ Delivered (वितरित)</option>
-                                                        <option value="cancelled">❌ Cancelled (रद्द)</option>
-                                                    </select>
+                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Actions</p>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {order.status === 'pending' && (
+                                                        <>
+                                                            <button onClick={() => handleOrderAction(order._id, 'accept')} className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex-1">Accept</button>
+                                                            <button onClick={() => handleRejectOrder(order._id)} className="bg-red-50 hover:bg-red-100 text-red-600 font-bold py-2 px-4 rounded-xl text-sm transition-colors border border-red-200 flex-1">Reject</button>
+                                                        </>
+                                                    )}
+                                                    {order.status === 'processing' && (
+                                                        <button onClick={() => handleOrderAction(order._id, 'ready')} className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors w-full">Mark as Ready</button>
+                                                    )}
+                                                    {order.status === 'ready' && (
+                                                        <button onClick={() => handleVerifyPickup(order._id)} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors w-full flex items-center justify-center gap-2"><CheckCircle size={16}/> Verify Pickup Code</button>
+                                                    )}
+                                                    {order.qualityStatus === 'rejected' && order.status === 'under_review' && (
+                                                        <>
+                                                            <div className="w-full bg-red-50 p-2 rounded-lg text-red-700 text-xs font-bold mb-2 border border-red-200">
+                                                                Hub rejected quality. Penalty: ₹20
+                                                            </div>
+                                                            <button onClick={() => handleOrderAction(order._id, 'acknowledge_rejection')} className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-xl text-sm transition-colors flex-1">Accept Penalty</button>
+                                                            <button onClick={() => handleOrderAction(order._id, 'dispute_rejection')} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex-1">Dispute</button>
+                                                        </>
+                                                    )}
+                                                    {(order.status === 'completed' || order.status === 'picked_up' || order.status === 'rejected' || order.status === 'cancelled' || order.status === 'ready_at_hub' || order.status === 'out_for_delivery') && (
+                                                        <div className={`w-full text-center py-2 px-4 rounded-xl text-sm font-bold capitalize ${
+                                                            order.status === 'completed' || order.status === 'picked_up' ? 'bg-green-100 text-green-800' :
+                                                            order.status === 'rejected' || order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                                            'bg-blue-100 text-blue-800'
+                                                        }`}>
+                                                            {order.status.replace(/_/g, " ")}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>

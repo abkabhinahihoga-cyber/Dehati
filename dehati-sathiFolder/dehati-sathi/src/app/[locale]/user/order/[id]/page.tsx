@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { ArrowLeft, MapPin, Phone, Navigation, CreditCard, Loader2, Package, Store, Truck, Info } from 'lucide-react'
+import { ArrowLeft, MapPin, Phone, Navigation, CreditCard, Loader2, Package, Store, Truck, Info, Clock, CheckCircle2, QrCode } from 'lucide-react'
 import { useRouter, useParams } from 'next/navigation'
 import axios from 'axios'
 import Image from 'next/image'
@@ -61,6 +61,20 @@ function OrderDetailsPage() {
     // Uses the saved latitude/longitude from the order
     const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${order.address?.latitude},${order.address?.longitude}`;
 
+    // 4. Determine OTP to display
+    let otpLabel = "";
+    let otpValue = "";
+    if (deliveryType === 'farm-pickup' && order.status === 'ready') {
+        otpLabel = locale === 'hi' ? 'पिकअप सत्यापन कोड' : 'Pickup Verification Code';
+        otpValue = order.pickupOtp;
+    } else if (deliveryType === 'hub-pickup' && order.status === 'ready_at_hub') {
+        otpLabel = locale === 'hi' ? 'हब संग्रह कोड' : 'Hub Collection Code';
+        otpValue = order.deliveryOtp;
+    } else if (deliveryType === 'home-delivery' && order.status === 'out_for_delivery') {
+        otpLabel = locale === 'hi' ? 'डिलीवरी सत्यापन कोड' : 'Delivery Verification Code';
+        otpValue = order.deliveryOtp;
+    }
+
     return (
         <div className='min-h-screen bg-gray-50 pb-24'>
             {/* Header */}
@@ -90,13 +104,51 @@ function OrderDetailsPage() {
                         </div>
                     </div>
                     {/* Simple Progress Bar */}
-                    <div className='w-full bg-gray-100 h-2 rounded-full overflow-hidden'>
+                    <div className='w-full bg-gray-100 h-2 rounded-full overflow-hidden mt-4'>
                         <div 
                             className='bg-zinc-900 h-full rounded-full transition-all duration-1000' 
-                            style={{width: order.status === 'delivered' ? '100%' : order.status === 'out_for_delivery' ? '75%' : '35%'}}
+                            style={{width: order.status === 'completed' ? '100%' : order.status === 'out_for_delivery' || order.status === 'picked_up' ? '75%' : '35%'}}
                         ></div>
                     </div>
+
+                    {/* Show OTP if applicable */}
+                    {otpValue && (
+                        <div className="mt-6 bg-green-50 border border-green-200 p-4 rounded-xl flex items-center justify-between">
+                            <div>
+                                <p className="text-xs text-green-700 font-medium flex items-center gap-1"><QrCode size={14}/> {otpLabel}</p>
+                                <p className="text-2xl font-black text-green-800 tracking-widest mt-1">{otpValue}</p>
+                            </div>
+                            <div className="text-right text-xs text-green-600 max-w-[120px]">
+                                {locale === 'hi' ? 'अपना ऑर्डर प्राप्त करते समय यह कोड साझा करें।' : 'Share this code when receiving your order.'}
+                            </div>
+                        </div>
+                    )}
                 </div>
+
+                {/* 1.5 TIMELINE */}
+                {order.trackingLogs && order.trackingLogs.length > 0 && (
+                    <div className='bg-white rounded-2xl p-6 shadow-sm border border-gray-100'>
+                        <h3 className='font-bold text-gray-900 mb-4 flex items-center gap-2'>
+                            <Clock size={18} className="text-gray-600"/> {locale === 'hi' ? 'ऑर्डर टाइमलाइन' : 'Order Timeline'}
+                        </h3>
+                        <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 before:to-transparent">
+                            {order.trackingLogs.map((log: any, idx: number) => (
+                                <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                    <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-slate-100 text-slate-500 group-[.is-active]:bg-green-500 group-[.is-active]:text-emerald-50 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                                        <CheckCircle2 size={18} />
+                                    </div>
+                                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <div className="font-bold text-slate-800 capitalize text-sm">{log.status.replace(/_/g, " ")}</div>
+                                            <time className="text-xs font-medium text-amber-500">{new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</time>
+                                        </div>
+                                        <div className="text-slate-500 text-xs">{new Date(log.timestamp).toLocaleDateString()}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* 2. ADDRESS / PICKUP LOCATION SECTION */}
                 <div className='bg-white rounded-2xl p-6 shadow-sm border border-gray-100'>

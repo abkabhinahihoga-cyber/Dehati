@@ -42,6 +42,32 @@ export default function HubOrdersPage() {
         } catch (error: any) { toast.error(error.response?.data?.message || (locale === 'hi' ? 'विफल' : "Failed")); }
     }
 
+    const handleHubAction = async (orderId: string, action: string, extraData: any = {}) => {
+        try {
+            const res = await axios.post(`/api/hub/orders/${orderId}/action`, { action, ...extraData });
+            if (res.data.success) {
+                toast.success(res.data.message || 'Success');
+                fetchOrders();
+                setIsDetailsOpen(false);
+            }
+        } catch (error: any) { toast.error(error.response?.data?.message || "Failed"); }
+    }
+
+    const handleVerifyPickup = (orderId: string) => {
+        const otp = prompt("Enter pickup verification code from seller:");
+        if (otp) handleHubAction(orderId, 'verify_pickup_from_seller', { otp });
+    }
+
+    const handleQualityReject = (orderId: string) => {
+        const reason = prompt("Enter reason for quality rejection:");
+        if (reason) handleHubAction(orderId, 'quality_reject', { reason });
+    }
+
+    const handleHandover = (orderId: string) => {
+        const otp = prompt("Enter collection code from user:");
+        if (otp) handleHubAction(orderId, 'handover_to_user', { otp });
+    }
+
     const updateLocalOrder = (updated: any) => {
         setOrders(prev => prev.map(o => o._id === updated._id ? { ...updated, orderType: o.orderType } : o));
         if (selectedOrder && selectedOrder._id === updated._id) setSelectedOrder(updated);
@@ -159,13 +185,28 @@ export default function HubOrdersPage() {
                                 {/* 2. DELIVERY INFO (READ ONLY) */}
                                 <div>
                                     <label className="text-xs font-bold text-gray-700 block mb-1.5">{locale === 'hi' ? 'डिलीवरी पार्टनर' : 'Delivery Partner'}</label>
-                                    <div className="w-full p-3 bg-white border border-gray-300 rounded-lg text-sm font-medium flex items-center justify-between">
+                                    <div className="w-full p-3 bg-white border border-gray-300 rounded-lg text-sm font-medium flex items-center justify-between mb-4">
                                         {selectedOrder.assignedDeliveryBoy ? (
                                             <span className="flex items-center gap-2 text-green-700"><CheckCircle size={16}/> {selectedOrder.assignedDeliveryBoy.name}</span>
                                         ) : selectedOrder.isOpenForDelivery ? (
                                             <span className="flex items-center gap-2 text-purple-600"><Zap size={16} fill="currentColor"/> {locale === 'hi' ? 'सभी को जारी किया गया' : 'Released to All'}</span>
                                         ) : (
                                             <span className="text-gray-400">{locale === 'hi' ? 'अभी तक आवंटित नहीं' : 'Not assigned yet'}</span>
+                                        )}
+                                    </div>
+                                    <label className="text-xs font-bold text-gray-700 block mb-1.5">Hub Actions</label>
+                                    <div className="flex flex-col gap-2">
+                                        {activeTab === 'seller' && selectedOrder.status === 'ready' && (
+                                            <button onClick={() => handleVerifyPickup(selectedOrder._id)} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-lg text-sm">Verify Pickup from Seller</button>
+                                        )}
+                                        {activeTab === 'seller' && selectedOrder.status === 'picked_up' && (
+                                            <div className="flex gap-2">
+                                                <button onClick={() => handleHubAction(selectedOrder._id, 'quality_approve')} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 rounded-lg text-sm">Approve QC</button>
+                                                <button onClick={() => handleQualityReject(selectedOrder._id)} className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-bold py-2 px-3 rounded-lg text-sm">Reject QC</button>
+                                            </div>
+                                        )}
+                                        {selectedOrder.deliveryType === 'hub-pickup' && selectedOrder.status === 'ready_at_hub' && (
+                                            <button onClick={() => handleHandover(selectedOrder._id)} className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-3 rounded-lg text-sm">Handover to User</button>
                                         )}
                                     </div>
                                 </div>

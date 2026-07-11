@@ -39,7 +39,31 @@ export interface IOrder extends Document {
   isOpenForDelivery: boolean;
   deliveryBoyStatus: 'pending' | 'accepted' | 'rejected';
   
-  status: "pending" | "processing" | "out_for_delivery" | "delivered" | "cancelled" | "driver_unavailable";
+  // New Financial Fields
+  platformFee: number;
+  gstAmount: number;
+  deliveryFee: number;
+  walletDiscount: number;
+
+  // New Verification & Quality Fields
+  pickupOtp?: string;
+  deliveryOtp?: string;
+  qualityStatus: 'pending' | 'approved' | 'rejected';
+  qualityRejectionReason?: string;
+  qualityImages?: string[];
+  disputeStatus: 'none' | 'raised' | 'resolved';
+  penaltyAmount?: number;
+  rejectedReason?: string;
+
+  // Logging
+  trackingLogs: {
+    status: string;
+    timestamp: Date;
+    location?: { lat: number; lng: number };
+    user?: mongoose.Types.ObjectId;
+  }[];
+
+  status: "pending" | "accepted" | "processing" | "ready" | "picked_up" | "quality_check" | "ready_at_hub" | "out_for_delivery" | "delivered" | "completed" | "rejected" | "under_review" | "driver_unavailable" | "cancelled";
   
   createdAt?: Date;
   updatedAt?: Date;
@@ -78,6 +102,30 @@ const orderSchema = new mongoose.Schema<IOrder>(
     },
     totalAmount: { type: Number, required: true },
     
+    // New Financial Fields
+    platformFee: { type: Number, default: 0 },
+    gstAmount: { type: Number, default: 0 },
+    deliveryFee: { type: Number, default: 0 },
+    walletDiscount: { type: Number, default: 0 },
+
+    // Verification & Quality Fields
+    pickupOtp: { type: String },
+    deliveryOtp: { type: String },
+    qualityStatus: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+    qualityRejectionReason: { type: String },
+    qualityImages: [{ type: String }],
+    disputeStatus: { type: String, enum: ['none', 'raised', 'resolved'], default: 'none' },
+    penaltyAmount: { type: Number, default: 0 },
+    rejectedReason: { type: String },
+
+    // Tracking Logs
+    trackingLogs: [{
+      status: { type: String },
+      timestamp: { type: Date, default: Date.now },
+      location: { lat: Number, lng: Number },
+      user: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
+    }],
+    
     // Use Mixed type to store whatever address object comes from frontend
     address: { type: Schema.Types.Mixed, required: true }, 
     
@@ -110,7 +158,7 @@ const orderSchema = new mongoose.Schema<IOrder>(
     },
     status: {
       type: String,
-      enum: ["pending", "processing", "out_for_delivery", "delivered", "cancelled", "driver_unavailable"],
+      enum: ["pending", "accepted", "processing", "ready", "picked_up", "quality_check", "ready_at_hub", "out_for_delivery", "delivered", "completed", "rejected", "under_review", "driver_unavailable", "cancelled"],
       default: "pending",
     },
   },
