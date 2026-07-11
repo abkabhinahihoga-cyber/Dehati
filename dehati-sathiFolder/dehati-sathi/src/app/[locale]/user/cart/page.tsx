@@ -280,19 +280,17 @@ function CartPage() {
                     </div>
                 )}
 
-                {/* HOME DELIVERY (Always Available, but conditional based on distance) */}
-                <button 
-                    onClick={() => {
-                        if (distanceToHub <= 3500) dispatch(setDeliveryType('home-delivery'));
-                    }} 
-                    disabled={distanceToHub > 3500}
-                    className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 border-2 
-                        ${deliveryType === 'home-delivery' ? 'bg-green-50 border-green-600 text-green-700' : 'bg-white border-gray-100 text-gray-500 hover:border-gray-300'}
-                        ${distanceToHub > 3500 ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}
-                    `}
-                >
-                    <Truck size={14} /> {tCart.homeDelivery}
-                </button>
+                {/* HOME DELIVERY (Conditional based on distance) */}
+                {distanceToHub <= 3500 && (
+                    <button 
+                        onClick={() => dispatch(setDeliveryType('home-delivery'))} 
+                        className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 border-2 
+                            ${deliveryType === 'home-delivery' ? 'bg-green-50 border-green-600 text-green-700' : 'bg-white border-gray-100 text-gray-500 hover:border-gray-300'}
+                        `}
+                    >
+                        <Truck size={14} /> {tCart.homeDelivery}
+                    </button>
+                )}
                 
                 {/* Distance Warning for Home Delivery */}
                 {distanceToHub > 3500 && (

@@ -1,6 +1,8 @@
 import connectDb from "@/lib/db";
 import Order from "@/app/models/order.model";
 import Hub from "@/app/models/hub.model";
+import User from "@/app/models/user.model";
+import { createNotification } from "@/lib/notify";
 import { auth } from "@/auth";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -36,13 +38,26 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         });
 
         switch (action) {
-            case "verify_pickup_from_seller": // Hub picks up from Seller
+            case "verify_pickup_from_seller": // Hub/DeliveryBoy collects from Seller
                 if (order.status !== "ready") return NextResponse.json({ message: "Order not ready for pickup" }, { status: 400 });
-                if (order.pickupOtp !== otp) return NextResponse.json({ message: "Invalid Verification Code" }, { status: 400 });
+                // Hub shows their sellerHandoverCode to seller; seller enters it in app to confirm
+                if (order.sellerHandoverCode !== otp) return NextResponse.json({ message: "Invalid Handover Code. Check the code from your hub notification." }, { status: 400 });
                 
                 order.status = "picked_up";
                 order.trackingLogs.push(logEntry("picked_up"));
                 await order.save();
+
+                // Notify buyer that their order was picked up and is on its way
+                await createNotification({
+                    recipientId: order.user.toString(),
+                    type: "order",
+                    title: "Order Picked Up! 🚚",
+                    message: order.deliveryType === 'hub-pickup'
+                        ? `Your order has been collected and is heading to the hub. ${order.deliveryOtp ? `Collection code: ${order.deliveryOtp}` : ''}`
+                        : `Your order has been picked up and is out for delivery!`,
+                    url: `/user/order/${order._id}`
+                });
+
                 return NextResponse.json({ success: true, message: "Picked up from seller" });
 
             case "quality_approve":
@@ -57,14 +72,30 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
             case "quality_reject":
                 if (order.status !== "picked_up") return NextResponse.json({ message: "Order must be picked up first" }, { status: 400 });
                 
-                order.qualityStatus = "rejected";
+                // Generate a 4-digit code for the seller to verify the rejection
+                const rejectionCode = Math.floor(1000 + Math.random() * 9000).toString();
+                
+                order.qualityStatus = "rejected_pending_verification";
+                order.rejectionOtp = rejectionCode;
                 order.qualityRejectionReason = reason;
                 order.qualityImages = images || [];
-                // Status stays at picked_up or moves to rejected? The prompt says "System sends seller verification code". We can move it to 'under_review'
+                
                 order.status = "under_review";
                 order.trackingLogs.push(logEntry("quality_rejected"), logEntry("under_review"));
                 await order.save();
-                return NextResponse.json({ success: true, message: "Quality rejected and sent for seller review" });
+
+                // Notify seller with the rejection OTP
+                if (order.items && order.items.length > 0 && order.items[0].seller) {
+                    await createNotification({
+                        recipientId: order.items[0].seller.toString(),
+                        type: "order",
+                        title: "Product Quality Rejected ❌",
+                        message: `Hub has rejected your product for reason: ${reason}. Please ask the hub for Rejection Code: ${rejectionCode} to verify and proceed.`,
+                        url: "/seller/dashboard"
+                    });
+                }
+
+                return NextResponse.json({ success: true, message: "Quality rejected and sent for seller verification" });
 
             case "handover_to_user": // Hub Pickup Handover
                 if (order.deliveryType !== "hub-pickup") return NextResponse.json({ message: "Not a hub pickup order" }, { status: 400 });

@@ -3,9 +3,14 @@ import connectDb from "@/lib/db";
 import User from "@/app/models/user.model";
 import Order from "@/app/models/order.model";
 import Grocery from "@/app/models/grocery.model";
+import WorkOpportunity from "@/app/models/workOpportunity.model";
+import WorkApplication from "@/app/models/workApplication.model";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
+
+// Helper for date filtering
+const getStartOfDay = (date: Date) => new Date(date.setHours(0, 0, 0, 0));
 
 // 1. GET: Calculate Detailed Analytics & Breakdowns
 export async function GET(req: NextRequest) {
@@ -15,7 +20,59 @@ export async function GET(req: NextRequest) {
 
         await connectDb();
 
-        const orders = await Order.find({ status: 'delivered' }).populate({
+        const now = new Date();
+        const today = getStartOfDay(new Date());
+        const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+        const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        const sixtySecondsAgo = new Date(now.getTime() - 60 * 1000);
+
+        // --- 0. COMPREHENSIVE ANALYTICS ---
+        
+        // Users
+        const totalUsers = await User.countDocuments();
+        const onlineUsers = await User.countDocuments({ lastSeen: { $gte: sixtySecondsAgo } });
+        const dau = await User.countDocuments({ lastSeen: { $gte: today } });
+        const wau = await User.countDocuments({ lastSeen: { $gte: sevenDaysAgo } });
+        const mau = await User.countDocuments({ lastSeen: { $gte: thirtyDaysAgo } });
+        const newUsersToday = await User.countDocuments({ createdAt: { $gte: today } });
+        
+        // Segments
+        const totalFarmers = await User.countDocuments({ role: 'seller' });
+        const totalBuyers = await User.countDocuments({ role: 'user' });
+        const totalWorkers = await User.countDocuments({ 'workerProfile.isWorker': true });
+        
+        const activeFarmersToday = await User.countDocuments({ role: 'seller', lastSeen: { $gte: today } });
+        const activeBuyersToday = await User.countDocuments({ role: 'user', lastSeen: { $gte: today } });
+        const activeWorkersToday = await User.countDocuments({ 'workerProfile.isWorker': true, lastSeen: { $gte: today } });
+
+        // Marketplace
+        const totalProducts = await Grocery.countDocuments();
+        const productsToday = await Grocery.countDocuments({ createdAt: { $gte: today } });
+        
+        const totalOrdersCount = await Order.countDocuments();
+        const ordersToday = await Order.countDocuments({ createdAt: { $gte: today } });
+        const deliveredOrders = await Order.countDocuments({ status: 'delivered' });
+        const pendingOrders = await Order.countDocuments({ status: { $in: ['pending', 'processing', 'ready', 'picked_up', 'ready_at_hub', 'out_for_delivery'] } });
+        const cancelledOrders = await Order.countDocuments({ status: { $in: ['rejected', 'cancelled'] } });
+        
+        const allOrders = await Order.find({}).select('totalAmount status createdAt');
+        const totalTransactionValue = allOrders.filter(o => o.status === 'delivered' || o.status === 'completed').reduce((acc, o) => acc + (o.totalAmount || 0), 0);
+
+        // Jobs
+        const totalJobs = await WorkOpportunity.countDocuments();
+        const jobsToday = await WorkOpportunity.countDocuments({ createdAt: { $gte: today } });
+        const activeJobs = await WorkOpportunity.countDocuments({ isActive: true });
+        const completedJobs = await WorkApplication.countDocuments({ status: 'completed' });
+        
+        const allCompletedApps = await WorkApplication.find({ status: 'completed' }).select('totalEarnings');
+        const totalJobEarnings = allCompletedApps.reduce((acc, app) => acc + (app.totalEarnings || 0), 0);
+
+        const allUsers = await User.find({ role: { $ne: 'admin' } }).select('name email mobile role lastSeen createdAt').sort({ lastSeen: -1 }).lean();
+        const recentLogins = allUsers.slice(0, 10);
+
+        // Legacy fetch for revenue breakdown
+        const orders = await Order.find({ status: { $in: ['delivered', 'completed'] } }).populate({
             path: 'items.product',
             model: Grocery,
             select: 'seller price' 
@@ -72,7 +129,44 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json({
             success: true,
-            // 👇 NEW: Detailed Breakdown Object
+            
+            // NEW COMPREHENSIVE METRICS
+            metrics: {
+                users: {
+                    total: totalUsers,
+                    online: onlineUsers,
+                    dau, wau, mau,
+                    newToday: newUsersToday,
+                    returningToday: Math.max(0, dau - newUsersToday),
+                    retentionRate: totalUsers > 0 ? ((dau / totalUsers) * 100).toFixed(1) : "0",
+                    segments: {
+                        farmers: totalFarmers, buyers: totalBuyers, workers: totalWorkers,
+                        activeFarmers: activeFarmersToday, activeBuyers: activeBuyersToday, activeWorkers: activeWorkersToday
+                    }
+                },
+                marketplace: {
+                    productsTotal: totalProducts,
+                    productsToday,
+                    ordersTotal: totalOrdersCount,
+                    ordersToday,
+                    delivered: deliveredOrders,
+                    pending: pendingOrders,
+                    cancelled: cancelledOrders,
+                    transactionValue: totalTransactionValue
+                },
+                jobs: {
+                    total: totalJobs,
+                    today: jobsToday,
+                    active: activeJobs,
+                    completed: completedJobs,
+                    earnings: totalJobEarnings
+                },
+                realtime: {
+                    recentLogins
+                }
+            },
+
+            // LEGACY FINANCIAL BREAKDOWN
             breakdown: {
                 platform: netPlatformIncome,
                 sellers: totalSellerIncome,

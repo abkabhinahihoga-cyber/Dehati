@@ -90,6 +90,8 @@ function SellerDashboard() {
     const [rejectOrderState, setRejectOrderState] = useState<{isOpen: boolean, orderId: string, reason: string}>({ isOpen: false, orderId: "", reason: "" });
     // --- VERIFY PICKUP MODAL STATE ---
     const [verifyPickupState, setVerifyPickupState] = useState<{isOpen: boolean, orderId: string, otp: string}>({ isOpen: false, orderId: "", otp: "" });
+    const [rejectionVerifyState, setRejectionVerifyState] = useState<{isOpen: boolean, orderId: string, otp: string}>({ isOpen: false, orderId: "", otp: "" });
+    
     const [videoFile, setVideoFile] = useState<File | null>(null);
     const [reelDesc, setReelDesc] = useState("");
     const [selectedProductId, setSelectedProductId] = useState("");
@@ -585,16 +587,28 @@ function SellerDashboard() {
                                                     {order.status === 'ready' && (
                                                         <button onClick={() => handleVerifyPickup(order._id)} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors w-full flex items-center justify-center gap-2"><CheckCircle size={16}/> Verify Pickup Code</button>
                                                     )}
-                                                    {order.qualityStatus === 'rejected' && order.status === 'under_review' && (
+                                                    {order.qualityStatus === 'rejected_pending_verification' && order.status === 'under_review' && (
                                                         <>
                                                             <div className="w-full bg-red-50 p-2 rounded-lg text-red-700 text-xs font-bold mb-2 border border-red-200">
-                                                                Hub rejected quality. Penalty: ₹20
+                                                                Hub rejected quality. Get Rejection Code from Hub. Penalty: ₹20
                                                             </div>
-                                                            <button onClick={() => handleOrderAction(order._id, 'acknowledge_rejection')} className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-xl text-sm transition-colors flex-1">Accept Penalty</button>
-                                                            <button onClick={() => handleOrderAction(order._id, 'dispute_rejection')} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex-1">Dispute</button>
+                                                            <button onClick={() => handleVerifyRejection(order._id)} className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-xl text-sm transition-colors flex-1">Verify Penalty</button>
                                                         </>
                                                     )}
-                                                    {(order.status === 'completed' || order.status === 'picked_up' || order.status === 'rejected' || order.status === 'cancelled' || order.status === 'ready_at_hub' || order.status === 'out_for_delivery') && (
+                                                    {order.qualityStatus === 'rejected' && (order.status === 'under_review' || order.status === 'rejected') && (
+                                                        <>
+                                                            <div className="w-full bg-red-50 p-2 rounded-lg text-red-700 text-xs font-bold mb-2 border border-red-200">
+                                                                Quality Rejected. Penalty applied.
+                                                            </div>
+                                                            {order.disputeStatus === 'none' && (
+                                                                <button onClick={() => handleOrderAction(order._id, 'dispute_rejection')} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl text-sm transition-colors flex-1">Raise Dispute</button>
+                                                            )}
+                                                            {order.disputeStatus === 'raised' && (
+                                                                <span className="text-sm font-bold text-red-600 w-full text-center">Dispute under review by Admin</span>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                    {(order.status === 'completed' || order.status === 'picked_up' || order.status === 'rejected' || order.status === 'cancelled' || order.status === 'ready_at_hub' || order.status === 'out_for_delivery') && order.qualityStatus !== 'rejected' && (
                                                         <div className={`w-full text-center py-2 px-4 rounded-xl text-sm font-bold capitalize ${
                                                             order.status === 'completed' || order.status === 'picked_up' ? 'bg-green-100 text-green-800' :
                                                             order.status === 'rejected' || order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
@@ -838,6 +852,33 @@ function SellerDashboard() {
                                     <Upload className="w-5 h-5" /> {t.publishReel}
                                 </button>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Verify Quality Rejection Modal */}
+            {rejectionVerifyState.isOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-xl">
+                        <h3 className="text-xl font-bold text-gray-800 mb-2">Verify Rejection</h3>
+                        <p className="text-sm text-gray-600 mb-4">The hub has rejected your product quality. Please ask the Hub Delivery Boy for the Rejection Code to verify and proceed. A penalty of ₹20 will be applied.</p>
+                        
+                        <div className="mb-6">
+                            <label className="text-xs font-bold text-gray-500 uppercase">Rejection Code</label>
+                            <input 
+                                type="text" 
+                                className="w-full mt-1 p-3 border border-gray-300 rounded-xl font-bold tracking-widest text-center text-lg focus:ring-2 focus:ring-red-500 focus:outline-none" 
+                                placeholder="----"
+                                maxLength={4}
+                                value={rejectionVerifyState.otp}
+                                onChange={(e) => setRejectionVerifyState({ ...rejectionVerifyState, otp: e.target.value })}
+                            />
+                        </div>
+
+                        <div className="flex gap-3">
+                            <button onClick={() => setRejectionVerifyState({ isOpen: false, orderId: "", otp: "" })} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl transition-colors">Cancel</button>
+                            <button onClick={submitVerifyRejection} className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-colors">Verify</button>
                         </div>
                     </div>
                 </div>

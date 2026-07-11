@@ -46,9 +46,11 @@ export interface IOrder extends Document {
   walletDiscount: number;
 
   // New Verification & Quality Fields
-  pickupOtp?: string;
-  deliveryOtp?: string;
-  qualityStatus: 'pending' | 'approved' | 'rejected';
+  pickupOtp?: string;          // Buyer shows this to SELLER (farm-pickup only)
+  deliveryOtp?: string;        // Buyer shows this to HUB (hub-pickup collection)
+  sellerHandoverCode?: string; // HUB/DELIVERY BOY shows this to SELLER to collect order
+  rejectionOtp?: string;       // HUB generates this when rejecting a seller's product. Seller enters it to verify penalty.
+  qualityStatus: 'pending' | 'approved' | 'rejected' | 'rejected_pending_verification';
   qualityRejectionReason?: string;
   qualityImages?: string[];
   disputeStatus: 'none' | 'raised' | 'resolved';
@@ -111,7 +113,9 @@ const orderSchema = new mongoose.Schema<IOrder>(
     // Verification & Quality Fields
     pickupOtp: { type: String },
     deliveryOtp: { type: String },
-    qualityStatus: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+    sellerHandoverCode: { type: String },
+    rejectionOtp: { type: String },
+    qualityStatus: { type: String, enum: ['pending', 'approved', 'rejected', 'rejected_pending_verification'], default: 'pending' },
     qualityRejectionReason: { type: String },
     qualityImages: [{ type: String }],
     disputeStatus: { type: String, enum: ['none', 'raised', 'resolved'], default: 'none' },

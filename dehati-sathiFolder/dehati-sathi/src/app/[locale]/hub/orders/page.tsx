@@ -14,6 +14,10 @@ export default function HubOrdersPage() {
     // Modal State
     const [selectedOrder, setSelectedOrder] = useState<any | null>(null)
     const [isDetailsOpen, setIsDetailsOpen] = useState(false)
+    // Action Modals
+    const [pickupModal, setPickupModal] = useState<{open: boolean, orderId: string, code: string}>({open: false, orderId: '', code: ''})
+    const [handoverModal, setHandoverModal] = useState<{open: boolean, orderId: string, code: string}>({open: false, orderId: '', code: ''})
+    const [qualityRejectModal, setQualityRejectModal] = useState<{open: boolean, orderId: string, reason: string}>({open: false, orderId: '', reason: ''})
 
     const fetchOrders = () => {
         axios.get('/api/hub/orders')
@@ -54,18 +58,33 @@ export default function HubOrdersPage() {
     }
 
     const handleVerifyPickup = (orderId: string) => {
-        const otp = prompt("Enter pickup verification code from seller:");
-        if (otp) handleHubAction(orderId, 'verify_pickup_from_seller', { otp });
+        setPickupModal({ open: true, orderId, code: '' });
     }
 
     const handleQualityReject = (orderId: string) => {
-        const reason = prompt("Enter reason for quality rejection:");
-        if (reason) handleHubAction(orderId, 'quality_reject', { reason });
+        setQualityRejectModal({ open: true, orderId, reason: '' });
     }
 
     const handleHandover = (orderId: string) => {
-        const otp = prompt("Enter collection code from user:");
-        if (otp) handleHubAction(orderId, 'handover_to_user', { otp });
+        setHandoverModal({ open: true, orderId, code: '' });
+    }
+
+    const submitPickup = () => {
+        if (!pickupModal.code || pickupModal.code.length < 4) return toast.error('Enter the 4-digit handover code');
+        handleHubAction(pickupModal.orderId, 'verify_pickup_from_seller', { otp: pickupModal.code });
+        setPickupModal({ open: false, orderId: '', code: '' });
+    }
+
+    const submitHandover = () => {
+        if (!handoverModal.code || handoverModal.code.length < 4) return toast.error('Enter the user collection code');
+        handleHubAction(handoverModal.orderId, 'handover_to_user', { otp: handoverModal.code });
+        setHandoverModal({ open: false, orderId: '', code: '' });
+    }
+
+    const submitQualityReject = () => {
+        if (!qualityRejectModal.reason) return toast.error('Please select a rejection reason');
+        handleHubAction(qualityRejectModal.orderId, 'quality_reject', { reason: qualityRejectModal.reason });
+        setQualityRejectModal({ open: false, orderId: '', reason: '' });
     }
 
     const updateLocalOrder = (updated: any) => {
@@ -242,6 +261,81 @@ export default function HubOrdersPage() {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* PICKUP MODAL - Hub enters the handover code (received via notification) */}
+            {pickupModal.open && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                        <h2 className="text-xl font-bold text-gray-800 mb-2">{locale === 'hi' ? 'विक्रेता से पिकअप सत्यापित करें' : 'Verify Pickup from Seller'}</h2>
+                        <p className="text-sm text-blue-700 bg-blue-50 rounded-xl p-3 mb-4">
+                            {locale === 'hi'
+                                ? '📱 आपको नोटिफिकेशन में एक 4-अंकीय हैंडओवर कोड मिला है। विक्रेता को यह कोड दिखाएं और नीचे दर्ज करें।'
+                                : '📱 You received a 4-digit handover code in your notification. Show it to the seller, then enter it below to confirm collection.'}
+                        </p>
+                        <input
+                            type="number"
+                            placeholder="4-digit handover code"
+                            className="w-full p-4 border-2 border-gray-200 rounded-xl text-2xl font-bold text-center tracking-widest mb-4 focus:border-blue-500 focus:outline-none"
+                            value={pickupModal.code}
+                            onChange={e => setPickupModal(prev => ({...prev, code: e.target.value.slice(0,4)}))}
+                        />
+                        <div className="flex gap-3">
+                            <button onClick={() => setPickupModal({open:false, orderId:'', code:''})} className="flex-1 py-3 border rounded-xl font-bold text-gray-600">{locale === 'hi' ? 'रद्द करें' : 'Cancel'}</button>
+                            <button onClick={submitPickup} className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold">{locale === 'hi' ? 'पुष्टि करें' : 'Confirm Pickup'}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* HANDOVER MODAL - User shows hub their deliveryOtp */}
+            {handoverModal.open && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                        <h2 className="text-xl font-bold text-gray-800 mb-2">{locale === 'hi' ? 'उपयोगकर्ता को सौंपें' : 'Handover to User'}</h2>
+                        <p className="text-sm text-purple-700 bg-purple-50 rounded-xl p-3 mb-4">
+                            {locale === 'hi'
+                                ? '👤 उपयोगकर्ता के पास एक संग्रह कोड है जो उनके ऑर्डर पेज पर दिखता है। नीचे दर्ज करें।'
+                                : '👤 The user has a collection code on their order page. Ask them to show it and enter it below.'}
+                        </p>
+                        <input
+                            type="number"
+                            placeholder="User's collection code"
+                            className="w-full p-4 border-2 border-gray-200 rounded-xl text-2xl font-bold text-center tracking-widest mb-4 focus:border-purple-500 focus:outline-none"
+                            value={handoverModal.code}
+                            onChange={e => setHandoverModal(prev => ({...prev, code: e.target.value.slice(0,4)}))}
+                        />
+                        <div className="flex gap-3">
+                            <button onClick={() => setHandoverModal({open:false, orderId:'', code:''})} className="flex-1 py-3 border rounded-xl font-bold text-gray-600">{locale === 'hi' ? 'रद्द करें' : 'Cancel'}</button>
+                            <button onClick={submitHandover} className="flex-1 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold">{locale === 'hi' ? 'सौंपें' : 'Confirm Handover'}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* QUALITY REJECT MODAL */}
+            {qualityRejectModal.open && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                        <h2 className="text-xl font-bold text-red-700 mb-4">{locale === 'hi' ? 'गुणवत्ता अस्वीकार करें' : 'Reject Quality'}</h2>
+                        <select
+                            className="w-full p-3 border-2 rounded-xl mb-4 focus:border-red-400 focus:outline-none"
+                            value={qualityRejectModal.reason}
+                            onChange={e => setQualityRejectModal(prev => ({...prev, reason: e.target.value}))}
+                        >
+                            <option value="">{locale === 'hi' ? '-- कारण चुनें --' : '-- Select reason --'}</option>
+                            <option value="Poor quality / damaged">{locale === 'hi' ? 'खराब गुणवत्ता / क्षतिग्रस्त' : 'Poor quality / damaged'}</option>
+                            <option value="Wrong product sent">{locale === 'hi' ? 'गलत उत्पाद भेजा गया' : 'Wrong product sent'}</option>
+                            <option value="Quantity mismatch">{locale === 'hi' ? 'मात्रा में अंतर' : 'Quantity mismatch'}</option>
+                            <option value="Expired / stale">{locale === 'hi' ? 'समाप्त / बासी' : 'Expired / stale'}</option>
+                            <option value="Other">{locale === 'hi' ? 'अन्य' : 'Other'}</option>
+                        </select>
+                        <div className="flex gap-3">
+                            <button onClick={() => setQualityRejectModal({open:false, orderId:'', reason:''})} className="flex-1 py-3 border rounded-xl font-bold text-gray-600">{locale === 'hi' ? 'रद्द करें' : 'Cancel'}</button>
+                            <button onClick={submitQualityReject} className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold">{locale === 'hi' ? 'अस्वीकार करें' : 'Reject'}</button>
                         </div>
                     </div>
                 </div>

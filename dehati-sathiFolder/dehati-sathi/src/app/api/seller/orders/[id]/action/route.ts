@@ -40,32 +40,40 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
                 if (order.status !== "pending") return NextResponse.json({ message: "Can only accept pending orders" }, { status: 400 });
                 order.status = "processing";
                 order.trackingLogs.push(logEntry("processing"));
+
+                // Generate a handover code for hub/delivery boy to show the seller when collecting
+                if (order.deliveryType !== "farm-pickup") {
+                    order.sellerHandoverCode = Math.floor(1000 + Math.random() * 9000).toString();
+                }
                 await order.save();
 
-                // Notify buyer
+                // Notify buyer with their pickup code
                 await createNotification({
                     recipientId: order.user.toString(),
                     type: "order",
                     title: "Order Accepted! ✅",
-                    message: `Your order has been accepted by the seller and is now being prepared. Your pickup code is: ${order.pickupOtp}`,
+                    message: order.deliveryType === "farm-pickup"
+                        ? `Your order has been accepted. Come to pickup and show your code: ${order.pickupOtp}`
+                        : `Your order has been accepted and is being prepared. ${order.deliveryType === 'hub-pickup' ? `Your hub collection code: ${order.deliveryOtp}` : 'You will be updated when its ready for delivery.'}`,
                     url: `/user/order/${order._id}`
                 });
 
-                // Notify connected hub
-                if (order.connectedHub) {
+                // If hub/home delivery — notify hub manager with the SELLER HANDOVER CODE
+                if (order.connectedHub && order.deliveryType !== "farm-pickup") {
                     const hubManager = await User.findOne({ role: 'hub', connectedHub: order.connectedHub });
                     if (hubManager) {
                         await createNotification({
                             recipientId: hubManager._id.toString(),
                             type: "order",
-                            title: "New Order In Progress 📦",
-                            message: `An order has been accepted by a seller and is being prepared for pickup/delivery.`,
+                            title: "New Order Ready for Collection 📦",
+                            message: `Order accepted by seller. Show this code to the seller to collect the order: ${order.sellerHandoverCode}`,
                             url: `/hub/orders`
                         });
                     }
                 }
 
                 return NextResponse.json({ success: true, message: "Order accepted" });
+
 
             case "reject":
                 if (order.status !== "pending") return NextResponse.json({ message: "Can only reject pending orders" }, { status: 400 });
@@ -113,19 +121,40 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
                 await order.save();
                 return NextResponse.json({ success: true, message: "Pickup verified and order completed" });
 
-            case "acknowledge_rejection":
-                if (order.qualityStatus !== "rejected") return NextResponse.json({ message: "Quality is not rejected" }, { status: 400 });
-                // Apply penalty
+            case "verify_rejection":
+                if (order.qualityStatus !== "rejected_pending_verification") return NextResponse.json({ message: "Quality is not pending verification" }, { status: 400 });
+                if (order.rejectionOtp !== otp) return NextResponse.json({ message: "Invalid Rejection Code" }, { status: 400 });
+                
+                // Apply penalty directly to walletBalance
                 await User.findByIdAndUpdate(userId, { 
-                    $inc: { "sellerDetails.penaltyBalance": 20 } 
+                    $inc: { walletBalance: -20, "sellerDetails.penaltyBalance": 20 } 
                 });
                 order.penaltyAmount = 20;
+                order.qualityStatus = "rejected";
+                order.status = "rejected";
+                order.trackingLogs.push(logEntry("penalty_applied_rejected"));
                 await order.save();
-                return NextResponse.json({ success: true, message: "Rejection acknowledged and penalty applied" });
+
+                // Notify Hub that seller verified it
+                if (order.connectedHub) {
+                    const hubManager = await User.findOne({ role: 'hub', connectedHub: order.connectedHub });
+                    if (hubManager) {
+                        await createNotification({
+                            recipientId: hubManager._id.toString(),
+                            type: "system",
+                            title: "Quality Rejection Verified ✅",
+                            message: `Seller has verified the rejection for order ${order._id}. Penalty applied.`,
+                            url: `/hub/orders`
+                        });
+                    }
+                }
+
+                return NextResponse.json({ success: true, message: "Rejection verified and penalty applied" });
 
             case "dispute_rejection":
-                if (order.qualityStatus !== "rejected") return NextResponse.json({ message: "Quality is not rejected" }, { status: 400 });
+                if (order.qualityStatus !== "rejected") return NextResponse.json({ message: "Can only dispute after rejection is verified" }, { status: 400 });
                 order.disputeStatus = "raised";
+                order.status = "under_review";
                 await User.findByIdAndUpdate(userId, { 
                     $inc: { "sellerDetails.disputeCases": 1 } 
                 });

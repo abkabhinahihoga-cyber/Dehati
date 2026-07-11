@@ -5,8 +5,8 @@ import {
     CheckCircle, XCircle, Shield, Ban, MapPin, Plus, 
     Menu, X, ChevronLeft, Store, Truck, User, Search, 
     Package, Map, Phone, Bike, FileText,
-    Layers, Trash, Image as ImageIcon, 
-    ArrowUp, ArrowDown, ExternalLink, Loader2, Briefcase, BellRing, Activity, Settings
+    ArrowUp, ArrowDown, ExternalLink, Loader2, Briefcase, BellRing, Activity, Settings,
+    BarChart3, PieChart, Users2, Tractor, Pickaxe, Map as MapIcon, Calendar, Clock
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import axios from 'axios'
@@ -14,6 +14,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { useLocale } from 'next-intl'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart as RechartsPieChart, Pie, Cell } from 'recharts'
 
 export default function AdminDashboard() {
     const locale = useLocale();
@@ -23,6 +24,7 @@ export default function AdminDashboard() {
     const [orders, setOrders] = useState<any[]>([])
     const [hubs, setHubs] = useState<any[]>([])
     const [deliveryRequests, setDeliveryRequests] = useState<any[]>([])
+    const [analytics, setAnalytics] = useState<any>(null)
     
     // 👇 CMS State (Hero Slides)
     const [heroSlides, setHeroSlides] = useState<any[]>([])
@@ -79,6 +81,10 @@ export default function AdminDashboard() {
             const delRes = await axios.get('/api/admin/delivery-requests')
             if (delRes.data.success) {
                 setDeliveryRequests(delRes.data.applicants)
+            }
+            const anaRes = await axios.get('/api/admin/analytics')
+            if (anaRes.data.success) {
+                setAnalytics(anaRes.data)
             }
         } catch (error) {
             console.error("Dashboard Load Error", error)
@@ -450,61 +456,184 @@ export default function AdminDashboard() {
 
     const renderOverview = () => {
         const pendingSellers = users.filter((u: any) => u.sellerStatus === 'pending')
+        
+        if (!analytics || !analytics.metrics) {
+            return <div className="flex justify-center items-center h-64"><Loader2 className="animate-spin text-green-600" size={32}/></div>;
+        }
+
+        const metrics = analytics.metrics;
+        const usersData = metrics.users;
+        const marketData = metrics.marketplace;
+        const jobData = metrics.jobs;
+
+        // Chart Data Prep
+        const userActivityData = [
+            { name: 'MAU', value: usersData.mau },
+            { name: 'WAU', value: usersData.wau },
+            { name: 'DAU', value: usersData.dau },
+            { name: 'Online', value: usersData.online }
+        ];
+
+        const userSegmentsData = [
+            { name: 'Buyers', value: usersData.segments.buyers, color: '#3b82f6' },
+            { name: 'Farmers', value: usersData.segments.farmers, color: '#10b981' },
+            { name: 'Workers', value: usersData.segments.workers, color: '#f59e0b' }
+        ];
+
         return (
-        <>
-            {/* Pending Seller Applications Alert */}
-            {pendingSellers.length > 0 && (
-                <div
-                    onClick={() => { setActiveTab('users'); setUserFilter('pending'); }}
-                    className="mb-4 bg-amber-50 border border-amber-200 rounded-2xl p-5 shadow-sm relative overflow-hidden cursor-pointer group hover:shadow-md transition-all"
-                >
-                    <div className="flex items-center justify-between">
+        <div className="space-y-6">
+            {/* Header section with pending alerts */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {pendingSellers.length > 0 && (
+                    <div onClick={() => { setActiveTab('users'); setUserFilter('pending'); }} className="bg-amber-50 border border-amber-200 rounded-2xl p-5 shadow-sm relative overflow-hidden cursor-pointer group hover:shadow-md transition-all flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="p-2.5 bg-amber-100 rounded-xl"><Store className="text-amber-600" size={20}/></div>
                             <div>
-                                <p className="text-xs font-bold text-amber-600 uppercase tracking-wide">{locale === 'hi' ? 'विक्रेता आवेदन' : 'Seller Applications'}</p>
-                                <h3 className="text-xl font-black text-amber-900">{pendingSellers.length} {locale === 'hi' ? 'समीक्षा लंबित' : 'Pending Review'}</h3>
+                                <h3 className="text-lg font-black text-amber-900">{pendingSellers.length} {locale === 'hi' ? 'समीक्षा लंबित' : 'Pending Review'}</h3>
                                 <p className="text-amber-700 text-xs mt-0.5">{locale === 'hi' ? 'विक्रेता स्वीकृति या अस्वीकृति की प्रतीक्षा कर रहे हैं।' : 'Sellers waiting for approval or rejection.'}</p>
                             </div>
                         </div>
-                        <div className="bg-amber-600 text-white px-4 py-2 rounded-xl font-bold text-sm group-hover:scale-105 transition-transform shrink-0">
-                            {locale === 'hi' ? 'अभी समीक्षा करें →' : 'Review Now →'}
-                        </div>
+                        <div className="bg-amber-600 text-white px-3 py-1.5 rounded-lg font-bold text-xs group-hover:scale-105 transition-transform shrink-0">Review &rarr;</div>
                     </div>
-                </div>
-            )}
-
-            {/* Delivery Approvals Alert */}
-            {deliveryRequests.length > 0 && (
-                <div 
-                    onClick={() => setActiveTab('delivery')}
-                    className="mb-6 bg-indigo-900 rounded-2xl p-6 shadow-xl relative overflow-hidden cursor-pointer group"
-                >
-                    <div className="absolute top-0 right-0 p-4 opacity-10"><Bike size={100} className="text-white"/></div>
-                    <div className="relative z-10 flex items-center justify-between">
-                        <div>
-                            <div className="flex items-center gap-2 mb-2">
-                                <span className="bg-white/20 text-indigo-100 text-xs font-bold px-2 py-1 rounded uppercase">{locale === 'hi' ? 'कार्रवाई आवश्यक' : 'Action Required'}</span>
+                )}
+                {deliveryRequests.length > 0 && (
+                    <div onClick={() => setActiveTab('delivery')} className="bg-indigo-50 border border-indigo-200 rounded-2xl p-5 shadow-sm relative overflow-hidden cursor-pointer group hover:shadow-md transition-all flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2.5 bg-indigo-100 rounded-xl"><Bike className="text-indigo-600" size={20}/></div>
+                            <div>
+                                <h3 className="text-lg font-black text-indigo-900">{deliveryRequests.length} {locale === 'hi' ? 'लंबित डिलीवरी' : 'Pending Delivery'}</h3>
+                                <p className="text-indigo-700 text-xs mt-0.5">{locale === 'hi' ? 'डिलीवरी पार्टनर सत्यापन की प्रतीक्षा कर रहे हैं।' : 'Delivery partners waiting for verification.'}</p>
                             </div>
-                            <h2 className="text-3xl font-black text-white">{deliveryRequests.length} {locale === 'hi' ? 'स्वीकृतियां लंबित' : 'Pending Approvals'}</h2>
-                            <p className="text-indigo-200 text-sm mt-1">{locale === 'hi' ? 'डिलीवरी पार्टनर सत्यापन की प्रतीक्षा कर रहे हैं।' : 'Delivery partners waiting for verification.'}</p>
                         </div>
-                        <div className="bg-white text-indigo-900 px-4 py-2 rounded-lg font-bold text-sm group-hover:scale-105 transition-transform">
-                            Review Now &rarr;
+                        <div className="bg-indigo-600 text-white px-3 py-1.5 rounded-lg font-bold text-xs group-hover:scale-105 transition-transform shrink-0">Review &rarr;</div>
+                    </div>
+                )}
+            </div>
+
+            {/* REALTIME & USERS SECTION */}
+            <div className="mb-8">
+                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><Activity className="text-green-600"/> User Analytics</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+                    <StatCard icon={<div className="animate-pulse w-2 h-2 rounded-full bg-red-500 mr-2 inline-block"/>} label="Online Now" value={usersData.online} color="bg-red-50" valueColor="text-red-700" />
+                    <StatCard icon={<Users className="text-blue-600"/>} label="Total Users" value={usersData.total} color="bg-blue-50"/>
+                    <StatCard icon={<Calendar className="text-indigo-600"/>} label="DAU" value={usersData.dau} color="bg-indigo-50"/>
+                    <StatCard icon={<Calendar className="text-purple-600"/>} label="WAU" value={usersData.wau} color="bg-purple-50"/>
+                    <StatCard icon={<Calendar className="text-fuchsia-600"/>} label="MAU" value={usersData.mau} color="bg-fuchsia-50"/>
+                    <StatCard icon={<Plus className="text-emerald-600"/>} label="New Today" value={usersData.newToday} color="bg-emerald-50"/>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* User Activity Chart */}
+                    <div className="lg:col-span-2 bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                        <h3 className="font-bold text-gray-700 mb-4 text-sm">User Activity Funnel</h3>
+                        <div className="h-64">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={userActivityData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                                    <YAxis axisLine={false} tickLine={false} />
+                                    <Tooltip cursor={{fill: '#f3f4f6'}} contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} />
+                                    <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                    {/* User Segments Donut */}
+                    <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                        <h3 className="font-bold text-gray-700 mb-4 text-sm">User Segments</h3>
+                        <div className="h-48">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <RechartsPieChart>
+                                    <Pie data={userSegmentsData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                                        {userSegmentsData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip />
+                                </RechartsPieChart>
+                            </ResponsiveContainer>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 mt-4 text-center">
+                            {userSegmentsData.map((s, i) => (
+                                <div key={i}>
+                                    <div className="text-xl font-bold" style={{color: s.color}}>{s.value}</div>
+                                    <div className="text-[10px] text-gray-500 font-bold uppercase">{s.name}</div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
-            )}
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-                <StatCard icon={<Users className="text-blue-600"/>} label={locale === 'hi' ? 'कुल उपयोगकर्ता' : 'Total Users'} value={stats.totalUsers} color="bg-blue-50"/>
-                <StatCard icon={<BellRing className="text-emerald-600"/>} label={locale === 'hi' ? 'सक्रिय सूचना उपयोगकर्ता' : 'Active Push Users'} value={stats.activePushUsers || 0} color="bg-emerald-50"/>
-                <StatCard icon={<ShoppingBag className="text-purple-600"/>} label={locale === 'hi' ? 'कुल ऑर्डर' : 'Total Orders'} value={stats.totalOrders} color="bg-purple-50"/>
-                <StatCard icon={<TrendingUp className="text-green-600"/>} label={locale === 'hi' ? 'कुल आय' : 'Total Revenue'} value={`₹${stats.totalRevenue}`} color="bg-green-50"/>
-                <StatCard icon={<MapPin className="text-orange-600"/>} label={locale === 'hi' ? 'कुल हब' : 'Total Hubs'} value={stats.totalHubs} color="bg-orange-50"/>
             </div>
-        </>
+
+            {/* MARKETPLACE SECTION */}
+            <div className="mb-8">
+                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><ShoppingBag className="text-indigo-600"/> Marketplace Analytics</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <StatCard icon={<Package className="text-amber-600"/>} label="Total Products" value={marketData.productsTotal} color="bg-amber-50"/>
+                    <StatCard icon={<ShoppingBag className="text-blue-600"/>} label="Total Orders" value={marketData.ordersTotal} color="bg-blue-50"/>
+                    <StatCard icon={<CheckCircle className="text-green-600"/>} label="Delivered" value={marketData.delivered} color="bg-green-50"/>
+                    <StatCard icon={<TrendingUp className="text-emerald-600"/>} label="Txn Value" value={`₹${marketData.transactionValue}`} color="bg-emerald-50"/>
+                    <StatCard icon={<Clock className="text-orange-600"/>} label="Pending Orders" value={marketData.pending} color="bg-orange-50"/>
+                    <StatCard icon={<Plus className="text-purple-600"/>} label="Orders Today" value={marketData.ordersToday} color="bg-purple-50"/>
+                    <StatCard icon={<Plus className="text-fuchsia-600"/>} label="Products Added Today" value={marketData.productsToday} color="bg-fuchsia-50"/>
+                    <StatCard icon={<Ban className="text-red-600"/>} label="Cancelled Orders" value={marketData.cancelled} color="bg-red-50"/>
+                </div>
+            </div>
+
+            {/* JOBS SECTION */}
+            <div className="mb-8">
+                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2"><Briefcase className="text-amber-600"/> Job Analytics</h2>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <StatCard icon={<Briefcase className="text-gray-600"/>} label="Total Jobs" value={jobData.total} color="bg-gray-100"/>
+                    <StatCard icon={<Activity className="text-blue-600"/>} label="Active Jobs" value={jobData.active} color="bg-blue-50"/>
+                    <StatCard icon={<CheckCircle className="text-green-600"/>} label="Completed Jobs" value={jobData.completed} color="bg-green-50"/>
+                    <StatCard icon={<Plus className="text-purple-600"/>} label="Posted Today" value={jobData.today} color="bg-purple-50"/>
+                    <StatCard icon={<TrendingUp className="text-emerald-600"/>} label="Total Earnings" value={`₹${jobData.earnings}`} color="bg-emerald-50"/>
+                </div>
+            </div>
+            
+            {/* RECENT LOGINS */}
+            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm mb-8">
+                <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2"><Users2 className="text-indigo-600"/> Recent Logins</h3>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm text-left">
+                        <thead className="bg-gray-50 text-gray-500">
+                            <tr>
+                                <th className="p-3 rounded-l-xl">User</th>
+                                <th className="p-3">Role</th>
+                                <th className="p-3">Mobile</th>
+                                <th className="p-3 rounded-r-xl">Last Seen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {metrics.realtime.recentLogins.map((user: any) => (
+                                <tr key={user._id} className="border-b last:border-0 hover:bg-gray-50">
+                                    <td className="p-3 font-bold text-gray-800">{user.name}</td>
+                                    <td className="p-3"><span className="px-2 py-1 bg-gray-100 rounded text-xs uppercase font-bold text-gray-600">{user.role}</span></td>
+                                    <td className="p-3 text-gray-600">{user.mobile}</td>
+                                    <td className="p-3 text-gray-500">{new Date(user.lastSeen).toLocaleString()}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     )}
+
+    // Reusable Stat Card internally defined to accept custom text colors
+    const StatCard = ({icon, label, value, color, valueColor = "text-gray-900"}: any) => (
+        <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
+            <div className={`p-4 rounded-xl ${color}`}>
+                {icon}
+            </div>
+            <div>
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">{label}</p>
+                <h3 className={`text-2xl font-black ${valueColor} leading-none mt-1`}>{value}</h3>
+            </div>
+        </div>
+    )
+
 
 
     const renderDeliveryRequests = () => (
