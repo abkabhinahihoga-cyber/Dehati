@@ -17,6 +17,8 @@ export async function GET() {
                     { minAmount: 300, maxAmount: 500, fee: 8 },
                     { minAmount: 500, maxAmount: 999999, fee: 10 },
                 ],
+                platformFeeWholesale: 5,
+                platformFeeRetail: 8,
                 gstPercentage: 5,
                 baseDeliveryFee: 5,
                 deliveryFeePerKm: 2,
@@ -29,7 +31,7 @@ export async function GET() {
     }
 }
 
-export async function POST(req: NextRequest) {
+export async function PUT(req: NextRequest) {
     try {
         const session = await auth();
         // Check if admin
