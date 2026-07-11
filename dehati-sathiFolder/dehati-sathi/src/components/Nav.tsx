@@ -29,7 +29,6 @@ import { useSidebar } from '@/context/SidebarContext'
 import axios from 'axios'
 import NotificationBell from './NotificationBell'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
-import PushNotificationManager from './PushNotificationManager'
 
 interface INavUser {
     _id?: string;
@@ -176,8 +175,6 @@ function Nav({ user }: { user: INavUser }) {
                                         <Download className='text-green-600' /> {locale === 'hi' ? 'ऐप इंस्टॉल करें' : 'Install App'}
                                     </button>
                                 )}
-
-                                <PushNotificationManager />
                                 
                                 {/* --- SELLER / BECOME SELLER OPTIONS MOVED UP --- */}
                                 {(user.role === 'seller' || user.sellerStatus === 'approved') && (
