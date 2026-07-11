@@ -117,58 +117,98 @@ export default function HubOrdersPage() {
                 </button>
             </div>
 
-            {/* TABLE */}
+            {/* ORDER LIST (Responsive) */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <table className="w-full text-left text-sm">
-                    <thead className="bg-gray-50 text-gray-500 font-bold border-b">
-                        <tr>
-                            <th className="p-4">{locale === 'hi' ? 'ऑर्डर आईडी' : 'Order ID'}</th>
-                            <th className="p-4">{locale === 'hi' ? 'ग्राहक' : 'Customer'}</th>
-                            <th className="p-4">{locale === 'hi' ? 'स्थिति' : 'Status'}</th>
-                            <th className="p-4">{locale === 'hi' ? 'डिलीवरी की स्थिति' : 'Delivery Status'}</th>
-                            <th className="p-4 text-right">{locale === 'hi' ? 'कार्रवाई' : 'Action'}</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                        {displayedOrders.map((order) => (
-                            <tr 
-                                key={order._id} 
-                                onClick={() => openDetails(order)} 
-                                className="hover:bg-gray-50 cursor-pointer transition-colors"
-                            >
-                                <td className="p-4 font-mono text-xs font-bold text-indigo-600">#{order._id.substring(order._id.length - 6)}</td>
-                                <td className="p-4">
-                                    <div className="font-bold">{order.user?.name}</div>
-                                    <div className="text-xs text-gray-400">{order.user?.mobile}</div>
-                                </td>
-                                <td className="p-4">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase border ${order.status === 'delivered' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}>
-                                        {order.status}
-                                    </span>
-                                </td>
-                                <td className="p-4">
+                {/* Desktop Table */}
+                <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full text-left text-sm whitespace-nowrap">
+                        <thead className="bg-gray-50 text-gray-500 font-bold border-b">
+                            <tr>
+                                <th className="p-4">{locale === 'hi' ? 'ऑर्डर आईडी' : 'Order ID'}</th>
+                                <th className="p-4">{locale === 'hi' ? 'ग्राहक' : 'Customer'}</th>
+                                <th className="p-4">{locale === 'hi' ? 'स्थिति' : 'Status'}</th>
+                                <th className="p-4">{locale === 'hi' ? 'डिलीवरी की स्थिति' : 'Delivery Status'}</th>
+                                <th className="p-4 text-right">{locale === 'hi' ? 'कार्रवाई' : 'Action'}</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                            {displayedOrders.map((order) => (
+                                <tr 
+                                    key={order._id} 
+                                    onClick={() => openDetails(order)} 
+                                    className="hover:bg-gray-50 cursor-pointer transition-colors"
+                                >
+                                    <td className="p-4 font-mono text-xs font-bold text-indigo-600">#{order._id.substring(order._id.length - 6)}</td>
+                                    <td className="p-4">
+                                        <div className="font-bold">{order.user?.name}</div>
+                                        <div className="text-xs text-gray-400">{order.user?.mobile}</div>
+                                    </td>
+                                    <td className="p-4">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase border ${order.status === 'delivered' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}>
+                                            {order.status}
+                                        </span>
+                                    </td>
+                                    <td className="p-4">
+                                        {order.assignedDeliveryBoy ? (
+                                            <div className="flex items-center gap-2 text-green-700 bg-green-50 px-2 py-1 rounded w-fit text-xs font-bold border border-green-100">
+                                                <Truck size={12}/> {order.assignedDeliveryBoy.name}
+                                            </div>
+                                        ) : order.isOpenForDelivery ? (
+                                            <div className="flex items-center gap-1 text-purple-600 font-bold text-xs bg-purple-50 px-2 py-1 rounded w-fit border border-purple-100 animate-pulse">
+                                                <Zap size={12} fill="currentColor"/> {locale === 'hi' ? 'सभी के लिए खुला' : 'Open for All'}
+                                            </div>
+                                        ) : (
+                                            <span className="text-gray-400 text-xs italic">{locale === 'hi' ? 'रिलीज़ लंबित...' : 'Pending Release...'}</span>
+                                        )}
+                                    </td>
+                                    <td className="p-4 text-right">
+                                        <button className="px-3 py-1.5 bg-gray-100 hover:bg-indigo-600 hover:text-white text-gray-600 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ml-auto">
+                                            <Eye size={14}/> {locale === 'hi' ? 'देखें' : 'View'}
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                            {displayedOrders.length === 0 && <tr><td colSpan={5} className="p-8 text-center text-gray-400">{locale === 'hi' ? 'इस श्रेणी में कोई ऑर्डर नहीं है।' : 'No orders in this category.'}</td></tr>}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Mobile Cards */}
+                <div className="md:hidden flex flex-col divide-y">
+                    {displayedOrders.map((order) => (
+                        <div key={order._id} onClick={() => openDetails(order)} className="p-4 hover:bg-gray-50 cursor-pointer flex flex-col gap-3">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <span className="font-mono text-xs font-bold text-indigo-600">#{order._id.substring(order._id.length - 6)}</span>
+                                    <div className="font-bold text-gray-800 mt-1">{order.user?.name}</div>
+                                    <div className="text-xs text-gray-500">{order.user?.mobile}</div>
+                                </div>
+                                <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase border ${order.status === 'delivered' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}>
+                                    {order.status}
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-center mt-1">
+                                <div>
                                     {order.assignedDeliveryBoy ? (
-                                        <div className="flex items-center gap-2 text-green-700 bg-green-50 px-2 py-1 rounded w-fit text-xs font-bold border border-green-100">
-                                            <Truck size={12}/> {order.assignedDeliveryBoy.name}
+                                        <div className="flex items-center gap-1 text-green-700 bg-green-50 px-2 py-1 rounded w-fit text-[10px] font-bold border border-green-100">
+                                            <Truck size={10}/> {order.assignedDeliveryBoy.name}
                                         </div>
                                     ) : order.isOpenForDelivery ? (
-                                        <div className="flex items-center gap-1 text-purple-600 font-bold text-xs bg-purple-50 px-2 py-1 rounded w-fit border border-purple-100 animate-pulse">
-                                            <Zap size={12} fill="currentColor"/> {locale === 'hi' ? 'सभी के लिए खुला' : 'Open for All'}
+                                        <div className="flex items-center gap-1 text-purple-600 font-bold text-[10px] bg-purple-50 px-2 py-1 rounded w-fit border border-purple-100">
+                                            <Zap size={10} fill="currentColor"/> {locale === 'hi' ? 'सभी के लिए खुला' : 'Open for All'}
                                         </div>
                                     ) : (
-                                        <span className="text-gray-400 text-xs italic">{locale === 'hi' ? 'रिलीज़ लंबित...' : 'Pending Release...'}</span>
+                                        <span className="text-gray-400 text-[10px] italic">{locale === 'hi' ? 'रिलीज़ लंबित...' : 'Pending Release...'}</span>
                                     )}
-                                </td>
-                                <td className="p-4 text-right">
-                                    <button className="px-3 py-1.5 bg-gray-100 hover:bg-indigo-600 hover:text-white text-gray-600 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ml-auto">
-                                        <Eye size={14}/> {locale === 'hi' ? 'देखें' : 'View'}
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                        {displayedOrders.length === 0 && <tr><td colSpan={5} className="p-8 text-center text-gray-400">{locale === 'hi' ? 'इस श्रेणी में कोई ऑर्डर नहीं है।' : 'No orders in this category.'}</td></tr>}
-                    </tbody>
-                </table>
+                                </div>
+                                <button className="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-bold flex items-center gap-1">
+                                    <Eye size={14}/> {locale === 'hi' ? 'देखें' : 'View'}
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                    {displayedOrders.length === 0 && <div className="p-8 text-center text-gray-400">{locale === 'hi' ? 'इस श्रेणी में कोई ऑर्डर नहीं है।' : 'No orders in this category.'}</div>}
+                </div>
             </div>
 
             {/* MODAL */}
@@ -279,8 +319,8 @@ export default function HubOrdersPage() {
                         <h2 className="text-xl font-bold text-gray-800 mb-2">{locale === 'hi' ? 'विक्रेता से पिकअप सत्यापित करें' : 'Verify Pickup from Seller'}</h2>
                         <p className="text-sm text-blue-700 bg-blue-50 rounded-xl p-3 mb-4">
                             {locale === 'hi'
-                                ? '📱 आपको नोटिफिकेशन में एक 4-अंकीय हैंडओवर कोड मिला है। विक्रेता को यह कोड दिखाएं और नीचे दर्ज करें।'
-                                : '📱 You received a 4-digit handover code in your notification. Show it to the seller, then enter it below to confirm collection.'}
+                                ? '📱 विक्रेता को 4-अंकीय पिकअप कोड भेज दिया गया है। कलेक्शन की पुष्टि करने के लिए विक्रेता से यह कोड पूछें और नीचे दर्ज करें।'
+                                : '📱 The 4-digit pickup code has been sent to the seller. Ask the seller for this code and enter it below to confirm collection.'}
                         </p>
                         <input
                             type="number"
