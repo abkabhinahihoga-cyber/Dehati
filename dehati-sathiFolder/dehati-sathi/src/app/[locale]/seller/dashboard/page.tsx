@@ -85,6 +85,9 @@ function SellerDashboard() {
 
     // --- REEL UPLOAD STATE ---
     const [showUploadModal, setShowUploadModal] = useState(false);
+    
+    // --- REJECT MODAL STATE ---
+    const [rejectOrderState, setRejectOrderState] = useState<{isOpen: boolean, orderId: string, reason: string}>({ isOpen: false, orderId: "", reason: "" });
     const [videoFile, setVideoFile] = useState<File | null>(null);
     const [reelDesc, setReelDesc] = useState("");
     const [selectedProductId, setSelectedProductId] = useState("");
@@ -203,9 +206,16 @@ function SellerDashboard() {
     }
 
     const handleRejectOrder = (orderId: string) => {
-        const reason = prompt("Enter reason for rejection:");
-        if (reason === null) return;
-        handleOrderAction(orderId, "reject", { reason });
+        setRejectOrderState({ isOpen: true, orderId, reason: "" });
+    }
+
+    const submitRejectOrder = () => {
+        if (!rejectOrderState.reason) {
+            toast.error(isHindi ? "कृपया कारण चुनें" : "Please select a reason");
+            return;
+        }
+        handleOrderAction(rejectOrderState.orderId, "reject", { reason: rejectOrderState.reason });
+        setRejectOrderState({ isOpen: false, orderId: "", reason: "" });
     }
 
     const handleVerifyPickup = (orderId: string) => {
@@ -683,6 +693,46 @@ function SellerDashboard() {
                     )}
                 </div>
             </div>
+
+            {/* --- REJECT MODAL --- */}
+            {rejectOrderState.isOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl relative">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-bold text-gray-800">
+                                {isHindi ? 'ऑर्डर अस्वीकार करें' : 'Reject Order'}
+                            </h2>
+                            <button onClick={() => setRejectOrderState({ isOpen: false, orderId: "", reason: "" })} className="text-gray-400 hover:text-gray-600">
+                                <X />
+                            </button>
+                        </div>
+                        <div className="space-y-4">
+                            <label className="block text-sm font-medium text-gray-700">
+                                {isHindi ? 'अस्वीकार करने का कारण चुनें' : 'Select a reason for rejection'}
+                            </label>
+                            <select 
+                                className="w-full p-3 border rounded-lg"
+                                value={rejectOrderState.reason}
+                                onChange={(e) => setRejectOrderState(prev => ({ ...prev, reason: e.target.value }))}
+                            >
+                                <option value="">{isHindi ? '-- कारण चुनें --' : '-- Select a reason --'}</option>
+                                <option value={isHindi ? "आउट ऑफ स्टॉक (स्टॉक उपलब्ध नहीं है)" : "Out of Stock"}>{isHindi ? "आउट ऑफ स्टॉक (स्टॉक उपलब्ध नहीं है)" : "Out of Stock"}</option>
+                                <option value={isHindi ? "मैं अभी उपलब्ध नहीं हूँ" : "I am currently unavailable"}>{isHindi ? "मैं अभी उपलब्ध नहीं हूँ" : "I am currently unavailable"}</option>
+                                <option value={isHindi ? "उत्पाद क्षतिग्रस्त या खराब है" : "Product is damaged or defective"}>{isHindi ? "उत्पाद क्षतिग्रस्त या खराब है" : "Product is damaged or defective"}</option>
+                                <option value={isHindi ? "गलत कीमत अपडेट की गई थी" : "Incorrect price was listed"}>{isHindi ? "गलत कीमत अपडेट की गई थी" : "Incorrect price was listed"}</option>
+                                <option value={isHindi ? "अन्य" : "Other"}>{isHindi ? "अन्य" : "Other"}</option>
+                            </select>
+                            
+                            <button 
+                                onClick={submitRejectOrder}
+                                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl transition-all"
+                            >
+                                {isHindi ? 'ऑर्डर अस्वीकार करें' : 'Confirm Rejection'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* --- UPLOAD MODAL --- */}
             {showUploadModal && (

@@ -20,7 +20,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         if (!order) return NextResponse.json({ message: "Order not found" }, { status: 404 });
 
         // Ensure the seller is actually part of this order
-        const isSellerInvolved = order.items.some((i: any) => i.seller?.toString() === userId);
+        const isSellerInvolved = order.items.some((i: any) => i.product?.seller?.toString() === userId);
         if (!isSellerInvolved && session.user.role !== "admin") {
             return NextResponse.json({ message: "Not your order" }, { status: 403 });
         }

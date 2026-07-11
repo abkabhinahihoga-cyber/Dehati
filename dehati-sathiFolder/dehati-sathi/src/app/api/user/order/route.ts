@@ -4,6 +4,7 @@ import Grocery from "@/app/models/grocery.model";
 import User from "@/app/models/user.model";
 import Hub from "@/app/models/hub.model";
 import Settings from "@/app/models/settings.model";
+import { createNotification } from "@/lib/notify";
 import { auth } from "@/auth";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -165,12 +166,16 @@ export async function POST(req: NextRequest) {
 
         const finalAmount = Math.max(0, totalAmount - appliedWalletDiscount);
 
-        // Atomically decrement stock for each item
+        // Atomically decrement stock for each item and collect unique sellers
+        const sellerIds = new Set<string>();
         for (const item of items) {
-            await Grocery.findByIdAndUpdate(
+            const product = await Grocery.findByIdAndUpdate(
                 item.product,
                 { $inc: { stock: -item.quantity } }
             );
+            if (product && product.seller) {
+                sellerIds.add(product.seller.toString());
+            }
         }
 
 
@@ -203,6 +208,17 @@ export async function POST(req: NextRequest) {
         if (appliedWalletDiscount > 0) {
             await User.findByIdAndUpdate(userId, {
                 $inc: { walletBalance: -appliedWalletDiscount }
+            });
+        }
+
+        // Send Notification to all involved sellers
+        for (const sellerId of Array.from(sellerIds)) {
+            await createNotification({
+                userId: sellerId,
+                title: "New Order Received! 📦",
+                message: "You have received a new order. Please check your seller dashboard.",
+                type: "order",
+                link: "/seller/dashboard"
             });
         }
 
