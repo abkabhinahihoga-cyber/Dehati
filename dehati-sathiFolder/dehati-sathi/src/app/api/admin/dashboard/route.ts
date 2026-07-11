@@ -4,6 +4,7 @@ import User from "@/app/models/user.model";
 import Order from "@/app/models/order.model";
 import Hub from "@/app/models/hub.model";
 import "@/app/models/grocery.model"; 
+import PushSubscription from "@/app/models/pushSubscription.model";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs"; 
 
@@ -17,9 +18,14 @@ export async function GET(req: NextRequest) {
         }
         await connectDb();
 
-        const users = await User.find({ role: { $ne: "admin" } }).sort({ createdAt: -1 }).lean();
+        const pushSubs = await PushSubscription.find({}).lean();
+        const pushUserIds = new Set(pushSubs.filter((p: any) => p.userId).map((p: any) => String(p.userId)));
 
-        const ordersDocs = await Order.find({}).populate("items.product").populate("user", "name mobile email").sort({ createdAt: -1 }).lean(); const orders = ordersDocs.map((o: any) => ({ ...o, userId: o.user }));
+        const rawUsers = await User.find({ role: { $ne: "admin" } }).sort({ createdAt: -1 }).lean();
+        const users = rawUsers.map((u: any) => ({ ...u, hasPush: pushUserIds.has(String(u._id)) }));
+
+        const ordersDocs = await Order.find({}).populate("items.product").populate("user", "name mobile email").sort({ createdAt: -1 }).lean(); 
+        const orders = ordersDocs.map((o: any) => ({ ...o, userId: o.user }));
 
         const hubs = await Hub.find({}).populate("managerId", "name mobile").lean();
 
@@ -35,7 +41,8 @@ export async function GET(req: NextRequest) {
                 totalOrders: orders.length,
                 totalHubs: hubs.length,
                 totalRevenue,
-                pendingApprovals
+                pendingApprovals,
+                activePushUsers: pushUserIds.size
             },
             users,
             orders,

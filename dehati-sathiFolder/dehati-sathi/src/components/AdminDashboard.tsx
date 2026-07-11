@@ -18,7 +18,7 @@ import { useLocale } from 'next-intl'
 export default function AdminDashboard() {
     const locale = useLocale();
     // --- STATE ---
-    const [stats, setStats] = useState<any>({ totalUsers: 0, totalOrders: 0, totalRevenue: 0, pendingApprovals: 0, totalHubs: 0 })
+    const [stats, setStats] = useState<any>({ totalUsers: 0, totalOrders: 0, totalRevenue: 0, pendingApprovals: 0, totalHubs: 0, activePushUsers: 0 })
     const [users, setUsers] = useState<any[]>([])
     const [orders, setOrders] = useState<any[]>([])
     const [hubs, setHubs] = useState<any[]>([])
@@ -397,8 +397,9 @@ export default function AdminDashboard() {
                 </div>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
                 <StatCard icon={<Users className="text-blue-600"/>} label={locale === 'hi' ? 'कुल उपयोगकर्ता' : 'Total Users'} value={stats.totalUsers} color="bg-blue-50"/>
+                <StatCard icon={<BellRing className="text-emerald-600"/>} label={locale === 'hi' ? 'सक्रिय सूचना उपयोगकर्ता' : 'Active Push Users'} value={stats.activePushUsers || 0} color="bg-emerald-50"/>
                 <StatCard icon={<ShoppingBag className="text-purple-600"/>} label={locale === 'hi' ? 'कुल ऑर्डर' : 'Total Orders'} value={stats.totalOrders} color="bg-purple-50"/>
                 <StatCard icon={<TrendingUp className="text-green-600"/>} label={locale === 'hi' ? 'कुल आय' : 'Total Revenue'} value={`₹${stats.totalRevenue}`} color="bg-green-50"/>
                 <StatCard icon={<MapPin className="text-orange-600"/>} label={locale === 'hi' ? 'कुल हब' : 'Total Hubs'} value={stats.totalHubs} color="bg-orange-50"/>
@@ -753,7 +754,10 @@ export default function AdminDashboard() {
                                     {filteredUsers.map((user: any) => (
                                         <tr key={user._id} className="hover:bg-gray-50">
                                             <td className="p-4">
-                                                <div className="font-bold text-gray-800">{user.name}</div>
+                                                <div className="font-bold text-gray-800 flex items-center gap-1.5">
+                                                    {user.name}
+                                                    {user.hasPush && <BellRing size={14} className="text-emerald-500 bg-emerald-50 rounded-full p-0.5" title="Push Notifications Enabled" />}
+                                                </div>
                                                 <div className="text-xs text-gray-500">{user.mobile}</div>
                                                 {user.sellerStatus === 'pending' && <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">Pending Seller</span>}
                                             </td>
