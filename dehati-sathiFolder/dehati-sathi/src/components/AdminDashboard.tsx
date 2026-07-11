@@ -6,7 +6,7 @@ import {
     Menu, X, ChevronLeft, Store, Truck, User, Search, 
     Package, Map, Phone, Bike, FileText,
     Layers, Trash, Image as ImageIcon, 
-    ArrowUp, ArrowDown, ExternalLink, Loader2, Briefcase, BellRing
+    ArrowUp, ArrowDown, ExternalLink, Loader2, Briefcase, BellRing, Activity
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import axios from 'axios'
@@ -809,6 +809,9 @@ export default function AdminDashboard() {
                 </div>
                 <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
                     <SidebarItem icon={<TrendingUp/>} label={locale === 'hi' ? 'अवलोकन' : 'Overview'} active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} />
+                    <Link href={`/${locale}/admin/analytics`} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all text-blue-600 hover:bg-blue-50 bg-blue-50/50 border border-blue-100 mb-2">
+                        <Activity size={20} /> {locale === 'hi' ? 'लाइव एनालिटिक्स' : 'Live Analytics'}
+                    </Link>
                     <SidebarItem icon={<Bike/>} label={locale === 'hi' ? 'डिलीवरी स्वीकृति' : 'Delivery Approvals'} active={activeTab === 'delivery'} onClick={() => setActiveTab('delivery')} />
                     <SidebarItem icon={<Store/>} label={locale === 'hi' ? 'हब प्रबंधन' : 'Manage Hubs'} active={activeTab === 'hubs'} onClick={() => setActiveTab('hubs')} />
                     <SidebarItem icon={<Users/>} label={`${locale === 'hi' ? 'वैश्विक उपयोगकर्ता' : 'Global Users'}${users.filter((u: any) => u.sellerStatus === 'pending').length > 0 ? ` (${users.filter((u: any) => u.sellerStatus === 'pending').length}⏳)` : ''}`} active={activeTab === 'users'} onClick={() => { setActiveTab('users'); setUserFilter('pending'); }} />

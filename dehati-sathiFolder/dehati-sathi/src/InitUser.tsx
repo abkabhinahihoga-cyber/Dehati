@@ -36,6 +36,24 @@ const InitUser = () => {
         fetchUserData()
     }, [status, dispatch])
 
+    useEffect(() => {
+        if (status !== 'authenticated') return;
+
+        const pingHeartbeat = async () => {
+            try {
+                await axios.post('/api/heartbeat');
+            } catch (err) {
+                // silently ignore heartbeat failures
+            }
+        };
+
+        // Ping immediately on mount, then every 30 seconds
+        pingHeartbeat();
+        const interval = setInterval(pingHeartbeat, 30000);
+
+        return () => clearInterval(interval);
+    }, [status]);
+
     return null
 }
 

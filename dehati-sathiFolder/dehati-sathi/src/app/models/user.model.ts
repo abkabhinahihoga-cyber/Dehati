@@ -81,6 +81,7 @@ export interface IUser {
 
     createdAt?: Date;
     updatedAt?: Date;
+    lastSeen?: Date;
 }
 
 // 3. Schema
@@ -128,6 +129,7 @@ const userSchema = new Schema<IUser>(
 
         socketId: { type: String, default: null },
         isOnline: { type: Boolean, default: false },
+        lastSeen: { type: Date, default: Date.now },
 
         // Delivery Fields
         deliveryStatus: {
