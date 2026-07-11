@@ -6,6 +6,8 @@ export interface ISettings extends Document {
     maxAmount: number;
     fee: number;
   }[];
+  platformFeeWholesale: number;
+  platformFeeRetail: number;
   gstPercentage: number;
   baseDeliveryFee: number;
   deliveryFeePerKm: number;
@@ -23,6 +25,8 @@ const settingsSchema = new Schema<ISettings>(
         fee: { type: Number, required: true },
       },
     ],
+    platformFeeWholesale: { type: Number, default: 5 },
+    platformFeeRetail: { type: Number, default: 8 },
     gstPercentage: { type: Number, default: 0 },
     baseDeliveryFee: { type: Number, default: 0 },
     deliveryFeePerKm: { type: Number, default: 0 },

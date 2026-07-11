@@ -216,7 +216,7 @@ function ProductView({ product, similarProducts, hubManager }: { product: any, s
                 sellerType: getSellerType() 
             }))
         }
-        router.push('/user/checkout')
+        router.push('/user/cart')
     }
 
     const handleWhatsAppOrder = () => {

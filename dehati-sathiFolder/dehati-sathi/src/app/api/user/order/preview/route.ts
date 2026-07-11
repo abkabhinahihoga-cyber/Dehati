@@ -42,7 +42,19 @@ export async function POST(req: NextRequest) {
 
         let settings = await Settings.findOne();
         if (!settings) {
-            return NextResponse.json({ message: "Settings missing" }, { status: 500 });
+            settings = {
+                platformFeeTiers: [
+                    { minAmount: 0, maxAmount: 50, fee: 8 },
+                    { minAmount: 50, maxAmount: 100, fee: 6 },
+                    { minAmount: 100, maxAmount: 300, fee: 5 },
+                    { minAmount: 300, maxAmount: 500, fee: 8 },
+                    { minAmount: 500, maxAmount: 999999, fee: 10 },
+                ],
+                gstPercentage: 5,
+                baseDeliveryFee: 5,
+                deliveryFeePerKm: 2,
+                hubCoverageRadiusKm: 3.5
+            };
         }
 
         let backendSubTotal = 0;

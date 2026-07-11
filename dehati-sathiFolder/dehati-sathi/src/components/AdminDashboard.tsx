@@ -303,27 +303,27 @@ export default function AdminDashboard() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label className="text-xs font-bold text-gray-700 block mb-1">Base Delivery Fee (₹)</label>
-                        <input type="number" className="w-full p-3 border rounded-lg" value={globalSettings.deliveryFeeBase} onChange={(e) => setGlobalSettings({...globalSettings, deliveryFeeBase: Number(e.target.value)})} />
+                        <input type="number" className="w-full p-3 border rounded-lg" value={globalSettings.baseDeliveryFee || 0} onChange={(e) => setGlobalSettings({...globalSettings, baseDeliveryFee: Number(e.target.value)})} />
                     </div>
                     <div>
                         <label className="text-xs font-bold text-gray-700 block mb-1">Delivery Fee per Km (₹)</label>
-                        <input type="number" className="w-full p-3 border rounded-lg" value={globalSettings.deliveryFeePerKm} onChange={(e) => setGlobalSettings({...globalSettings, deliveryFeePerKm: Number(e.target.value)})} />
+                        <input type="number" className="w-full p-3 border rounded-lg" value={globalSettings.deliveryFeePerKm || 0} onChange={(e) => setGlobalSettings({...globalSettings, deliveryFeePerKm: Number(e.target.value)})} />
                     </div>
                     <div>
                         <label className="text-xs font-bold text-gray-700 block mb-1">Wholesale Platform Fee (%)</label>
-                        <input type="number" className="w-full p-3 border rounded-lg" value={globalSettings.platformFeeWholesale} onChange={(e) => setGlobalSettings({...globalSettings, platformFeeWholesale: Number(e.target.value)})} />
+                        <input type="number" className="w-full p-3 border rounded-lg" value={globalSettings.platformFeeWholesale || 0} onChange={(e) => setGlobalSettings({...globalSettings, platformFeeWholesale: Number(e.target.value)})} />
                     </div>
                     <div>
                         <label className="text-xs font-bold text-gray-700 block mb-1">Retail Platform Fee (%)</label>
-                        <input type="number" className="w-full p-3 border rounded-lg" value={globalSettings.platformFeeRetail} onChange={(e) => setGlobalSettings({...globalSettings, platformFeeRetail: Number(e.target.value)})} />
+                        <input type="number" className="w-full p-3 border rounded-lg" value={globalSettings.platformFeeRetail || 0} onChange={(e) => setGlobalSettings({...globalSettings, platformFeeRetail: Number(e.target.value)})} />
                     </div>
                     <div>
                         <label className="text-xs font-bold text-gray-700 block mb-1">GST Rate (%)</label>
-                        <input type="number" className="w-full p-3 border rounded-lg" value={globalSettings.gstRate} onChange={(e) => setGlobalSettings({...globalSettings, gstRate: Number(e.target.value)})} />
+                        <input type="number" className="w-full p-3 border rounded-lg" value={globalSettings.gstPercentage || 0} onChange={(e) => setGlobalSettings({...globalSettings, gstPercentage: Number(e.target.value)})} />
                     </div>
                     <div>
                         <label className="text-xs font-bold text-gray-700 block mb-1">Max Delivery Radius (Km)</label>
-                        <input type="number" className="w-full p-3 border rounded-lg" value={globalSettings.maxDeliveryRadiusKm} onChange={(e) => setGlobalSettings({...globalSettings, maxDeliveryRadiusKm: Number(e.target.value)})} />
+                        <input type="number" className="w-full p-3 border rounded-lg" value={globalSettings.hubCoverageRadiusKm || 0} onChange={(e) => setGlobalSettings({...globalSettings, hubCoverageRadiusKm: Number(e.target.value)})} />
                     </div>
                 </div>
                 <button onClick={handleSaveSettings} className="mt-6 bg-indigo-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-indigo-700 w-full md:w-auto">
