@@ -19,7 +19,7 @@ export default async function AdminAnalyticsPage({ params: { locale } }: { param
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
                 <div className="mb-6">
-                    <Link href={`/${locale}/admin`} className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-semibold bg-white px-4 py-2 rounded-xl shadow-sm border border-indigo-100 transition">
+                    <Link href={`/${locale}/admin/dashboard`} className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-semibold bg-white px-4 py-2 rounded-xl shadow-sm border border-indigo-100 transition">
                         <ArrowLeft className="w-5 h-5" />
                         Back to Admin Hub
                     </Link>
